@@ -14,9 +14,31 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
+from django.views import defaults as default_view
 from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('champsquarebackend.users.urls', namespace='users'))
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:
+    # This allows the error pages to be debugged during development, 
+    # just visit these urls in browser to see what they look like
+
+    urlpatterns += [
+        path('400/', default_view.bad_request, kwargs={'exception': Exception('Bad Request!')}),
+        path('403/', default_view.permission_denied, kwargs={'exception': Exception('Permission Denied')}),
+        path('404/', default_view.page_not_found, kwargs={'exception': Exception('Page not found!')}),
+        path('500/', default_view.server_error)
+    ]
+
+    if "debug_toolbar" in settings.INSTALLED_APPS:
+        import debug_toolbar
+
+        urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns
+
+
+    

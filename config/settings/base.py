@@ -6,10 +6,10 @@ from pathlib import Path
 import environ
 
 ROOT_DIR = Path(__file__).parents[2]
-print(ROOT_DIR)
+
 # champsquarebackend/)
 APPS_DIR = ROOT_DIR / "champsquarebackend"
-print(APPS_DIR)
+
 env = environ.Env()
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
