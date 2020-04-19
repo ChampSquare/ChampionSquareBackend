@@ -1,0 +1,319 @@
+{% extends "exam.html" %}
+{% load thumbnail %}
+{% load custom_filters %}
+{% load mathjax %}
+
+{% block pagetitle %} {{ paper.question_paper.quiz.description }} {% endblock pagetitle %}
+{% block css %}
+<style>
+    .CodeMirror{
+        border-style: groove;
+    }
+
+
+    .radio {
+      margin: 1rem;
+      left: 2%;
+      padding-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block script %}
+<script src="{{ URL_ROOT }}/static/Uscholar/js/question.js"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Ajax.config.path["mhchem"] = "https://cdn.rawgit.com/mhchem/MathJax-mhchem/fae3ec0a";
+    MathJax.Hub.Config({
+      TeX: {
+        extensions: ["[mhchem]/mhchem.js", "color.js"],
+        noErrors: { disabled: true }
+      }
+    });
+  </script>
+{% mathjax_scripts %}
+
+<script>
+var time_left = {{ paper.time_left }}
+
+function getTimeRemaining(endtime){
+  var t = Date.parse(endtime) - Date.parse(new Date());
+  var seconds = Math.floor( (t/1000) % 60 );
+  var hours = Math.floor( (t/(1000*60*60)) % 24 );
+  var minutes = Math.floor( (t/1000/60) % 60 )+hours*60;
+
+  var days = Math.floor( t/(1000*60*60*24) );
+
+  return {
+    'total': t,
+    'days': days,
+    'hours': hours,
+    'minutes': minutes,
+    'seconds': seconds
+  };
+}
+
+function updateQuestionNo()
+{
+  var n1 = document.getElementById('active_question');
+  var question_num = n1.innerText;
+  var t = document.createTextNode(question_num);
+  var n2 = document.getElementById('update_question_no');
+  n2.appendChild(t);
+}
+
+
+function updateTime()
+{
+var timeInSeconds = time_left;
+var currentTime = Date.parse(new Date());
+var deadline = new Date(currentTime + timeInSeconds*1000);
+
+function updateClock(){
+    var t = getTimeRemaining(deadline);
+    var hh = ('0' + t.hours).slice(-2);
+    var mm = ('0' + t.minutes).slice(-3);
+    var ss = ('0' + t.seconds).slice(-2);
+
+    if(t.total<0){
+
+      document.forms["code"].submit();
+      clearInterval(timeinterval);
+      return null;
+    }
+    if (t.total<=300000){
+        var clockText1 =  "<blink><center>" + "Time Left :"+ "<span style='color:red'><strong>" +  mm + ":" + ss + "</strong></center></span></blink>";
+
+        clock.innerHTML = clockText1;
+        clockMobile.innerHTML = clockText1;
+    }
+    if (t.total>=300000) {
+        var clockText2 = "<center><strong>" +"Time Left :"+  mm + ":" + ss + "</strong></center>";
+        clock.innerHTML = clockText2;
+        clockMobile.innerHTML = clockText2;
+    }
+  }
+
+var clock = document.getElementById("time_left");
+var clockMobile = document.getElementById("timeMobile");
+updateClock();
+var timeinterval = setInterval(updateClock,1000);
+}
+
+
+function call_skip(url)
+{
+    form = document.forms["code"];
+    form.action = url;
+    form.submit();
+}
+
+function call_quit(url) {
+    form = document.forms["logout"];
+    form.action = url;
+    form.submit();
+}
+</script>
+{% endblock script %}
+
+{% block onload %} onload="updateTime(); updateQuestionNo();" {% endblock %}
+
+{% block main %}
+
+<div id="quesAnsContent" class="Ans_Area">
+{% if notification %}
+          {% if question.type == "code" %}
+          <div class="alert alert-success" role="alert">
+            <strong>Note:</strong> {{ notification }}
+          </div>
+          {% else %}
+          <div class="alert alert-warning" role="alert">
+            <strong>Note:</strong> {{ notification }}
+          </div>
+          {% endif %}
+        {% endif %}
+
+
+            <div style="width:98%;margin-left:5px;font-family:Arial,verdana,helvetica,sans-serif;padding-bottom:10px;padding-top:10px;">
+
+                <p style="text-align: center;"><span style="font-size: medium;"><strong>{{ question.subject|title }} {{ question.question_section|title }} (Maximum Marks: {{ total_marks }})</strong></span></p>
+            <ul>
+<li><span style="font-size: medium;">This section has <strong>{{ count }}</strong> questions</span></li>
+                {% if question.type == "integer" %}
+                    <li><span style="font-size: medium;">The answer to each question is a <strong>SINGLE DIGIT INTEGER</strong> ranging from 0 to 9, both inclusive.</span></li>
+                    <li><span style="font-size: medium;">For each question, type the correct integer in the space provided below the question using provided number keys.</span></li>
+                    <li><span style="font-size: medium;"><span style="font-size: medium;">Marking scheme:</span></span>
+                        <ul>
+                            <li><span style="font-size: medium;"><strong>+{{ question.points }}</strong> If the correct integer is typed in the provided space</span></li>
+                            <li><span style="font-size: medium;"><strong>0</strong> In all other cases</span></li>
+                        </ul>
+                    </li>
+                {% elif question.type == "mcc" %}
+                    <li><span style="font-size: medium;">Each question has <strong>FOUR</strong> options (A), (B), (C) and (D). <strong>ONE OR MORE THAN ONE</strong> of these four option(s) is(are) correct</span></li>
+                    <li><span style="font-size: medium;">For each question, select the alphabets corresponding to all the correct option(s) provided below the questions</span></li>
+                   <li><span style="font-size: medium;"><span style="font-size: medium;">Marking scheme:</span></span>
+                       <ul>
+                            <li><span style="font-size: medium;">+4 If only the alphabets corresponding to all the correct option(s) is(are) selected</span></li>
+                            <li><span style="font-size: medium;">0  if none of the alphabets are selected</span></li>
+                           <li><span style="font-size: medium;">-2  In all other cases</span></li>
+                        </ul>
+                    </li>
+                {% elif question.type == "paragraph" %}
+                    <li><span style="font-size: medium;">In this section read the <strong>paragraph</strong> and answer the question based on same</span></li>
+                    <li><span style="font-size: medium;">Each question has <strong>FOUR</strong> options (A), (B), (C) and (D). <strong>ONLY ONE</strong> of these four option(s) is correct</span></li>
+                        <ul>
+                            <li><span style="font-size: medium;">+{{ question.points }} If only the alphabets corresponding to all the correct optionƒ is selected</span></li>
+                            <li><span style="font-size: medium;">0  if none of the alphabets are selected</span></li>
+                           <li><span style="font-size: medium;">-1  In all other cases</span></li>
+                        </ul>
+                {% elif question.type == "match" %}
+                    <li><span style="font-size: medium;">In this section each question has <strong>MATCHING LIST</strong></span></li>
+                    <li><span style="font-size: medium;">Each question has <strong>FOUR</strong> options (A), (B), (C) and (D). <strong>ONLY ONE</strong> of these four option(s) is correct</span></li>
+                        <ul>
+                            <li><span style="font-size: medium;">+{{ question.points }} If only the alphabets corresponding to all the correct option is selected</span></li>
+                            <li><span style="font-size: medium;">0  if none of the alphabets are selected</span></li>
+                           <li><span style="font-size: medium;">-1  In all other cases</span></li>
+                        </ul>
+                    {% else %}
+                    <li><span style="font-size: medium;">Each question has <strong>FOUR</strong> options (A), (B), (C) and (D). <strong>ONLY ONE</strong> of these four option(s) is correct</span></li>
+                        <ul>
+                            <li><span style="font-size: medium;">+{{ question.points }} If only the alphabets corresponding to all the correct option is selected</span></li>
+                            <li><span style="font-size: medium;">0  if none of the alphabets are selected</span></li>
+                           <li><span style="font-size: medium;">-1  In all other cases</span></li>
+                        </ul>
+
+                {% endif %}
+
+
+            </ul>
+
+
+
+
+
+
+<img src="{% thumbnail question.picture|default:'default_course.png' 1440x840 crop %}"></div>
+
+<div id="answerArea" style="width:100%;font-family:Arial,verdana,helvetica,sans-serif;margin-top:5px;"></div>
+
+            <div style="width:100%;font-family:Arial,verdana,helvetica,sans-serif;margin-top:5px;">
+
+<form id="code" action="{{URL_ROOT}}/exam/{{ question.id }}/check/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type=hidden name="question_id" id="question_id" value={{ question.id }}></input>
+
+                <div>
+                     {% if question.type == "mcq" or question.type == "paragraph" or question.type == "match" %}
+                                   {% if qid in paper.get_questions_answered %}
+                                       {% endif %}
+                     {% for test_case in test_cases %}
+                         <label>
+                         {% if test_case.options == last_attempt %}
+                             <span>
+                                 <input name="answer" class="answer MCQanswer checked" type="radio" checked="checked" value="{{ test_case.options }}" ></span>
+                             <span style="font-family:Arial,verdana,helvetica,sans-serif;width:95%;vertical-align:middle;">
+                                 {{ test_case.options|safe }} <br/></span>
+                     {% else %}
+                        <span>
+                                 <input name="answer" class="answer MCQanswer" type="radio" value="{{ test_case.options }}" ></span>
+                             <span style="font-family:Arial,verdana,helvetica,sans-serif;width:95%;vertical-align:middle;">
+                                 {{ test_case.options|safe }} <br/></span>
+                     {% endif %}
+                         </label>
+                     {% endfor %}
+                     {% endif %}
+
+                     {% if question.type == "mcc" %}
+                         {% for test_case in test_cases %}
+                         <label>
+                             {% if test_case.options in last_attempt %}
+                                 <span>
+                                 <input name="answer" class="answer MSQanswer" type="checkbox" checked="checked" value="{{ test_case.options }}" ></span>
+                             <span style="font-family:Arial,verdana,helvetica,sans-serif;width:95%;vertical-align:middle;">
+                                 {{ test_case.options|safe }} <br/></span>
+                                                      {% else %}
+                             <span>
+                                 <input name="answer" class="answer MSQanswer" type="checkbox" value="{{ test_case.options }}" ></span>
+                             <span style="font-family:Arial,verdana,helvetica,sans-serif;width:95%;vertical-align:middle;">
+                                 {{ test_case.options|safe }} <br/></span>
+                         {% endif %}
+                         </label>
+                         {% endfor %}
+                     {% endif %}
+
+                    {% if question.type == "integer" %}
+                        <div style="padding-left: 4%;" id="numericKeyBoardDiv">
+                        {% if last_attempt %}
+                            <input type="text" id="answer" name="answer" class="keyboardInput answer" value="{{ last_attempt }}">
+                        {% else %}
+                            <input type="text" name="answer" id="answer" class="keyboardInput answer" value="">
+
+                        {% endif %}
+                            <div id="vKeyboard" class="vKeyboard" style="width: 145px;">
+
+                            </div></div>
+                     {% endif %}
+
+
+                </div>
+            </div>
+
+        </div>
+
+
+{# Scroll to top #}
+        <div align="right" style="float:right;clear:both"><a onclick="scrollToTop()" title="Scroll Up" id="scrollToTop" style="display: inline;">
+            <img width="30" height="30" alt="Scroll Up" style="" src="{{ URL_ROOT }}/static/Uscholar/img/Up.png"></a></div></div></div></div>
+
+{#    Buttons #}
+        <div class="buttons-div">
+{#  Exam submit button #}
+                        <div class="Bttn_Area" id="Bttn_Area2">
+
+{#Answer submit and next question button #}
+         <input style="position:absolute; bottom:2.5%; left: 0.5%; margin-left: 1%; " type="button" onclick="this.disabled=true; call_skip('{{URL_ROOT}}/exam/{{ question.id }}/mark_for_review_and_next/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/')" id="underreview" class="normalBtn btn btn-primary auditlog underreview" value="Mark for Review &amp; Next" title="Mark for Review &amp; Next">
+
+                <div style="position:absolute;bottom:2.5%; right: 1%"  class="save_buttoncontainer">
+					<input type="button" style="margin-left: 5px; line-height: 33px;" id="check" onclick="this.disabled=true; submitCode()"  class="normalBtn btn btn-primary-save  btnEnabled auditlog savenext" value="Save &amp; Next" title="Save &amp; Next">
+                </div>
+
+
+
+                             </div>
+        </div>
+
+     <div class="buttons-div btntab">
+
+     <div class="mob_save">
+         <div class="save_buttoncontainer" >
+         <input type="button" class="btn btn-primary skip-btn auditlog previousBtn btnEnabled" onclick="fnSubmit('PREVIOUS')" id="previousBtnMbl" value="Previous" style="display: none"> <input type="button" class="normalBtn btn btn-primary auditlog underreview" onclick="fnSubmit('MARK')" id="underreviewMbl" value="Mark for Review &amp; Next" style="" title="Mark for Review &amp; Next"> <input type="button" class="progrmngBtn btn btn-primary reset-btn auditlog compileCodeBtn" onclick="compileCode()" value="Compile" style="display: none;" title="Compile">
+     </div>
+
+     </div>
+         <div class="save_buttoncontainer_2">
+             <input type="button" class="normalBtn btn btn-primary-blue sve_nxt lst auditlog  savenext btnEnabled" id="check" style="" onclick="this.disabled=true; submitCode()" value="Save &amp; Next" title="Save &amp; Next">
+             </form>
+                        <form id="logout" action="{{URL_ROOT}}/exam/quit/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/" method="post">
+            {% csrf_token %}
+                    <input type="button" class="btn btn-primary-blue sve_nxt auditlogButton" id="finalSubmit" onclick="this.disabled=true; call_quit('{{URL_ROOT}}/exam/quit/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/')" value="Submit" title="Submit Group">
+            </form>
+                    </div>
+     <div class="other_buttoncontainer">
+                            <form id="clear" action="{{URL_ROOT}}/exam/{{ question.id }}/clear_response/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                                <input type="submit" class="normalBtn btn btn-primary reset-btn auditlog clearResponse" value="Clear Response" id="clearResponseMbl" style="margin-left: 2px; margin-right: 2px;" title="Clear Response">
+                            </form>
+						</div>
+
+     </div>
+
+
+
+
+
+
+            <div class="clear"></div>
+   <script>
+   mathjax.Hub.Queue(["Typeset",mathjax.Hub]);
+
+ </script>
+{% endblock main %}

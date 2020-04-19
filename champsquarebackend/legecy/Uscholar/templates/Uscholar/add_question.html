@@ -1,0 +1,40 @@
+{% extends "manage.html" %}
+{% load mathjax %}
+{% block pagetitle %} Add Question {% endblock pagetitle %}
+
+{% block css %}
+<link rel="stylesheet" media="all" type="text/css" href="{{ URL_ROOT }}/static/Uscholar/css/autotaggit.css" />
+{% endblock %}
+
+{% block script %}
+<script src="{{ URL_ROOT }}/static/Uscholar/js/add_question.js"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Ajax.config.path["mhchem"] = "https://cdn.rawgit.com/mhchem/MathJax-mhchem/fae3ec0a";
+    MathJax.Hub.Config({
+      TeX: {
+        extensions: ["[mhchem]/mhchem.js", "color.js"],
+        noErrors: { disabled: true }
+      }
+    });
+  </script>
+{% mathjax_scripts %}
+
+{% endblock %}
+
+{% block onload %} onload='javascript:textareaformat();' {% endblock %}
+
+{% block content %}
+    <form name=frm id=frm action="{{ URL_ROOT }}/exam/manage/addquestion/{{ question.id }}/" method="post" enctype="multipart/form-data" onSubmit="return autosubmit();" >
+        {% csrf_token %}
+  <center><table class="table">
+    {{ qform.as_table }}
+
+  </table></center>
+    <button class="btn" type="submit" name="save_question">Save</button>
+    <button class="btn" type="button" name="button" onClick='location.replace("{{URL_ROOT}}/exam/manage/questions/");'>Back to Questions</button>
+    <button class="btn" type="submit" name="delete_files">Delete Selected Files</button>
+      <button class="btn btn-primary" type="button" onclick='location.replace("{{URL_ROOT}}/exam/manage/addquestion/");'>Add Question <span class="glyphicon glyphicon-plus"></span></button>&nbsp;&nbsp;
+
+  </center>
+</form>
+{% endblock %}

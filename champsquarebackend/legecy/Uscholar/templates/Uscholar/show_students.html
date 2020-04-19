@@ -1,0 +1,27 @@
+{% extends "user.html" %}
+
+{% block pagetitle %} Results {% endblock pagetitle %}
+{% block content %}
+<form>
+  {% csrf_token %}
+  <center><table class="table well">
+  <th>No.</th>
+      <th>Roll Number</th>
+      <th>Name</th>
+      <th>Batch</th>
+      <th>Mobile Number</th>
+      <th>Password</th>
+    {% for user in users %}
+        <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ user.profile.student.roll_number }}</td>
+            <td>{{ user.profile.student.name }}</td>
+            <td>{{ user.profile.student.batch }}</td>
+            <td>{{ user.profile.student.mobile_number }}</td>
+            <td>{{ user.profile.pwd }}</td>
+        </tr>
+    {% endfor %}
+  </table></center>
+</form>
+{% endblock %}
+

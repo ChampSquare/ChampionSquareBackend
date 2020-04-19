@@ -1,0 +1,540 @@
+{% load static %}
+{% load filters %}
+<!DOCTYPE html>
+<!-- saved from url=(0046)https://nta.ac.in/Quiz/Paper/JEEMain_Paper1_En -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="author" content="">
+{#    <link rel="shortcut icon" href="{{ URL_ROOT }}/static/Unicorn/images/favicon.ico">#}
+    <title>ChampionSquare | Online Exam</title>
+    <link href="{% static 'css/jee_main_exam_custom.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/jee_main_exam_style.default.css' %}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ URL_ROOT }}/static/Uscholar/css/jee/keyboard_style.css">
+    <script type="text/javascript" src="{{ URL_ROOT }}/static/Uscholar/js/jee/jquery-1.8.0.min.js"></script>
+    <script type="text/javascript" src="{{ URL_ROOT }}/static/Uscholar/js/jee/jquery.corner.js"></script>
+    <script type="text/javascript" src="{{ URL_ROOT }}/static/Uscholar/js/jee/jquery.caret.min.js"></script>
+
+
+    <script type="text/javascript" src="{{ URL_ROOT }}/static/Uscholar/js/jee/virtual_keyboard.js"></script>
+    <script src="{% static 'js/exam_script_new.js' %}"></script>
+    <style>
+     .modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+    </style>
+</head>
+<body {% if not paper.question_paper.quiz.is_trial %} oncontextmenu="return false;" {% endif %}>
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <p id="alert-text">Please choose an option first then click on save.</p>
+  </div>
+
+</div>
+    <input type="hidden" id="hdfBaseURL" value="/">
+    <div id="all">
+        <header class="main-header">
+            <div class="navbar affix-top" data-spy="affix" data-offset-top="200">
+                <div class="navbar navbar-default yamm" role="navigation" id="navbar">
+                    <div class="container">
+                        <div class="navbar-header">
+                            <a class="navbar-brand home">
+                                <img src="{% static 'Uscholar/img/champion.png' %}" alt="ChampionSquare" class="img-responsive">
+                            </a>
+                        </div>
+                        <div class="col-md-5 pull-right">
+                            <div class="navbar-collapse">
+                                <ul class="nav navbar-nav pull-right">
+                                    <li class="user-profile">
+                                        <table>
+                                            <tbody><tr>
+                                                <td style="padding: 5px 15px; border: 2px solid #666"><i class="fa fa-user fa-4x"></i></td>
+                                                <td>
+                                                    <table>
+                                                        <tbody><tr>
+                                                            <td style="padding: 0px 5px;">Candidate Name</td>
+                                                            <td> : <span style="color: #f7931e; font-weight: bold">Ujjawal Anand</span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 0px 5px;">Subject Name</td>
+                                                            <td> : <span style="color: #f7931e; font-weight: bold">Jee Main</span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 0px 5px;">Remaining Time</td>
+                                                            <td>
+                                                                : <span class="timer-title time-started"></span>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody></table>
+                                                </td>
+                                            </tr>
+                                        </tbody></table>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="clear"></div>
+
+
+
+
+<input type="hidden" id="hdfTestDuration" value="{% if paper.question_paper.quiz.is_trial %} 180 {% else %} {{paper.time_left}}{%endif%}">
+
+    <input type="hidden" id="paperId" value="{{ paper.id }}">
+        <input type="hidden" id="attemptId" value="{{ paper.attempt_number }}">
+
+<div>
+    <div id="heading-breadcrumbs">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-7 pull-left">
+                    <table class="stream">
+                        <tbody><tr class="full-width">
+                            <td class="full-width"><h1> JEE Main </h1></td>
+
+                            <td class="full-width"><a class="mb5 btn btn-primary stream_1 full-width" href="javascript:void(0);" data-href="page01">Phy Sec1</a></td>
+                                <div class="clear-xs"></div>
+                            <td class="full-width"><a class="mb5 btn btn-primary stream_1 full-width" href="javascript:void(0);" data-href="page21">Phy Sec2</a></td>
+                                <div class="clear-xs"></div>
+                            <td class="full-width"><a class="mb5 btn btn-primary stream_1 full-width" href="javascript:void(0);" data-href="page26">Chem Sec1</a></td>
+                            <div class="clear-xs"></div>
+                            <td class="full-width"><a class="mb5 btn btn-primary stream_1 full-width" href="javascript:void(0);" data-href="page46">Chem Sec2</a></td>
+                                <div class="clear-xs"></div>
+                            <td class="full-width"><a class="mb5 btn btn-primary stream_1 full-width" href="javascript:void(0);" data-href="page51">Math Sec1</a></td>
+                            <div class="clear-xs"></div>
+                            <td class="full-width"><a class="mb5 btn btn-primary stream_1 full-width" href="javascript:void(0);" data-href="page71">Math Sec2</a></td>
+                                <div class="clear-xs"></div>
+                        </tr>
+                    </tbody></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="content">
+    <div class="container">
+
+        <div class="col-md-12 exam-instruction" {% if paper.instruction_read %} style="display: none" {% endif %} >
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="col-md-12" id="en">
+                                <h4 class="text-center">Please read the instructions carefully</h4>
+                                <h4><strong><u>General Instructions:</u></strong></h4>
+                                <ol>
+                                    <li>
+                                        <ul>
+                                            <li>The Online Test consists of 75 questions. The maximum marks are 300</li>
+                                            <li>Total duration of this Online Test is 180 min.</li>
+                                            <li>Section-I contains 20 multiple choice questions which have only one correct answer. Each question
+carries +4 marks each for correct answer and –1 mark for each wrong answer.</li>
+                                            <li>Section-II  contains 5 questions. The answers to each of the questions is a <strong> Numerical Value </strong>, For each question, enter the correct numerical value (If the numerical value has more than two decimal places, truncate/round-off the value to TWO decimal places; e.g. 6.25, 7.00, –0.33, –.30, 30.27, –127.30, if answer is 11.36777..... then both 11.36 and 11.37 will be correct)</li>
+                                        </ul>
+                                    </li>
+                                    <li>The clock will be set at the server. The countdown timer in the top right corner of screen will display the remaining time available for you to complete the examination. When the timer reaches zero, the examination will end by itself. You will not be required to end or submit your examination.</li>
+                                    <li>
+                                        The Questions Palette displayed on the right side of screen will show the status of each question using one of the following symbols:
+                                        <ol>
+                                            <li><img src="{% static 'img/Logo1.png' %}"> You have not visited the question yet.<br><br></li>
+                                            <li><img src="{% static 'img/Logo2.png' %}"> You have not answered the question.<br><br></li>
+                                            <li><img src="{% static 'img/Logo3.png' %}"> You have answered the question.<br><br></li>
+                                            <li><img src="{% static 'img/Logo4.png' %}"> You have NOT answered the question, but have marked the question for review.<br><br></li>
+                                            <li><img src="{% static 'img/Logo5.png' %}"> The question(s) "Answered and Marked for Review" will be considered for evalution.<br><br></li>
+                                        </ol>
+                                    </li>
+                                    <li>You can click on the "&gt;" arrow which apperes to the left of question palette to collapse the question palette thereby maximizing the question window. To view the question palette again, you can click on "&lt;" which appears on the right side of question window.</li>
+                                    <li>You can click on <img src="{% static 'img/down.png' %}"> to navigate to the bottom and <img src="{% static 'img/up.png' %}"> to navigate to top of the question are, without scrolling.</li>
+                                </ol>
+                                <h4><strong><u>Navigating to a Question:</u></strong></h4>
+                                <ol start="7">
+                                    <li>
+                                        To answer a question, do the following:
+                                        <ol type="a">
+                                            <li>Click on the question number in the Question Palette at the right of your screen to go to that numbered question directly. Note that using this option does NOT save your answer to the current question.</li>
+                                            <li>Click on <strong>Save &amp; Next</strong> to save your answer for the current question and then go to the next question.</li>
+                                            <li>Click on <strong>Mark for Review &amp; Next</strong> to save your answer for the current question, mark it for review, and then go to the next question.</li>
+                                        </ol>
+                                    </li>
+                                </ol>
+                                <h4><strong><u>Answering a Question:</u></strong></h4>
+                                <ol start="8">
+                                    <li>
+                                        Procedure for answering a multiple choice type question:
+                                        <ol type="a">
+                                            <li>To select you answer, click on the button of one of the options.</li>
+                                            <li>To deselect your chosen answer, click on the button of the chosen option again or click on the <strong>Clear Response</strong> button</li>
+                                            <li>To change your chosen answer, click on the button of another option</li>
+                                            <li>To save your answer, you MUST click on the Save &amp; Next button.</li>
+                                            <li>To mark the question for review, click on the Mark for Review &amp; Next button.</li>
+                                        </ol>
+                                    </li>
+                                    <li>To change your answer to a question that has already been answered, first select that question for answering and then follow the procedure for answering that type of question.</li>
+                                </ol>
+                                <h4><strong><u>Navigating through sections:</u></strong></h4>
+                                <ol start="10">
+                                    <li>Sections in this question paper are displayed on the top bar of the screen. Questions in a section can be viewed by click on the section name. The section you are currently viewing is highlighted.</li>
+                                    <li>After click the Save &amp; Next button on the last question for a section, you will automatically be taken to the first question of the next section.</li>
+                                    <li>You can shuffle between sections and questions anything during the examination as per your convenience only during the time stipulated.</li>
+                                    <li>Candidate can view the corresponding section summery as part of the legend that appears in every section above the question palette.</li>
+                                </ol>
+                                <hr>
+                                <span class="text-danger">Please note all questions will appear in your default language. This language can be changed for a particular question later on.</span>
+                                <hr>
+                                <label>
+                                    <input type="checkbox" id="en_ch">&nbsp;&nbsp;I have read and understood the instructions. All computer hardware allotted to me are in proper working condition. I declare  that I am not in possession of / not wearing / not  carrying any prohibited gadget like mobile phone, bluetooth  devices  etc. /any prohibited material with me into the Examination Hall.I agree that in case of not adhering to the instructions, I shall be liable to be debarred from this Test and/or to disciplinary action, which may include ban from future Tests / Examinations
+                                </label>
+                                <hr>
+                                <div class="col-md-4 col-md-offset-4 text-center">
+                                    <button onclick="check_instruction()" id="btn_proceed" class="btn btn-primary btn-block">Proceed</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+    <div class="col-md-12 exam-countdown" {% if paper.question_paper.quiz.get_time_to_start  > 1 %}
+     style="text-align: center;" {% else %} style="display: none;" {% endif %}>
+     <h1><strong>ChampionSquare</strong> Online Exam Will Start In</h1>
+
+      <div class="countdown">
+      <h1><span class="count-timer-title time-ending"></span></h1>
+      <input type="hidden" id="countdown_timer" value="{{ paper.question_paper.quiz.get_time_to_start }}">
+  </div>
+</div>
+
+        <div class="row exam-paper" {% if not paper.instruction_read %} style="display: none;" {% endif %} >
+            <div class="col-md-8" id="quest" style="padding: 0">
+                <table style="width: 100%">
+                    <tbody><tr>
+                        <td>
+                            <div class="panel panel-default">
+                                <div class="panel-body mb0">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+
+                                            {% for question, answer in question_answers %}
+
+                                            <div
+                                                 {% if forloop.counter > 1 %}
+                                                    style="display: none;"
+                                                    {% endif %}
+                                                 class="tab-content div-question mb0" id="page{{ forloop.counter|stringformat:"02d" }}">
+                                                <input type="hidden" value="{{ question.id }}" class="questionIdpage{{ forloop.counter|stringformat:"02d" }}">
+                                                <input type="hidden" id="time_spent_value" value="{{ answer.time_spent }}">
+
+
+                                                <input type="hidden" value="{{ question.get_right_answer }}" class="hdfCurrectAns">
+                                                <div class="question-height">
+                                                    <h4 class="question-title"> Question {{ forloop.counter }}:  <img src="{% static 'img/down.png' %}" class="btndown pull-right"><span class="pull-right time-spent"></span> </h4>
+                                                    <img alt="Question" src="{{ question.picture.url }}" class="img-responsive"> <br>
+
+                                                {% if question.type == "mcq" %}
+                                                    <table class="table table-borderless mb0">
+                                                        <tbody>
+                                                            <tr>
+                                                                {% for i in "1234" %}
+                                                                    {% ifequal answer.answer i %}
+                                                                        <td> <input type="radio" checked="checked" value="{{ forloop.counter }}" name="radiospage{{ forloop.parentloop.counter|stringformat:"02d" }}" id="rOption{{ forloop.parentloop.counter|stringformat:"02d" }}_1"> {{ forloop.counter }} ) </td>
+                                                                    {% else %}
+                                                                        <td> <input type="radio" value="{{ forloop.counter }}" name="radiospage{{ forloop.parentloop.counter|stringformat:"02d" }}" id="rOption{{ forloop.parentloop.counter|stringformat:"02d" }}_1"> {{ forloop.counter }} ) </td>
+                                                                    {% endifequal %}
+                                                                    {% endfor %}
+                                                                </tr>
+                                                        </tbody>
+                                                    </table>
+                                                {% endif %}
+
+                                                {% if question.type == "integer" %}
+                                                    <input type="hidden" value="integer" class="questionTypepage{{ forloop.counter|stringformat:"02d" }}">
+
+                                                   <div style="padding-left: 4%;" id="numericKeyBoardDiv">
+
+                                                   {% if answer.answer and answer.answer != "NA" %}
+                                                  <input type="text" id="answerpage{{ forloop.counter|stringformat:"02d" }}" name="answerpage{{ forloop.counter|stringformat:"02d" }}" class="keyboardInput answer" value="{{ answer.answer }}">
+                                                 {% else %}
+                                                  <input type="text" name="answerpage{{ forloop.counter|stringformat:"02d" }}" id="answerpage{{ forloop.counter|stringformat:"02d" }}" class="keyboardInput answer" value="">
+
+                                                  {% endif %}
+                                                   <script>triggerKeyboardGroup(1, "{{ forloop.counter|stringformat:"02d" }}");</script>
+
+
+
+
+                                                   </div>
+                                                  {% endif %}
+
+                                                    <h4 class="question-footer"> <img src="{% static 'img/up.png' %}" class="btnup pull-right"> </h4>
+                                                </div>
+                                            </div>
+                                                                                    {% endfor %}
+
+
+
+                                    <div class="clearfix"></div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <button class="mb5 full-width btn btn-success btn-block btn-save-answer">Save &amp; Next</button>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button class="mb5 full-width btn btn-warning btn-block btn-save-mark-answer">Save &amp; Mark For Review</button>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button class="mb5 full-width btn btn-default btn-block btn-reset-answer">Clear Response</button>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <button class="mb5 full-width btn btn-primary btn-block btn-mark-answer">Mark For Review &amp; Next</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel-footer">
+                                <div class="row">
+                                    <div class="col-md-12"> <button class="btn btn-success btn-submit-all-answers pull-right">Submit</button>&nbsp;&nbsp; <a href="javascript:void(0);" class="btn btn-default pull-left" id="btnPrevQue"> &lt;&lt; Back </a>&nbsp;&nbsp; <a href="javascript:void(0);" class="btn btn-default pull-left" id="btnNextQue">Next &gt;&gt;</a>&nbsp;&nbsp; </div>
+                                </div>
+                            </div>
+
+                        </td>
+
+                        <td>
+                            <div class="full_screen pull-right" style="cursor: pointer; background-color: #000; color: #fff; padding: 5px;">
+                                <i class="fa fa-angle-right fa-2x"></i>
+                            </div>
+                            <div class="collapse_screen pull-right hidden" style="cursor: pointer; background-color: #000; color: #fff; padding: 5px;">
+                                <i class="fa fa-angle-left fa-2x"></i>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody></table>
+
+            </div>
+            <div class="col-md-4" id="pallette">
+                <div class="panel panel-default mb0">
+                    <div class="panel-body">
+                        <table class="table table-borderless mb0">
+                            <tbody><tr>
+                                <td class="full-width"> <a class="test-ques-stats que-not-attempted lblNotVisited">80</a> Not Visited </td>
+                                <td class="full-width"> <a class="test-ques-stats que-not-answered lblNotAttempted">5</a> Not Answered </td>
+                            </tr>
+                            <tr>
+                                <td class="full-width"> <a class="test-ques-stats que-save lblTotalSaved">4</a> Answered </td>
+                                <td class="full-width"> <a class="test-ques-stats que-mark lblTotalMarkForReview">0</a> Marked for Review </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"> <a class="test-ques-stats que-save-mark lblTotalSaveMarkForReview">1</a> Answered &amp; Marked for Review (will be considered for evaluation) </td>
+                            </tr>
+                        </tbody></table>
+                    </div>
+                </div>
+                <div class="panel panel-default ">
+                    <div class="panel-body " style="height:320px;overflow-y:scroll;">
+                        <ul class="pagination test-questions">
+                            {% for question, answer in question_answers %}
+
+                            <li
+                                    {% if forloop.counter == 1 %}
+                                    class="active"
+                                    {% else %}
+                                    class=""
+                                    {% endif %}
+                                    data-seq="1"><a
+                                    {% if answer.status == "0" %}
+                                        class="test-ques que-not-attempted"
+                                    {% elif answer.status == "2" %}
+                                    class="test-ques que-save"
+                                    {% elif answer.status == "4" %}
+                                    class="test-ques que-save-mark"
+                                    {% elif answer.status == "3" %}
+                                    class="test-ques que-mark"
+                                    {% else %}
+                                    class="test-ques que-not-answered"
+                                    {% endif %}
+                                    href="javascript:void(0);" data-href="page{{ forloop.counter|stringformat:"02d" }}">{{ forloop.counter|stringformat:"02d" }}</a></li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 exam-summery" style="display:none;">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <h3 class="text-center">Exam Summary</h3>
+                        <table class="table table-bordered table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Section Name</th>
+                                    <th>No of Questions</th>
+                                    <th>Answered</th>
+                                    <th>Not Answered</th>
+                                    <th>Marked for Review</th>
+                                    <th>Answered &amp; Marked for Review(will be considered for evaluation)</th>
+                                    <th>Not Visited</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="">Paper 1</td>
+                                    <td class="lblTotalQuestion">90</td>
+                                    <td class="lblTotalSaved">4</td>
+                                    <td class="lblNotAttempted">5</td>
+                                    <td class="lblTotalMarkForReview">0</td>
+                                    <td class="lblTotalSaveMarkForReview">1</td>
+                                    <td class="lblNotVisited">80</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <hr>
+                        <div class="col-md-12 text-center">
+                            <h4> Are you sure you want to submit for final marking?<br>No changes will be allowed after submission. <br> </h4>
+                            <a class="btn btn-default btn-lg" id="btnYesSubmit">Yes</a> <a class="btn btn-default btn-lg" id="btnNoSubmit">No</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 exam-confirm" style="display:none;">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="col-md-12 text-center">
+                            <h4> Thank You, your responses will be submitted for final marking - click OK to complete final submission. <br> </h4>
+                            <a class="btn btn-default btn-lg" id="btnYesSubmitConfirm">Ok</a> <a class="btn btn-default btn-lg" id="btnNoSubmitConfirm">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 exam-thankyou" style="display:none;">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="col-md-12 text-center">
+                            <h4> Thank you, Submitted Successfully.</h4>
+                            <h3>ChampionSquare wishes you all the best for your Jee Main Exam</h3>
+                           </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="col-md-12 exam-result" style="display:none;">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="col-md-12 text-center">
+                            <h3>
+                                Result
+                                <a id="btnRBack" class="btn btn-info pull-right">Back</a>
+                            </h3>
+                            <h5>Score: <strong id="lblRScore"></strong></h5>
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <td>Total Question</td>
+                                        <th id="lblRTotalQuestion"></th>
+                                        <td>Total Attempted</td>
+                                        <th id="lblRTotalAttempted"></th>
+                                    </tr>
+                                    <tr>
+                                        <td>Correct Answers</td>
+                                        <th id="lblRTotalCorrect"></th>
+                                        <td>Incorrect Answers</td>
+                                        <th id="lblRTotalWrong"></th>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Question No.</th>
+                                        <th>selected Option</th>
+                                        <th>Status</th>
+                                        <th>Currect Option</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyResult"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    </div>
+
+{#    <script src="{% static 'js/jquery.min.js' %}" type="text/javascript"></script>#}
+
+    {% comment %} <script src="{% static 'js/bootstrap.min.js' %}" type="text/javascript"></script> {% endcomment %}
+
+
+
+    <script>
+        $('.full_screen').click(function () {
+            $('#quest').removeClass('col-md-8');
+            $('#quest').addClass('col-md-12');
+            $('#pallette').addClass('hidden');
+            $('.full_screen').addClass('hidden');
+            $('.collapse_screen').removeClass('hidden');
+        });
+
+        $('.collapse_screen').click(function () {
+            $('#quest').removeClass('col-md-12');
+            $('#quest').addClass('col-md-8');
+            $('#pallette').removeClass('hidden');
+            $('.full_screen').removeClass('hidden');
+            $('.collapse_screen').addClass('hidden');
+        });
+        {#bindOnClicks();#}
+    </script>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+
+
+
+</body></html>

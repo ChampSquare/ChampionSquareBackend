@@ -1,0 +1,74 @@
+{% extends "manage.html" %}
+{% load custom_filters %}
+
+{% block pagetitle %} Quiz results {% endblock pagetitle %}
+
+
+
+{% block script %}
+<script src="{{ URL_ROOT }}/static/Uscholar/js/jquery.tablesorter.min.js"></script>
+
+{% endblock %}
+
+
+{% block subtitle %}
+  {% if not quizzes and not quiz %}
+  Quiz Results
+  {% endif %}
+  {% if quizzes %}
+  Available Quizzes
+  {% endif %}
+  {% if quiz %}
+  {{ quiz.description }} Results
+  {% endif %}
+{% endblock %}
+{% block content %}
+  {% if not quizzes and not quiz %}
+    <center><h5> No quizzes available. </h5></center>
+  {% endif %}
+
+{# ############################################################### #}
+{# This is rendered when we are just viewing exam/monitor #}
+{% if quizzes %}
+<ul class="list-group">
+{% for q in quizzes %}
+<li class="list-group-item"><a href="{{URL_ROOT}}/exam/manage/show_result/{{q.id}}/">{{ q.quiz.description }}</a></li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{# ############################################################### #}
+{# This is rendered when we are just viewing exam/monitor/quiz_num #}
+{% if results %}
+<form>
+  {% csrf_token %}
+  <center><table class="table well">
+  <th>No.</th>
+      <th>Roll Number</th>
+      <th>Name</th>
+      <th>Batch</th>
+      <th>Correct Answers</th>
+  <th>Wrong Answers</th>
+  <th>Marks Obtained</th>
+    {% for result in results %}
+        {% if result.user.profile.student.name %}
+        <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ result.user.profile.student.roll_number }}</td>
+            <td>{{ result.user.profile.student.name }}</td>
+            <td>{{ result.user.profile.student.batch }}</td>
+            <td>{{ result.num_correct }}</td>
+            <td>{{ result.num_wrong }}</td>
+            <td>{{ result.marks_obtained }}</td>
+
+        </tr>
+        {% endif %}
+    {% endfor %}
+  </table></center>
+</form>
+    {% endif %}
+{% endblock %}
+
+
+
+

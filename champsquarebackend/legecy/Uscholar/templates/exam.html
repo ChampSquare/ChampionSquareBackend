@@ -1,0 +1,549 @@
+{% extends "base_jee.html" %}
+{% load thumbnail %}
+
+{% block script %}
+
+
+{% endblock %}
+
+{% block nav %}
+    <div class="headergrup">
+			<div id="header" style="background-color: rgb(45, 112, 182);">
+
+					<div align="left" id="bannerImage" style="float:left">
+						<div id="bannerImg" style="float:left"><img height="49px" src="{{ URL_ROOT }}/static/Uscholar/img/jupiter_banner.png"></div>
+						<div id="bannerText" align="center" style="margin-top:10px; font-weight:bold;"><font size="4" color="#ffffff"></font></div>
+					</div>
+					<div class="hamburgerBar" style="display: none;"> <i class="hamicon"></i></div>
+
+		</div>
+{#instruction and question paper view#}
+    <div id="sub-header">
+		<div class="exam_name"><span class="test-header"></span>
+		</div>
+		<div class="helpinstruction_div"><div class="help_div usefulDataDiv" id="usefulDataDiv" style="display:none;"><span class="help_icon"></span><a class="test-instruct" onclick=" showHelpContent(event);"><span class="auditlogButton UF" id="usefulData" title="Useful Data">Useful Data</span></a>
+		</div>
+		</div>
+    </div>
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div id="wrapper">
+     <!-- Hamburger Contents -->
+
+    <div class="headergrup">
+
+				{% comment %}<div id="sub-header">
+					<div class="exam_name">
+						<span class="test-header"></span>
+					</div>
+					<div class="helpinstruction_div">
+						<div class="help_div usefulDataDiv" id="usefulDataDiv" style="display: none;">
+							<span class="help_icon"></span><a class="test-instruct" onclick="showHelpContent(event);"><span class="auditlogButton UF" id="usefulData" title="Useful Data">Useful Data</span></a>
+						</div>
+						<div class="instruction_div" title="Read Instructions">
+							<span class="instruction_icon"> </span><a class="test-instruct thickbox" onclick="activeLink('VI')"><span id="VI" class="auditlogButton">Instructions</span></a>
+						</div>
+						<div class="viewquestion_div" id="viewQPTD">
+							<span class="questionpaper_icon"></span><a class="test-instruct thickbox" onclick="showQP();activeLink('viewQPButton')"><span id="viewQPButton" class="auditlogButton" title="View Entire Question Paper">Question Paper</span></a>
+						</div>
+					</div>
+				</div>
+{% endcomment %}
+				<!-- Sub header Tab-->
+
+				<div class="subheader_tab" style="">
+
+
+					<div class="grupname1 grups" id="groupsResp"><div class="grup_head" title="Question Paper(Section Wise)">Question Paper(...<div class="arw_drpdown"></div> <span class="crumb">/</span></div><i class="bx_arrow" style="display: none;"></i><div class="grupbox2" style="display: none;"><div class="subbox"><div class="subjectsResp subjects" id="gResp0" data-normgrpsec="true"><span>Question Paper(Section Wise)</span></div></div></div></div>
+
+					<div class="grupname2 grups" id="secResp">
+                    <div class="grup_head"><div class="astrk"> * </div><span id="currentSec"></span>
+
+                            <div class="arw_drpdown"></div>
+                        </div><i class="bx_arrow" style="display: none;"></i>
+                        <div class="grupbox2" style="display: none;">
+
+                        <div class="subbox">
+
+                        {% for key in paper.get_question_section %}
+                            {% if question.subject|slice:"4"|add:" "|add:question.question_section == key %}
+                            <script>
+                            document.getElementById("currentSec").innerHTML = "{{ key|upper }}";
+                            </script>
+                        {% endif %}
+                            <div class="subjects" id="sResp{{ forloop.counter }}">
+                                            <span onclick="this.disabled=true; call_skip('{{ URL_ROOT }}/exam/{{ question.id }}/skip_section/{{ key }}/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/')">{{ key|upper }} </span>
+                                            </div>
+                            {% endfor %}
+                        </div></div></div>
+
+
+                    <div class="clear"></div>
+				</div>
+
+				<div class="grup_components" style="">
+					<div class="" id="mKeybrdLayt"></div>
+					<div class="panel_time time-details" id="timeResp"><div class="timebx" id="timeMobile"></div></div>
+
+
+					<div class="picons_scroll">
+						<div class="icncont">
+							<span class="calc_icon iconholder"></span> <i class="smicon"></i>
+							<div class="clear"></div>
+						</div>
+					</div>
+					<div class="clear"></div>
+				</div>
+
+				<!-- Question Panel with Question Nos.-->
+				<div class="q_tab question_area" style="">
+					<div class="qarea_resp">
+                        <div class="qcontainer numberpanelQues" style="width: 424px;">
+                            <div>
+
+                                {% for qid in questions %}
+                                    {% if qid in paper.get_questions_answered %}
+                                     {% if qid in paper.get_questions_marked_for_review %}
+                                          <div id="qtd1">
+                                              <span title="Answered &amp; Marked for Review (will be considered for evaluation)" class="review_answered auditlog" id="1 active_question"
+                                                    onclick="this.disabled=true; call_skip('{{ URL_ROOT }}/exam/{{ question.id }}/skip/{{ qid.id }}/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/')">
+                                                  {{ forloop.counter }}
+                                              </span>
+                                          </div>
+                                     {% else %}
+                                     <div id="qtd0">
+                                         <span title="Answered" class="answered auditlog" id="0 active_question"
+                                               onclick="this.disabled=true; call_skip('{{ URL_ROOT }}/exam/{{ question.id }}/skip/{{ qid.id }}/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/')"> {{ forloop.counter }}</span>
+                                     </div>
+                                     {% endif %}
+
+                                     {% elif qid in paper.get_questions_visited %}
+                                        {% if qid in paper.get_questions_marked_for_review %}
+                                            <div id="qtd0">
+                                                <span title="Marked for Review" class="review auditlog" id="0 active_question" onclick="this.disabled=true; call_skip('{{ URL_ROOT }}/exam/{{ question.id }}/skip/{{ qid.id }}/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/')">
+                                                    {{ forloop.counter }}</span>
+                                            </div>
+                                        {% else %}
+                                            <div id="qtd1">
+                                                <span title="Not Answered" class="not_answered auditlog" id="1 active_question" onclick="this.disabled=true; call_skip('{{ URL_ROOT }}/exam/{{ question.id }}/skip/{{ qid.id }}/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/')">
+                                                    {{ forloop.counter }}
+                                                </span>
+                                            </div>
+                                            {% endif %}
+
+                                     {% else %}
+                                        <div id="qtd2">
+                                            <span title="Not Visited" class="not_visited auditlog" id="2 active_question" onclick="this.disabled=true; call_skip('{{ URL_ROOT }}/exam/{{ question.id }}/skip/{{ qid.id }}/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/')">
+                                                {{ forloop.counter }}
+                                            </span>
+                                        </div>
+                                 {% endif %}
+                             {% endfor %}
+
+                            </div></div></div>
+
+					<div class="stngsection">
+						<div class="setngico">
+							<i class="seticon"></i>
+						</div>
+						<i class="setng_arrow" style="display: none;"></i>
+						<div class="setngbx" style="display: none; height: 155px;">
+							<div class="mrks_info" id="resp_mrks_info"><span class="chooseLang"> <span class="viewLang">View in :&nbsp;</span><select class="choose_lang auditlogSelect" onchange="changeLang(this.value)"> <option selected="selected" value="1">English</option><option value="2">Hindi</option></select></span></div>
+
+							<div class="filter_section">
+								<div class="filter_descp clear">
+									<div class="fltrs">
+										<div class="answered sm_bxes answeredCount">{{ num_answered }}</div>
+										<div class="type_title answeredLabel">Answered</div>
+										<div class="clear"></div>
+									</div>
+
+									<div class="fltrs">
+										<div class="nt_answered sm_bxes notAnsweredCount">{{ num_not_answered }}</div>
+										<div class="type_title notAnsweredLabel">Not Answered</div>
+										<div class="clear"></div>
+									</div>
+
+									<div class="fltrs mNotVisited">
+										<div class="nt_visit sm_bxes notVisitedCount">{{ num_not_visited }}</div>
+										<div class="type_title notVisitedLabel">Not Visited</div>
+										<div class="clear"></div>
+									</div>
+
+									<div class="fltrs mMarkReview">
+										<div class="mfr sm_bxes markedCount">{{ num_marked_for_review }}</div>
+										<div class="type_title markedLabel">Marked for Review</div>
+										<div class="clear"></div>
+									</div>
+
+									<div class="fltrs review_answer mReviewAnswered">
+										<div class="mfr_ans_eval sm_bxes markedAnsweredCount">{{ num_answered_marked_for_review }}</div>
+										<div class="type_title markedAndAnsweredLabel">Answered &amp; Marked for Review (will be considered for evaluation)</div>
+										<div class="clear"></div>
+									</div>
+
+									<div class="clear"></div>
+
+								</div>
+
+								<div class="clear"></div>
+							</div>
+
+						</div>
+
+						<div class="clear"></div>
+					</div>
+
+					<div class="clear"></div>
+				</div>
+			</div>
+
+
+    <!-- header ends-->
+
+	<!--Container starts-->
+    <div class="Container">
+      <!--Center Container Starts-->
+	  <div id="questionContent">
+		<div class="profile-grouping-section">
+		<div class="Rght_Section column" id="col2">
+            <div id="User_Hldr" onclick="showProfile();">
+								<div class="singleImageDiv">
+								<div class="profile_image">
+									<img width="94" height="101" align="absmiddle" class="candidateImg" src="{% thumbnail paper.user.profile.picture|default:'default_course.png' 140x140 crop %}">
+								</div>
+								<div class="profile_details">
+									<div id="Username" class="candOriginalName" title="Vishwanath Virku">{{ paper.user.first_name }} ...</div>
+									<!--<div id="viewProButton"><a id = "VPT" class="viewProfile auditlogButton thickbox" onclick="showModule('profileDiv');activeLink(this.id)">View Profile</a></div>-->
+
+								</div>
+								</div>
+								<div class="verificationImagesDiv" style="display:none;">
+								<div class="leftImage" style="float:left">
+{#									<img width="94" height="85" align="absmiddle" class="candidateImg" src="images/NewCandidateImage.jpg">#}
+								</div>
+								<div class="rightImage" style="float:right;position: fixed;right: 60px;">
+									<img width="94" height="85" align="absmiddle" class="verifiedImg">
+								</div>
+								<div id="Username" class="candOriginalName" title="Vishwanath Virku">{{ paper.user.first_name }}</div>
+								</div>
+								<div class="clear"></div>
+
+							</div>
+		</div>
+		            <div class="Lft_Section column" id="col1">
+                      <div class="nav-container">
+
+						<div class="group-panel">
+			<div class="group-arrow-left-disabled"></div>
+			<div id="groups"><div>
+                <div class="allSections currentSectionSelected" id="g0" data-normgrpsec="true" title="Question Paper(Section Wise)">
+                    <span style="vertical-align:middle">Question Paper(Secti...</span>
+                    <a class="tooltip1 tooltipSelected1"> <div class="subject_instruction_icon1"></div>
+                        <div class="subject_information_div1" style="margin-top:5px;"><div class="subject_name" style="text-align:left">
+                            <div><span><b>Question Paper(Section Wi...</b></span></div></div>
+                            <div class="notation_type_description diff_type_notation_area_inner" style="background:#e5f6fc none repeat scroll 0 0;text-align:left;">
+                                <div class="notation_typeDiv" title="Answered"><span><span class="answered">{{ paper.get_total_answered_question_num }}</span></span>
+                                    <span class="type_title grpAnswered" style="text-align:left">Answered</span></div>
+                                <div class="notation_typeDiv" title="Not Answered"><span><span class="not_answered">{{ paper.get_total_unanswered_question_num }}</span></span>
+                                    <span class="type_title grpNotAnswered" style="text-align:left">Not Answered</span>
+                                </div><div class="notation_typeDiv" title="Not Visited"><span><span class="not_visited">{{ paper.get_total_not_visited_question_num }}</span></span>
+                                <span class="type_title grpNotAttempted" style="text-align:left">Not Visited</span></div>
+                                <div class="notation_typeDiv" title="Marked for Review"><span><span class="review">{{ paper.get_total_marked_for_review_question_num }}</span></span><span class="type_title grpMarkReview" style="text-align:left">Marked for Review</span></div>
+                                <div class="notation_typeDiv" title="Answered &amp; Marked for Review (will be considered for evaluation)"><span>
+                                    <span class="review_answered">{{ paper.get_total_answered_marked_for_review }}</span></span>
+                                    <span class="type_title grpMarkedAndAnswered" style="text-align:left">Answered &amp; Marked for Review (will be considered for evaluation)</span>
+                                </div></div></div></a></div></div></div>
+						</div>
+                      </div>
+					  <div class="section-timepanel">
+							<div class="section-details" id="sectionsField">
+								<span class="sect">Section</span><span id="showOptionalSecSummary" style="display:none">[Attempt any <span id="maxOptSec"></span>&nbsp;of the <span id="noOptSec"></span>&nbsp;optional sections.Please click on the Check Box to attempt the section]</span>
+							</div>
+							<div class="time-details" id="time_left" style="float:right;"></div>
+
+					  </div>
+
+                        <div class="subject-selection">
+						<div id="sections">
+                           {% for key in paper.get_question_section %}
+                               {% if question.subject|slice:"4"|add:" "|add:question.question_section == key %}
+
+                                   <div class="subject-name selectedsubject" id="s0"
+                                        {% else %}
+                                   <div class="subject-name" id="s0"
+
+                               {% endif %}
+                                         title="{{ key|title }}">
+                                            <span style="vertical-align:middle" onclick="this.disabled=true; call_skip('{{ URL_ROOT }}/exam/{{ question.id }}/skip_section/{{ key }}/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/')">{{ key|upper }} </span>
+                                            <a class="tooltip1 tooltipSelected1">
+                                                <div class="subject_instruction_icon1" id="icon0"></div>
+                                                <div class="subject_information_div1"><div>
+                                                    <div class="subject_name" style="text-align:left">{{ key|upper }}</div></div></div></a></div>
+
+
+                            {% endfor %}
+
+                            </div>
+					</div>
+
+                    <div class="clear"></div>
+
+
+            </div>
+		</div>
+
+        <div class="question_description_number_panel" id="rightDivision">
+            <div class="Rght_Section column" id="col2">
+			  <div class="collapsebel_panel">
+				<span class="collapse_icon"></span>
+              <div class="diff_type_notation_area_outer">
+                    <div class="diff_type_notation_area_inner">
+                      <div class="notation_type_description">
+                        <div class="notation_typeDiv leftdiv_notation"> <span class="answered answeredCount" id="">{{ num_answered }}</span> <span class="type_title answeredLabel" id="">Answered</span> </div>
+						<div class="notation_typeDiv"> <span class="not_answered notAnsweredCount" id="">{{ num_not_answered }}</span> <span class="type_title notAnsweredLabel" id="">Not Answered</span> </div>
+
+                        <div class="clear"></div>
+						   <div class="notation_typeDiv leftdiv_notation"> <span class="not_visited notVisitedCount" id="">{{ num_not_visited }}</span> <span class="type_title notVisitedLabel" id="">Not Visited</span> </div>
+
+						    <div class="notation_typeDiv"> <span class="review markedCount" id="">{{ num_marked_for_review }}</span> <span class="type_title markedLabel" id="">Marked for Review</span> </div>
+
+							 <div class="clear"></div>
+							    <div class="notation_typeDiv answered_review_container review_mark" id="" style="display: none;"> <span class="review_marked markedReviewCount" id="">{{ num_answered_marked_for_review }}</span> <span class="type_title markedAndAnsweredLabel" id="">Answered &amp; Marked for Review (will be considered for evaluation)</span> </div>
+								 <div class="notation_typeDiv answered_review_container review_answer" id=""> <span class="review_answered markedAnsweredCount" id="">{{ num_answered_marked_for_review }}</span> <span class="type_title markedAndAnsweredLabel" id="">Answered &amp; Marked for Review (will be considered for evaluation)</span> </div>
+							<div class="clear"></div>
+             </div>
+                    </div>
+                  </div>
+              <div class="rightSectionDiv" id="rightSectionDiv1">
+
+                <div class="content">
+
+                </div>
+              </div>
+              <div class="rightSectionDiv" id="rightSectionDiv2">
+                <div class="header">&nbsp;<span class="viewSection">{{ question.subject|slice:"4"|upper }} {{ question.question_section|upper }} </span>
+				</div>
+                <div class="subheader" id="chooseQuestion">Choose a Question</div>
+                <div class="content nano" id="question_area" style="height: 276px;">
+                  <div class="question_area nano-content" tabindex="0">
+                     <div class="numberpanelQues">
+                         <div>
+                             {% for qid in questions %}
+                                    {% if qid in paper.get_questions_answered %}
+                                     {% if qid in paper.get_questions_marked_for_review %}
+                                          <div id="qtd1">
+                                              <span title="Answered &amp; Marked for Review (will be considered for evaluation)" class="review_answered auditlog" id="1 active_question"
+                                                    onclick="this.disabled=true; call_skip('{{ URL_ROOT }}/exam/{{ question.id }}/skip/{{ qid.id }}/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/')">
+                                                  {{ forloop.counter }}
+                                              </span>
+                                          </div>
+                                     {% else %}
+                                     <div id="qtd0">
+                                         <span title="Answered" class="answered auditlog" id="0 active_question"
+                                               onclick="this.disabled=true; call_skip('{{ URL_ROOT }}/exam/{{ question.id }}/skip/{{ qid.id }}/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/')"> {{ forloop.counter }}</span>
+                                     </div>
+                                     {% endif %}
+
+                                     {% elif qid in paper.get_questions_visited %}
+                                        {% if qid in paper.get_questions_marked_for_review %}
+                                            <div id="qtd0">
+                                                <span title="Marked for Review" class="review auditlog" id="0 active_question" onclick="this.disabled=true; call_skip('{{ URL_ROOT }}/exam/{{ question.id }}/skip/{{ qid.id }}/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/')">
+                                                    {{ forloop.counter }}</span>
+                                            </div>
+                                        {% else %}
+                                            <div id="qtd1">
+                                                <span title="Not Answered" class="not_answered auditlog" id="1 active_question" onclick="this.disabled=true; call_skip('{{ URL_ROOT }}/exam/{{ question.id }}/skip/{{ qid.id }}/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/')">
+                                                    {{ forloop.counter }}
+                                                </span>
+                                            </div>
+                                            {% endif %}
+
+                                     {% else %}
+                                        <div id="qtd2">
+                                            <span title="Not Visited" class="not_visited auditlog" id="2 active_question" onclick="this.disabled=true; call_skip('{{ URL_ROOT }}/exam/{{ question.id }}/skip/{{ qid.id }}/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/')">
+                                                {{ forloop.counter }}
+                                            </span>
+                                        </div>
+                                 {% endif %}
+                             {% endfor %}
+                         </div>
+                     </div>
+                  </div>
+                <div class="nano-pane" style="display: none;"><div class="nano-slider" style="height: 276px; transform: translate(0px, 0px);"></div></div></div>
+              </div>
+				</div> <div class="clear"></div>
+			  </div>
+            </div>
+		</div>
+      <!--Center Container Ends-->
+	<div class="Questn_Area" id="Questn_Area">
+	 <span class="expand_icon" style="display: none;"></span>
+	 <!--<div class="Questn_Innr_Div " >
+	<div id="questionCont" >-->
+
+				<div id="currentQues">
+    <div class="questionTypeCont"><span class="questiontype-details"></span></div>
+    <div id="Questn_Innr_Div_section"><div id="Subjt_Div"></div>
+        <div id="Subdetail_Div"><div style="float:right;margin-right:5px;"><div class="chooseLang">
+            <span class="viewLang">View in :&nbsp;</span>
+            <select class="choose_lang auditlogSelect" onchange="changeLang(this.value)">
+                <option selected="selected" value="1">English</option>
+                <option value="2">Hindi</option></select>
+        </div></div></div></div><div id="quesOuterDiv" style="height: auto; overflow: hidden;">
+
+    <div class="leftDiv" style="width: 99.6%; ">
+        <div align="right" style="float:right;"><a id="scrollToBottom" title="Scroll Down" onclick="scrollToBottom()" style="display: inline;">
+            <img width="28" height="28" align="right" alt="Scroll Down" src="{{ URL_ROOT }}/static/Uscholar/img/Down.png" style=""></a></div>
+
+        <div class="divHeader">
+            <b><span class="questionNumber"> Question No.
+                {% for qid in paper.questions.all %}
+                    {% if qid.id == question.id %}
+                        {{ forloop.counter }}
+                    {%  endif %}
+                {% endfor %}
+        </span></b></div>
+ <div>
+
+
+     {#  Exam submit button #}
+                        <div class="Bttn_Area" id="Bttn_Area2">
+
+     <div  class="other_buttoncontainer">
+
+		<form id="clear" action="{{URL_ROOT}}/exam/{{ question.id }}/clear_response/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+								<input style="position:absolute; bottom:2.5%; left: 20%" type="submit" id="clearResponse"  class="normalBtn btn btn-primary auditlog clearResponse" value="Clear Response" style="" title="Clear Response">
+         </form>
+
+                </div>
+        <form id="logout" action="{{URL_ROOT}}/exam/quit/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/" method="post">
+            {% csrf_token %}
+
+
+
+                 <div style="position:absolute;
+bottom:2.5%;" class="finalSubmit" id="submitTD " align="bottom">
+                    <input type="button" class="btn btn-primary-blue auditlogButton" id="finalSubmit" onclick="this.disabled=true; call_quit('{{URL_ROOT}}/exam/quit/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/')" value="Submit" title="Submit">
+                </div>
+            </form>
+                        </div>
+
+     <!-- FOR MOBILE -->
+             <div class="buttons-div btntab" style="">
+					<div class="save_buttoncontainer_2">
+                        <form id="logout" action="{{URL_ROOT}}/exam/quit/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/" method="post">
+            {% csrf_token %}
+                    <input type="button" class="btn btn-primary-blue sve_nxt auditlogButton" id="finalSubmit" onclick="this.disabled=true; call_quit('{{URL_ROOT}}/exam/quit/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/')" value="Submit" title="Submit Group">
+            </form>
+                    </div>
+
+					<div class="mob_save">
+						<div class="other_buttoncontainer">
+                            <form id="clear" action="{{URL_ROOT}}/exam/{{ question.id }}/clear_response/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                                <input type="submit" class="normalBtn btn btn-primary reset-btn auditlog clearResponse" value="Clear Response" id="clearResponseMbl" style="margin-left: 2px; margin-right: 2px;" title="Clear Response">
+                            </form>
+						</div>
+
+
+					</div>
+
+					<div class="clear"></div>
+
+				</div>
+ </div>
+
+
+
+{#Question block to display question and options#}
+
+  {% block main %}
+
+
+  {% endblock %}
+
+        </div>
+    </div>
+
+
+
+
+    <!-- Container Ends---->
+    <!-- Footer Starts ---->
+    <div id="footer">Built by - Ujjawal Anand</div>
+    <!-- Footer Ends ---->
+
+  <div class="clear"></div>
+
+
+
+{#    Collabsable pane #}
+<script type="text/javascript">
+
+     $(window).load(function(){ quizPageHeight();});
+
+		window.onresize = function(event) {
+			 quizPageHeight();
+		};
+		$(document).ready(function () {
+		    if (jQuery(window).width() > 1023) {
+        quizPageHeight();
+    } else {
+         setDIVHeight_resp();
+     }
+
+
+
+     $(':radio').mousedown(function(e){
+  var $self = $(this);
+  if( $self.is(':checked') ){
+    var uncheck = function(){
+      setTimeout(function(){$self.removeAttr('checked');},0);
+    };
+    var unbind = function(){
+      $self.unbind('mouseup',up);
+    };
+    var up = function(){
+      uncheck();
+      unbind();
+    };
+    $self.bind('mouseup',up);
+    $self.one('mouseout', unbind);
+  }
+});
+
+            jQuery(document).on("click",".collapse_icon",function(){
+  $(".collapsebel_panel").hide();
+  $(".expand_icon").show();
+			});
+					jQuery(document).on("click",".expand_icon",function(){
+  $(".collapsebel_panel").show();
+  $(".expand_icon").hide();
+  if (jQuery(window).width() > 1023) {
+        quizPageHeight();
+    } else {
+         setDIVHeight_resp();
+     }
+			});
+        });
+
+		     $('#vKeyboard').call(triggerKeyboard(1));
+
+		</script>
+</div>
+
+
+<!--Changes for popup Window and Image Gallery-->
+    </div>
+  </div>
+    </div>
+
+
+{% endblock %}

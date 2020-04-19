@@ -1,0 +1,38 @@
+{% extends "Unicorn/base_register.html" %}
+
+{% block container %}
+    {% if not success %}
+<div class="row centered-form center">
+<h3 class="center">Enter your Jupiter roll number to get the OTP on your registered mobile number</h3>
+  <div class="col-xs-12 col-sm-8 col-md-4 col-sm-offset-2 col-md-offset-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Phone Verification</h3>
+      </div>
+      <div class="panel-body">
+        <form role="form" method="POST">
+          {% csrf_token %}
+
+          {{ form.non_field_errors }}
+          {{ form.roll_number.errors }}
+          {{ form.via.errors }}
+
+          <div class="row">
+            {{ form.roll_number }}
+            {{ form.via }}
+          </div>
+
+          <input type="submit" value="Request Verification" class="btn btn-info btn-block">
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+        {% else %}
+        <p>No Record found in our database associated with this {{ roll_number }}. Please contact Jupiter Office</p>
+    {% endif %}
+{% endblock %}
+</body>
+</html>
+

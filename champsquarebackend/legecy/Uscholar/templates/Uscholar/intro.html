@@ -1,0 +1,153 @@
+{% extends "base_jee.html" %}
+{% load thumbnail %}
+
+{% block content %}
+
+	<div id="container" onload="setInstruHeights();">
+
+		<div id="header" style="background-color: rgb(45, 112, 182);">
+			 <table width="100%" cellspacing="0" cellpadding="0" border="0">
+				<tbody>
+				  <tr>
+					<td align="left" id="bannerImage">
+						<div id="bannerImg" style="float:left"><img height="49px" src="{{ URL_ROOT }}/static/Uscholar/img/jupiter_banner.png"></div>
+						<div id="bannerText" align="center" style="margin-top:10px; font-weight:bold;"><font size="4" color="#ffffff"></font></div>
+					</td>
+				  </tr>
+				</tbody>
+			  </table>
+		</div>
+
+		<div id="mainleft" style="height: 674px;">
+			<div class="titlepath otherInstruLabel" id="instruction" style="padding-left:15px;">Other Important Instructions</div>
+			<div id="commonPageInstruction" style="height: 451px;">
+			<iframe id="iframeId" src="{{ URL_ROOT }}/exam/instructions" style="height:100%;width:100%;border:none;border-bottom:1px #CCC solid;"></iframe></div>
+			<div id="instPagination" class="btnsection" align="center" style="display: none;">
+                <a id="instPaginationa" onclick="showInstr()" class="btn btn-primary" style="margin-top:19px; line-height: 38px;"><span><strong><span id="nextTxt">Next</span></strong></span></a>
+				</div>
+				<div id="secondPagep2" style="padding-left: 15px; overflow: auto; max-height: 120px;">
+				<div id="defaultDisclaimerDiv" style="">
+					<div id="defaultLangOptions" style="margin-top: 10px;">
+						<span id="defLang">Choose your default language :</span>
+						<select id="defaultLanguage"><option value="0">-- Select --</option><option value="1">English</option><option value="2">Hindi</option></select>
+						<br><span class="highlightText" id="multiLangInstru">Please note all questions will appear in your default language. This language can be changed for a particular question later on.</span>
+					</div>
+
+					<br>
+					<label class="" id="highlightDisclaimer" style="line-height:16px;margin-bottom: 0;padding-left: 0;">
+					<span style=" vertical-align:top"><input type="checkbox" id="disclaimer" onclick="linkDisp();" style="margin-top:2px;float:left">   </span>
+							<span style="width: 98%; display: block; margin-left: 1.5em;" id="agreementMessageDef"><span style="" class="cusInstText1">I have read and understood the instructions. All computer hardware allotted to me are in proper working condition. I declare  that I am not in possession of / not wearing / not  carrying any prohibited gadget like mobile phone, bluetooth  devices  etc. /any prohibited material with me into the Examination Hall.I agree that in case of not adhering to the instructions, I shall be liable to be debarred from this Test and/or to disciplinary action, which may include ban from future Tests / Examinations</span><span style="width:90%:float:left;display:none;" class="cusInstText2">मैंने निर्देश पढ़ लिया है और समझ लिया है। मुझे आवंटित किए गए सभी कंप्यूटर हार्डवेयर उचित कार्यशील स्थिति में हैं। मैं घोषणा करता / करती हूं कि मैं मोबाइल फोन, ब्लूटूथ डिवाइस आदि जैसे किसी प्रतिबंधित मोबाइल गैजेट को नहीं पहनने / न रखने / परीक्षा हॉल में मेरे साथ कोई निषिद्ध सामग्री नहीं ले रहा हूं। मैं मानता हूं कि निर्देशों का पालन न करने के मामले में, मैं इस टेस्ट और / या अनुशासनात्मक कार्यवाही से वंचित होने के लिए उत्तरदायी होगा, जिसमें भावी टेस्ट / परीक्षाओं से प्रतिबंध शामिल हो सकता है।</span></span><span style="width:98%;display:none;margin-left: 1.5em;" id="agreementMessageCustom"></span>
+					</label>
+
+					<br>
+					</div>
+
+				</div>
+			<div class="btnsection" align="center" style="padding:13px">
+                {% if not questionpaper.quiz.is_expired %}
+                      <form id="start" method="post" align="center">
+                       {% csrf_token %}
+                       <center><button id = "startBtn" class="btn startBtn btn-primary btn-primary-blue" onclick="this.disabled=true; readyToBegin('{{URL_ROOT}}/exam/start/{{ attempt_num }}/{{ questionpaper.id }}/')" style="font-size: 12px; line-height: 38px;" type="button" id="readylink" name="start"> I am ready to begin <span class="glyphicon glyphicon-chevron-right"></span></button></center>
+                      </form>
+                  {% endif %}
+					</div>
+		</div>
+
+        <div id="mainright" style="border-left: 1px solid rgb(0, 0, 0); width: 20%; height: 674px;">
+			<div style="position:relative;padding:20px">
+				<center><img class="candidateImg" style="height:100px;width:100px" src="{% thumbnail paper.user.profile.picture|default:'default_course.png' 140x140 crop %}"> </center>
+			</div>
+			<div id="name" class="candOriginalName" style="font-size: 20px; color: rgb(79, 104, 135); font-weight: bold; text-align: center;">{{ paper.user.first_name.title }}</div>
+			<div class="bluebg"></div>
+		</div>
+	</div>
+	<script>
+
+    $(window).load(function(){ setInstruHeights();});
+
+		window.onresize = function(event) {
+			setInstruHeights();
+		};
+
+var page="previous";
+
+function setInstruHeights(){
+			var height = 0;
+			if($(window).width()<1023){
+			      height = $(window).height() - $("#header").height();
+				}else{
+			      height = $(window).height() - ($("#header").height() + $("#footer").height());
+                }
+			    $('#mainleft').css({ "height": height });
+			    $('#mainright').css({ "height": height });
+			if(mockVar.storeCandResponse==1){
+
+		        $('#secondPagep2').show();
+				$('#secondPageLangView').hide();
+				$('#PreviousInst').hide();
+				$('#iframeId').contents().find('#secondPagep1').show();
+				$('#iframeId').contents().find('#otherImpInstru').show();
+				$('#iframeId').contents().find('#firstPage').css('height', '');
+				$('#iframeId').contents().find('#secondPagep1').css({"height":""});
+				$("#commonPageInstruction").css({ 'height' : height - $('.titlepath').outerHeight() - $('.btnsection').outerHeight() - $('#secondPagep2').outerHeight() - 30 });
+				$('#readylink').show();
+
+			}else{
+
+				if(page=="next"){
+					$("#commonPageInstruction").css({ 'height' : height - $('.titlepath').outerHeight() - $('.btnsection').outerHeight() - 30 });
+				}else{
+					$("#commonPageInstruction").css({ 'height' : height - $('.titlepath').outerHeight() - $('.btnsection').outerHeight() - $('#secondPagep2').outerHeight() - 30 });
+				}
+
+
+			}
+      }
+
+    function readyToBegin(url){
+				var lang = document.getElementById("defaultLanguage");
+                var submitBtn = document.getElementById("startBtn");
+
+				if(lang.value =='0'){
+					cnfPop('InfoPopup');
+		           $("#infoMsg2").html("Please choose your default language.");
+		           submitBtn.disabled = false;
+		           return false;
+				}
+				if(document.getElementById("disclaimer").checked==false) {
+				    cnfPop('InfoPopup');
+		            $("#infoMsg2").html('Please accept terms and conditions before proceeding.');
+                    submitBtn.disabled = false;
+
+
+				    return false;
+                }
+			form = document.forms["start"];
+            form.action = url;
+            form.submit();
+
+		}
+
+
+	$('a').mousedown(function(event){
+		avoidKeyPressing(event);
+	});
+
+</script>
+<div id="footer">Version : 17.02.00</div>
+  	<div class="overlay" style="display:none;"></div>
+<div class="confrmPopup" id="InfoPopup">
+		<div class="cnfPopHdr">
+			<div class="cnfPopHdrLbl info">Info</div>
+			<a class="fRight popClose">close</a>
+			<div class="float-clear"></div>
+		</div>
+		<div class="cnfPopBdy">
+			<img src="{{ URL_ROOT }}/static/Uscholar/img//info.gif" style="vertical-align: middle; margin-right: 10px;" class="info-icon"><span id="infoMsg2" class="info-lbl"></span>
+		</div>
+		<div class="cnfPopBtnPnl">
+			<a class="greenBtn cnfPopNo" id="okButton">Ok</a>
+		</div>
+	</div>
+<input type="hidden" id="defaultLang" value="12">
+{% endblock content %}

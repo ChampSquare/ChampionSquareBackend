@@ -1,0 +1,34 @@
+{% extends 'base_form.html' %}
+{#{% load material_form %}#}
+
+{% block extrahead %}
+<style type="text/css">
+    {{ form.css }}
+    .header {
+       width: 100%;
+       height: 300px;
+       background: rgb(103, 58, 183);
+       color: rgba(255, 255, 255, 1);
+       z-index: 0;
+       position: absolute;
+      }
+    .header h4 {
+      margin-top: 50px;
+      }
+    .card-content {
+         margin-top: 150px;
+     }
+</style>
+{% endblock %}
+
+{% block formclass %}{{ form.blockclass|default:"col s12 m8 offset-m2 l8 offset-l2" }}{% endblock %}
+
+{% block formtitle %}{{ form.title }}{% endblock %}
+
+{% block formbody %}
+    {% include form.template %}
+{% endblock %}
+
+{% block formbuttons %}
+    {% include form.buttons %}
+{% endblock %}
