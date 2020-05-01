@@ -76,8 +76,22 @@ LOCAL_APPS = [
     "champsquarebackend.users.apps.UsersConfig",
     # Your stuff: custom apps go here
 ]
+
+# Apps that were required for old version to work
+# will be removed when new version will start working
+LEGACY_SUPPORT_APPS = [
+    # third party
+    "import_export",
+    "easy_thumbnails",
+    "taggit",
+    
+    # local ones
+    "champsquarebackend.legacy.Uscholar",
+    "champsquarebackend.legacy.Unicorn",
+    "champsquarebackend.legacy.JeeMain"
+]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS + LEGACY_SUPPORT_APPS
 
 # MIGRATIONS
 # ------------------------------------------------------------------------------
@@ -254,3 +268,15 @@ LOGGING = {
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.9/howto/static-files/
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'ujjawalkotafactory@gmail.com'
+EMAIL_HOST_PASSWORD = '1729Lamboo'
+
+ACCOUNT_SECURITY_API_KEY = env('ACCOUNT_SECURITY_API_KEY')
