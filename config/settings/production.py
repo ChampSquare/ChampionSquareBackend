@@ -282,7 +282,7 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'ujjawalkotafactory@gmail.com'
 EMAIL_HOST_PASSWORD = '1729Lamboo'
 
-ACCOUNT_SECURITY_API_KEY = "kjbhghwggfhdbf37464"
+# ACCOUNT_SECURITY_API_KEY = "kjbhghwggfhdbf37464"
 
 
 # GENERAL
