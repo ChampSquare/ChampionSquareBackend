@@ -34,13 +34,13 @@ from .models import Profile, Answer, AnswerPaper,  \
 #                 get_object_form,  QuestionPaperForm, AddUserForm
 
 from champsquarebackend.legacy.Unicorn.models import Student
-# from champsquarebackend.legacy.JeeMain.models import Result
+from champsquarebackend.legacy.JeeMain.models import Result
 
 # from .models import Course, AnswerPaper, QuestionPaper, Profile, Question, QuestionPaper, Quiz
 from .forms import UserLoginForm, UserRegisterForm, AddUserForm, QuestionForm, QuizForm
 
 
-URL_ROOT = ''
+URL_ROOT = '/legacy'
 User = get_user_model()
 
 
@@ -78,7 +78,7 @@ def index(request):
     """The start page.
     """
     user = request.user
-    if user.is_authenticated():
+    if user.is_authenticated:
         if user.groups.filter(name='moderator').count() > 0:
             return my_redirect('/exam/manage/')
         return my_redirect("/exam/quizzes/")
@@ -102,7 +102,7 @@ def user_register(request):
 
     user = request.user
     ci = RequestContext(request)
-    if user.is_authenticated():
+    if user.is_authenticated:
         return my_redirect("/exam/quizzes/")
 
     if request.method == "POST":
@@ -267,7 +267,7 @@ def add_quiz(request, course_id, quiz_id=None):
 def show_all_questionpapers(request, questionpaper_id=None):
     user = request.user
     ci = RequestContext(request)
-    if not user.is_authenticated() or not is_moderator(user):
+    if not user.is_authenticated or not is_moderator(user):
         raise Http404('You are not allowed to view this page!')
 
     if questionpaper_id is None:
@@ -290,7 +290,7 @@ def prof_manage(request, msg=None):
     rights/permissions and log in."""
     user = request.user
     ci = RequestContext(request)
-    if user.is_authenticated() and is_moderator(user):
+    if user.is_authenticated and is_moderator(user):
         question_papers = QuestionPaper.objects.filter(quiz__course__creator=user,
                                                        quiz__is_trial=False
                                                        )
@@ -367,7 +367,7 @@ def enroll_student(request, course_id):
 def show_results(request, questionpaper_id=None):
     user = request.user
     ci = RequestContext(request)
-    if not user.is_authenticated() or not is_moderator(user):
+    if not user.is_authenticated or not is_moderator(user):
         raise Http404('You are not allowed to view this page!')
 
     if questionpaper_id is None:
@@ -421,10 +421,10 @@ def start(request, questionpaper_id=None, attempt_num=None):
         enroll_student(request, quest_paper.quiz.course.id)
     # prerequisite check and passing criteria
 
-    # if quest_paper.quiz.is_expired():
-    #     if is_moderator(user):
-    #         return redirect("/exam/manage")
-    #     return redirect("/exam")
+    if quest_paper.quiz.is_expired():
+        if is_moderator(user):
+            return redirect("/exam/manage")
+        return redirect("/exam")
     
     if quest_paper.quiz.has_prerequisite() and not quest_paper.is_prerequisite_passed(user):
         if is_moderator(user):
@@ -444,10 +444,10 @@ def start(request, questionpaper_id=None, attempt_num=None):
         return complete(request, msg, attempt_num, quest_paper.id)
 
     # allowed to start
-    # if not quest_paper.can_attempt_now(user):
-    #     if is_moderator(user):
-    #         return redirect("/exam/manage")
-    #     return redirect("/exam/quizzes")
+    if not quest_paper.can_attempt_now(user):
+        if is_moderator(user):
+            return redirect("/exam/manage")
+        return redirect("/exam/quizzes")
     if attempt_num is None:
         attempt_number = 1 if not last_attempt else last_attempt.attempt_number + 1
         context = {'user': user, 'questionpaper': quest_paper,
@@ -816,7 +816,7 @@ def monitor(request, questionpaper_id=None):
 
     user = request.user
     ci = RequestContext(request)
-    if not user.is_authenticated() or not is_moderator(user):
+    if not user.is_authenticated or not is_moderator(user):
         raise Http404('You are not allowed to view this page!')
 
 
