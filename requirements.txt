@@ -4,6 +4,7 @@ six==1.14.0
 django_debug_toolbar==2.2
 Django==3.0.5
 environ==1.0
+psycopg2-binary==2.7.6.1
 
 # legecy support requirements
 tablib==1.1.0
