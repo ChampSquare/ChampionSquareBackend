@@ -353,11 +353,11 @@ SECURE_CONTENT_TYPE_NOSNIFF = env.bool(
 # https://django-storages.readthedocs.io/en/latest/#installation
 INSTALLED_APPS += ["storages"]  # noqa F405
 # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
-AWS_ACCESS_KEY_ID = env("DJANGO_AWS_ACCESS_KEY_ID")
+AWS_ACCESS_KEY_ID = "AKIAIJ7IQEQTH5MSOV3Q"
 # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
-AWS_SECRET_ACCESS_KEY = env("DJANGO_AWS_SECRET_ACCESS_KEY")
+AWS_SECRET_ACCESS_KEY = "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"
 # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
-AWS_STORAGE_BUCKET_NAME = env("DJANGO_AWS_STORAGE_BUCKET_NAME")
+AWS_STORAGE_BUCKET_NAME = "elasticbeanstalk-ap-south-1-910766883636"
 # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
 AWS_QUERYSTRING_AUTH = False
 # DO NOT change these unless you know what you're doing.
@@ -369,7 +369,7 @@ AWS_S3_OBJECT_PARAMETERS = {
 #  https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
 AWS_DEFAULT_ACL = None
 # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
-AWS_S3_REGION_NAME = env("DJANGO_AWS_S3_REGION_NAME", default=None)
+AWS_S3_REGION_NAME = "ap-south-1"
 # STATIC
 # ------------------------
 STATICFILES_STORAGE = "champsquarebackend.utils.storages.StaticRootS3Boto3Storage"
