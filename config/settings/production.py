@@ -282,7 +282,7 @@ ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["*"])
 DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'onlintest',
+            'NAME': 'champsquarebackend',
             'USER': 'andy1729',
             'PASSWORD': 'ReleaseTHEServer2520',
             'HOST': 'localhost',
@@ -310,32 +310,32 @@ DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=60)  # no
 # SECURITY
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#secure-proxy-ssl-header
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # https://docs.djangoproject.com/en/dev/ref/settings/#secure-ssl-redirect
-SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=True)
+# SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=True)
 # https://docs.djangoproject.com/en/dev/ref/settings/#session-cookie-secure
-SESSION_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#csrf-cookie-secure
-CSRF_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 # https://docs.djangoproject.com/en/dev/topics/security/#ssl-https
 # https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-seconds
 # TODO: set this to 60 seconds first and then to 518400 once you prove the former works
-SECURE_HSTS_SECONDS = 60
+# SECURE_HSTS_SECONDS = 60
 # https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-include-subdomains
-SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool(
-    "DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", default=True
-)
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool(
+    # "DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", default=True
+# )
 # https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-preload
-SECURE_HSTS_PRELOAD = env.bool("DJANGO_SECURE_HSTS_PRELOAD", default=True)
+# SECURE_HSTS_PRELOAD = env.bool("DJANGO_SECURE_HSTS_PRELOAD", default=True)
 # https://docs.djangoproject.com/en/dev/ref/middleware/#x-content-type-options-nosniff
-SECURE_CONTENT_TYPE_NOSNIFF = env.bool(
-    "DJANGO_SECURE_CONTENT_TYPE_NOSNIFF", default=True
-)
+# SECURE_CONTENT_TYPE_NOSNIFF = env.bool(
+    # "DJANGO_SECURE_CONTENT_TYPE_NOSNIFF", default=True
+# )
 
 # STORAGES
 # ------------------------------------------------------------------------------
 # https://django-storages.readthedocs.io/en/latest/#installation
-INSTALLED_APPS += ["storages"]  # noqa F405
+# INSTALLED_APPS += ["storages"]  # noqa F405
 # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
 AWS_ACCESS_KEY_ID = "AKIAIJ7IQEQTH5MSOV3Q"
 # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
@@ -356,26 +356,26 @@ AWS_DEFAULT_ACL = None
 AWS_S3_REGION_NAME = "ap-south-1"
 # STATIC
 # ------------------------
-STATICFILES_STORAGE = "champsquarebackend.utils.storages.StaticRootS3Boto3Storage"
-COLLECTFAST_STRATEGY = "collectfast.strategies.boto3.Boto3Strategy"
-STATIC_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/static/"
+# STATICFILES_STORAGE = "champsquarebackend.utils.storages.StaticRootS3Boto3Storage"
+# COLLECTFAST_STRATEGY = "collectfast.strategies.boto3.Boto3Strategy"
+# STATIC_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/static/"
 # MEDIA
 # ------------------------------------------------------------------------------
-DEFAULT_FILE_STORAGE = "champsquarebackend.utils.storages.MediaRootS3Boto3Storage"
-MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/media/"
+# DEFAULT_FILE_STORAGE = "champsquarebackend.utils.storages.MediaRootS3Boto3Storage"
+# MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/media/"
 
 # TEMPLATES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#templates
-TEMPLATES[-1]["OPTIONS"]["loaders"] = [  # type: ignore[index] # noqa F405
-    (
-        "django.template.loaders.cached.Loader",
-        [
-            "django.template.loaders.filesystem.Loader",
-            "django.template.loaders.app_directories.Loader",
-        ],
-    )
-]
+# TEMPLATES[-1]["OPTIONS"]["loaders"] = [  # type: ignore[index] # noqa F405
+#     (
+#         "django.template.loaders.cached.Loader",
+#         [
+#             "django.template.loaders.filesystem.Loader",
+#             "django.template.loaders.app_directories.Loader",
+#         ],
+#     )
+# ]
 
 # EMAIL
 # ------------------------------------------------------------------------------
@@ -393,22 +393,22 @@ EMAIL_SUBJECT_PREFIX = env(
 # ADMIN
 # ------------------------------------------------------------------------------
 # Django Admin URL regex.
-ADMIN_URL = "admin_login"
+# ADMIN_URL = "admin_login"
 
 # Anymail
 # ------------------------------------------------------------------------------
 # https://anymail.readthedocs.io/en/stable/installation/#installing-anymail
-INSTALLED_APPS += ["anymail"]  # noqa F405
+# INSTALLED_APPS += ["anymail"]  # noqa F405
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
 # https://anymail.readthedocs.io/en/stable/installation/#anymail-settings-reference
 # https://anymail.readthedocs.io/en/stable/esps
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-ANYMAIL = {}
+# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+# ANYMAIL = {}
 
 # Collectfast
 # ------------------------------------------------------------------------------
 # https://github.com/antonagestam/collectfast#installation
-INSTALLED_APPS = ["collectfast"] + INSTALLED_APPS  # noqa F405
+# INSTALLED_APPS = ["collectfast"] + INSTALLED_APPS  # noqa F405
 
 # LOGGING
 # ------------------------------------------------------------------------------

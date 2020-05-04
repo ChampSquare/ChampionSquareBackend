@@ -42,8 +42,7 @@ LOCALE_PATHS = [str(ROOT_DIR / "locale")]
 # DATABASES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
-DATABASES = {"default": env.db("DATABASE_URL")}
-DATABASES["default"]["ATOMIC_REQUESTS"] = True
+# DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
 # URLS
 # ------------------------------------------------------------------------------
@@ -279,4 +278,4 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'ujjawalkotafactory@gmail.com'
 EMAIL_HOST_PASSWORD = '1729Lamboo'
 
-ACCOUNT_SECURITY_API_KEY = env('ACCOUNT_SECURITY_API_KEY')
+ACCOUNT_SECURITY_API_KEY = 'jfjbgjhghgh'
