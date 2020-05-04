@@ -40,14 +40,14 @@ from champsquarebackend.legacy.JeeMain.models import Result
 from .forms import UserLoginForm, UserRegisterForm, AddUserForm, QuestionForm, QuizForm
 
 
-URL_ROOT = '/legacy'
+URL_ROOT = ''
 User = get_user_model()
 
 
 def my_redirect(url):
     """An overridden redirect to deal with URL_ROOT-ing. See settings.py
     for details."""
-    return redirect(URL_ROOT + url)
+    return redirect('legacy/' + url)
 
 
 def my_render_to_response(request, template, context=None, **kwargs):
