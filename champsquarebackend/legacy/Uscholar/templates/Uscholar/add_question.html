@@ -8,16 +8,6 @@
 
 {% block script %}
 <script src="{{ URL_ROOT }}/static/Uscholar/js/add_question.js"></script>
-<script type="text/x-mathjax-config">
-    MathJax.Ajax.config.path["mhchem"] = "https://cdn.rawgit.com/mhchem/MathJax-mhchem/fae3ec0a";
-    MathJax.Hub.Config({
-      TeX: {
-        extensions: ["[mhchem]/mhchem.js", "color.js"],
-        noErrors: { disabled: true }
-      }
-    });
-  </script>
-{% mathjax_scripts %}
 
 {% endblock %}
 

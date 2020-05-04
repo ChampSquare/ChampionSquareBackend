@@ -27,7 +27,7 @@ DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
             # 'NAME': 'onlintest',
-            'NAME': 'champsquarebackend',
+            # 'NAME': 'champsquarebackend',
             # 'NAME': 'rahmani_3',
             'USER': 'andy1729',
             'PASSWORD': 'ReleaseTHEServer2520',
