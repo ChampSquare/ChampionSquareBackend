@@ -29,15 +29,15 @@ import six
 from .models import get_model_class, Quiz, Question, QuestionPaper, QuestionSet, Course
 from .models import Profile, Answer, AnswerPaper,  \
                          has_profile
-# from .forms import UserRegisterForm, UserLoginForm, QuizForm,\
-#                 QuestionForm, QuestionFilterForm, CourseForm, ProfileForm, \
-#                 get_object_form,  QuestionPaperForm, AddUserForm
+from .forms import UserRegisterForm, UserLoginForm, QuizForm,\
+                QuestionForm, QuestionFilterForm, CourseForm, ProfileForm, \
+                get_object_form,  QuestionPaperForm, AddUserForm
 
 from champsquarebackend.legacy.Unicorn.models import Student
 from champsquarebackend.legacy.JeeMain.models import Result
 
 # from .models import Course, AnswerPaper, QuestionPaper, Profile, Question, QuestionPaper, Quiz
-from .forms import UserLoginForm, UserRegisterForm, AddUserForm, QuestionForm, QuizForm
+# from .forms import UserLoginForm, UserRegisterForm, AddUserForm, QuestionForm, QuizForm
 
 
 URL_ROOT = ''
