@@ -47,7 +47,7 @@ User = get_user_model()
 def my_redirect(url):
     """An overridden redirect to deal with URL_ROOT-ing. See settings.py
     for details."""
-    return redirect('legacy/' + url)
+    return redirect(url)
 
 
 def my_render_to_response(request, template, context=None, **kwargs):

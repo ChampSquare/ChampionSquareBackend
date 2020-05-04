@@ -31,8 +31,8 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
 
     # urls for legacy site
-    path('legacy/exam/', include('champsquarebackend.legacy.Uscholar.urls', namespace='Uscholar')),
-    path('legacy/jee_main/', include('champsquarebackend.legacy.JeeMain.urls', namespace='JeeMain')),
+    path('exam/', include('champsquarebackend.legacy.Uscholar.urls', namespace='Uscholar')),
+    path('jee_main/', include('champsquarebackend.legacy.JeeMain.urls', namespace='JeeMain')),
     path('legacy/', include('champsquarebackend.legacy.Unicorn.urls', namespace="Unicorn")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
