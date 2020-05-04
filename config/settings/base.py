@@ -74,6 +74,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "champsquarebackend.users.apps.UsersConfig",
+    "champsquarebackend.home.apps.HomeConfig",
     # Your stuff: custom apps go here
 ]
 
