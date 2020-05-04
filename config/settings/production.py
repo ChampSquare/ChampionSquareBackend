@@ -281,12 +281,12 @@ ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["*"])
 # DATABASES["default"] = env.db("DATABASE_URL")  # noqa F405
 DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'onlinetest',
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'onlintest',
             'USER': 'andy1729',
             'PASSWORD': 'ReleaseTHEServer2520',
-            'HOST': 'onlinetest.cecrwi7ie5io.ap-south-1.rds.amazonaws.com',
-            'PORT': '5432',
+            'HOST': 'localhost',
+            'PORT': 5432,
         }
     }
 DATABASES["default"]["ATOMIC_REQUESTS"] = True  # noqa F405
