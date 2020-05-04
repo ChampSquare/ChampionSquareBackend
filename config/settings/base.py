@@ -73,6 +73,9 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
+    "champsquarebackend.legacy.Uscholar",
+    "champsquarebackend.legacy.Unicorn",
+    "champsquarebackend.legacy.JeeMain",
     "champsquarebackend.users.apps.UsersConfig",
     "champsquarebackend.home.apps.HomeConfig",
     # Your stuff: custom apps go here
@@ -87,9 +90,7 @@ LEGACY_SUPPORT_APPS = [
     "taggit",
     
     # local ones
-    "champsquarebackend.legacy.Uscholar",
-    "champsquarebackend.legacy.Unicorn",
-    "champsquarebackend.legacy.JeeMain"
+    
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS + LEGACY_SUPPORT_APPS

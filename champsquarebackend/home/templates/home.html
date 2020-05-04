@@ -11,7 +11,7 @@
     <title>ChampionSquare | An Online Academy</title>
 
     <!-- Favicons-->
-    <link rel="shortcut icon" href="{% static "home/img/favicon.ico" %}" type="image/x-icon">
+    <!-- <link rel="shortcut icon" href="{% static "home/img/favicon.ico" %}" type="image/x-icon"> -->
     <link rel="apple-touch-icon" type="image/x-icon" href="{% static "home/img/apple-touch-icon-57x57-precomposed.png" %}">
     <link rel="apple-touch-icon" type="image/x-icon" sizes="72x72" href="{% static "home/img/apple-touch-icon-72x72-precomposed.png" %}">
     <link rel="apple-touch-icon" type="image/x-icon" sizes="114x114" href="{% static "home/img/apple-touch-icon-114x114-precomposed.png" %}">
@@ -50,10 +50,10 @@
 		</div>
 		<ul id="top_menu">
             {% if not request.user.is_authenticated %}
-			<li><a href="" class="login">Login</a></li>
+			<li><a href="{% url 'Uscholar:login' %}" class="login">Login</a></li>
 			<li class="hidden_tablet"><a href="" class="btn_1 rounded">Admission</a></li>
                 {% else %}
-                <li><a href="" class="icon-logout">Logout</a></li>
+                <li><a href="{% url 'Uscholar:logout' %}" class="icon-logout">Logout</a></li>
             {% endif %}
 		</ul>
 		<!-- /top_menu -->

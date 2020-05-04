@@ -1,4 +1,4 @@
-{% load staticfiles %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -43,7 +43,7 @@
 	<div id="login">
 		<aside>
 			<figure>
-				<a href="{% url "home:home_index" %}"><img src="{% static "home/img/logo3.png" %}" width="149" height="42" data-retina="true" alt=""></a>
+				<a href="#"><img src="{% static "home/img/logo3.png" %}" width="149" height="42" data-retina="true" alt=""></a>
 			</figure>
 			  <form role="form" method="POST">
                   {% csrf_token %}

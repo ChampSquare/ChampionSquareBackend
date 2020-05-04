@@ -21,7 +21,8 @@ from django.views.generic import TemplateView
 from django.urls import path, include
 
 urlpatterns = [
-    path('', include('champsquarebackend.home.urls', namespace='home')),
+    path('', include('champsquarebackend.home.urls', namespace='home'), name='home'),
+    # path('', include('champsquarebackend.home.urls', namespace='home')),
     path('about/', TemplateView.as_view(template_name="pages/about.html"), name="about"),
     # django admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
