@@ -334,7 +334,7 @@ def user_login(request):
     if user.is_authenticated:
         if user.groups.filter(name='moderator').count() > 0:
             return my_redirect('/exam/manage/')
-        return my_redirect("/legacy/exam/start/1")  #hardcoded url
+        return my_redirect("/exam/start/1")  #hardcoded url
 
     if request.method == "POST":
         form = UserLoginForm(request.POST)
@@ -343,7 +343,7 @@ def user_login(request):
             login(request, user)
             if user.groups.filter(name='moderator').count() > 0:
                 return my_redirect('/exam/manage/')
-            return my_redirect('/legacy/exam/start/1/')  #harcoded url 
+            return my_redirect('/exam/start/1/')  #harcoded url 
         else:
             context = {"form": form}
             return my_render_to_response(request, 'login.html', context,
@@ -1090,7 +1090,7 @@ def show_all_questions(request):
                 trial_paper.update_total_marks()
                 trial_paper.update_total_questions()
                 trial_paper.save()
-                return my_redirect("legacy/exam/start/1/{0}".format(trial_paper.id))
+                return my_redirect("/exam/start/1/{0}".format(trial_paper.id))
             else:
                 context["msg"] = "Please select atleast one question to test"
 
@@ -1419,7 +1419,7 @@ def test_quiz(request, mode, quiz_id):
         return my_redirect('/exam/manage')
 
     trial_questionpaper = test_mode(current_user, godmode, None, quiz_id)
-    return my_redirect("legacy/exam/start/{0}".format(trial_questionpaper.id))
+    return my_redirect("exam/start/{0}".format(trial_questionpaper.id))
 
 
 @login_required
