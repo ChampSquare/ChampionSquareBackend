@@ -26,7 +26,7 @@ CACHES = {
 DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'champsquarebackend',
+            'NAME': 'onlintest',
             'USER': 'andy1729',
             'PASSWORD': 'ReleaseTHEServer2520',
             'HOST': 'localhost',
