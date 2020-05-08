@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_filters %}
 <!doctype html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
@@ -45,12 +46,12 @@ ChampionSquare | Online Test Platform
 </head>
 
 <body>
-{% block pagetitle %} <img class="center-block" src="{% static 'Uscholar/img/champion.png' %}" alt="ChampionSquare" class="img-responsive"> {% endblock pagetitle %}
+{% block pagetitle %} <a href="/"></a><img class="center-block" src="{% static 'Uscholar/img/champion.png' %}" alt="ChampionSquare" class="img-responsive"></a> {% endblock pagetitle %}
 <div class="container">
-  <h4>Candidate's Name : {{ paper.user.profile.student.name }} </h3>
-<h5>Roll Number : {{ paper.user.username }} </h5>
-<h5>Quiz : Rahmani30 Jee Main Mock Test - 3 </h5>
-<h5>Test Date : 05 Jan 2020 10:00 AM - 01:00 PM</h5> 
+  <h4>Candidate's Name : {{ request.user.profile.student.name }} </h3>
+<h5>Roll Number : {{ request.user.username }} </h5>
+<h5>Quiz : {{paper.question_paper.quiz.description}} </h5>
+<h5>Test Date : {{paper.start_time}}</h5> 
 
 <table class="table table-bordered">
 <tr>
@@ -99,6 +100,7 @@ ChampionSquare | Online Test Platform
             <th>Student's Answer</th>
             <th>Autocheck</th>
             <th>Marks</th>
+            <th>Time Taken</th>
         </tr>
         {% for question, answer in question_answers %}
         <tr>
@@ -130,6 +132,8 @@ ChampionSquare | Online Test Platform
         </div></div>
             </td>
             <td>{{answer.marks|floatformat}}</td>
+
+            <td>{{answer.time_spent|print_timestamp}}</td>
             
         </tr>
         {% endfor %}

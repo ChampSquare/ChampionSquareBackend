@@ -36,18 +36,13 @@ from .forms import UserRegisterForm, UserLoginForm, QuizForm,\
 from champsquarebackend.legacy.Unicorn.models import Student
 from champsquarebackend.legacy.JeeMain.models import Result
 
-# from .models import Course, AnswerPaper, QuestionPaper, Profile, Question, QuestionPaper, Quiz
-# from .forms import UserLoginForm, UserRegisterForm, AddUserForm, QuestionForm, QuizForm
-
-
 URL_ROOT = ''
 User = get_user_model()
-
 
 def my_redirect(url):
     """An overridden redirect to deal with URL_ROOT-ing. See settings.py
     for details."""
-    return redirect(url)
+    return redirect(URL_ROOT+url)
 
 
 def my_render_to_response(request, template, context=None, **kwargs):
@@ -444,10 +439,10 @@ def start(request, questionpaper_id=None, attempt_num=None):
         return complete(request, msg, attempt_num, quest_paper.id)
 
     # allowed to start
-    if not quest_paper.can_attempt_now(user):
-        if is_moderator(user):
-            return redirect("/exam/manage")
-        return redirect("/exam/quizzes")
+    # if not quest_paper.can_attempt_now(user):
+    #     if is_moderator(user):
+    #         return redirect("/exam/manage")
+    #     return redirect("/exam/quizzes")
     if attempt_num is None:
         attempt_number = 1 if not last_attempt else last_attempt.attempt_number + 1
         context = {'user': user, 'questionpaper': quest_paper,
@@ -523,89 +518,92 @@ def show_jee_main_question(request, paper, error_message=None, notification=None
     question_answers = zip(paper.question_paper.fixed_questions.all().order_by('id'),
                            paper.answers.all().order_by('question__id'))
 
+    question_answers_2 = zip(paper.question_paper.fixed_questions.all().order_by('id'),
+                           paper.answers.all().order_by('question__id'))
+
     context = {'paper': paper,
-            'question_answers': question_answers}
+            'question_answers': question_answers, 'question_answers_2': question_answers_2}
     ci = RequestContext(request)
 
     return my_render_to_response(request, "jee_main_exam.html", context, context_instance=ci)
 
 
-@login_required
-def check(request, q_id, attempt_num=None, questionpaper_id=None, marked_for_review=False):
-    """Checks the answers of the user for particular question"""
-    user = request.user
-    paper = get_object_or_404(AnswerPaper, user=request.user, attempt_number=attempt_num,
-                              question_paper=questionpaper_id)
-    current_question = get_object_or_404(Question, pk=q_id)
-    next_question = paper.next_question(q_id)
+# @login_required
+# def check(request, q_id, attempt_num=None, questionpaper_id=None, marked_for_review=False):
+#     """Checks the answers of the user for particular question"""
+#     user = request.user
+#     paper = get_object_or_404(AnswerPaper, user=request.user, attempt_number=attempt_num,
+#                               question_paper=questionpaper_id)
+#     current_question = get_object_or_404(Question, pk=q_id)
+#     next_question = paper.next_question(q_id)
 
-    if request.method == 'POST':
-        # Add the answer submitted, regardless of it being correct or not.
+#     if request.method == 'POST':
+#         # Add the answer submitted, regardless of it being correct or not.
 
-        if not marked_for_review:
-            paper.remove_mark_for_review(current_question.id)
+#         if not marked_for_review:
+#             paper.remove_mark_for_review(current_question.id)
 
-        if current_question in paper.questions_answered.all():
-            clear_response(request, q_id, attempt_num, questionpaper_id)
+#         if current_question in paper.questions_answered.all():
+#             clear_response(request, q_id, attempt_num, questionpaper_id)
 
-        if request.POST.get('answer') == None:
-            return show_question(request, next_question, paper)
+#         if request.POST.get('answer') == None:
+#             return show_question(request, next_question, paper)
 
-        if current_question.type == 'mcq':
-            user_answer = request.POST.get('answer')
-        elif current_question.type == 'integer':
-            try:
-                user_answer = int(request.POST.get('answer'))
-            except ValueError:
-                user_answer = 0
+#         if current_question.type == 'mcq':
+#             user_answer = request.POST.get('answer')
+#         elif current_question.type == 'integer':
+#             try:
+#                 user_answer = int(request.POST.get('answer'))
+#             except ValueError:
+#                 user_answer = 0
 
-        elif current_question.type == 'mcc':
-            user_answer = request.POST.getlist('answer')
+#         elif current_question.type == 'mcc':
+#             user_answer = request.POST.getlist('answer')
 
-        elif current_question.type == 'paragraph':
-            user_answer = request.POST.get('answer')
+#         elif current_question.type == 'paragraph':
+#             user_answer = request.POST.get('answer')
 
-        elif current_question.type == 'match':
-            user_answer = request.POST.get('answer')
+#         elif current_question.type == 'match':
+#             user_answer = request.POST.get('answer')
 
-        else:
-            user_answer = None
-        if not user_answer:
-            user_answer = 0
+#         else:
+#             user_answer = None
+#         if not user_answer:
+#             user_answer = 0
 
-        new_answer = Answer(question=current_question, answer=user_answer,
-                            correct=False, error=json.dumps([]))
+#         new_answer = Answer(question=current_question, answer=user_answer,
+#                             correct=False, error=json.dumps([]))
 
-        result = paper.validate_answer(user_answer, current_question)
-        if result.get('success'):
-            marks = current_question.points
-            new_answer.set_marks(marks)
-            new_answer.correct = result.get('success')
-            error_message = None
-            new_answer.error = json.dumps(result.get('error'))
-            next_question = paper.add_completed_question(current_question.id)
+#         result = paper.validate_answer(user_answer, current_question)
+#         if result.get('success'):
+#             marks = current_question.points
+#             new_answer.set_marks(marks)
+#             new_answer.correct = result.get('success')
+#             error_message = None
+#             new_answer.error = json.dumps(result.get('error'))
+#             next_question = paper.add_completed_question(current_question.id)
 
-        else:
-            marks = result.get('negative')+result.get('partial')
-            new_answer.set_marks(marks)
-            error_message = result.get('error') if current_question.type == 'code' \
-                or current_question.type == 'upload' else None
-            new_answer.error = json.dumps(result.get('error'))
-            next_question = current_question if current_question.type == 'code' \
-                or current_question.type == 'upload' \
-                else paper.add_completed_question(current_question.id)
+#         else:
+#             marks = result.get('negative')+result.get('partial')
+#             new_answer.set_marks(marks)
+#             error_message = result.get('error') if current_question.type == 'code' \
+#                 or current_question.type == 'upload' else None
+#             new_answer.error = json.dumps(result.get('error'))
+#             next_question = current_question if current_question.type == 'code' \
+#                 or current_question.type == 'upload' \
+#                 else paper.add_completed_question(current_question.id)
 
-        new_answer.save()
-        paper.answers.add(new_answer)
+#         new_answer.save()
+#         paper.answers.add(new_answer)
 
-        paper.update_marks('inprogress')
-        paper.set_end_time(timezone.now())
-        return show_question(request, next_question, paper, error_message)
-    else:
-        return show_question(request, current_question, paper)
+#         paper.update_marks('inprogress')
+#         paper.set_end_time(timezone.now())
+#         return show_question(request, next_question, paper, error_message)
+#     else:
+#         return show_question(request, current_question, paper)
 
 
-def quit_exam(request, reason=None, attempt_num=None, questionpaper_id=None):
+def quit(request, reason=None, attempt_num=None, questionpaper_id=None):
     """Show the quit page when the user logs out."""
     paper = AnswerPaper.objects.get(user=request.user,
                                     attempt_number=attempt_num,
@@ -836,30 +834,13 @@ def monitor(request, questionpaper_id=None):
     try:
         q_paper = QuestionPaper.objects.filter(Q(quiz__course__creator=user) |
                                                Q(quiz__course__teachers=user),
-                                               quiz__is_trial=False,
                                                id=questionpaper_id).distinct()
     except QuestionPaper.DoesNotExist:
         q_paper = None
         latest_attempts = []
-    else:
-        latest_attempts = []
+    
 
-        # for paper in papers:
-        #      paper.delete()
-
-        users = papers.values_list('user').distinct()
-        for auser in users:
-            last_attempt = papers.filter(user__in=auser).aggregate(
-                    last_attempt_num=Max('attempt_number'))
-            try:
-                latest_attempts.append(papers.get(user__in=auser,
-                                                  attempt_number=last_attempt['last_attempt_num']))
-            except MultipleObjectsReturned:
-                latest_attempts.append(papers.filter(user__in=auser,
-                                                     attempt_number=last_attempt['last_attempt_num']))
-
-    context = {'papers': papers, 'quiz': q_paper, 'quizzes': None,
-            'latest_attempts': latest_attempts, }
+    context = {'papers': papers, 'quiz': q_paper, 'quizzes': None }
 
 
     return my_render_to_response(request, 'Uscholar/monitor.html', context,
@@ -1419,7 +1400,7 @@ def test_quiz(request, mode, quiz_id):
         return my_redirect('/exam/manage')
 
     trial_questionpaper = test_mode(current_user, godmode, None, quiz_id)
-    return my_redirect("exam/start/{0}".format(trial_questionpaper.id))
+    return my_redirect("/exam/start/{0}".format(trial_questionpaper.id))
 
 
 @login_required

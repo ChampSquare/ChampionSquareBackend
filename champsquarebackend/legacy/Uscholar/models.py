@@ -5,7 +5,7 @@ from os.path import join, exists
 from django.core.validators import RegexValidator
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db.models import Q
+from django.db.models import Q, Sum
 
 import json
 from random import sample
@@ -652,11 +652,7 @@ class QuestionPaper(models.Model):
 
     def update_total_questions(self):
         """ Updates the total marks for the Question Paper"""
-        no_of_questions = 0
-        questions = self.fixed_questions.all()
-        for question in questions:
-            no_of_questions += 1
-        self.total_questions = no_of_questions
+        self.total_questions = self.fixed_questions.count()
 
     def _get_questions_for_answerpaper(self):
         """ Returns fixed and random questions for the answer paper"""
@@ -670,7 +666,7 @@ class QuestionPaper(models.Model):
             user_ip=ip,
             attempt_number=attempt_num
         )
-        ans_paper.start_time = self.quiz.start_date_time
+        ans_paper.start_time = timezone.now()
         ans_paper.end_time = ans_paper.start_time + \
             timedelta(minutes=self.quiz.duration)
         ans_paper.question_paper = self
@@ -1062,44 +1058,51 @@ class AnswerPaper(models.Model):
         return int(remain)
 
     def get_attempt_count(self):
-        count = 0
-        marks = 0
-        for answer in self.answers.all():
-            marks += answer.marks
-            if answer.status == "2" or answer.status == "4":
-                count += 1
-        self.marks_obtained = float(marks)
-        self.save()
-        return count
+        return self.answers.filter(Q(status='2') | Q(status="4")).count()
+        # count = 0
+        # marks = 0
+        # for answer in self.answers.all():
+        #     marks += answer.marks
+        #     if answer.status == "2" or answer.status == "4":
+        #         count += 1
+        # self.marks_obtained = float(marks)
+        # self.save()
+        # return count
 
     def get_correct_answer_num(self):
-        count = 0
-        for answer in self.answers.all():
-            if answer.correct:
-                count += 1
-        return count
+        return self.answers.filter(Q(correct=True) & (Q(status="2") | Q(status="4"))).count()
+        
+        # count = 0
+        # for answer in self.answers.all():
+        #     if answer.correct:
+        #         count += 1
+        # return count
 
     def _get_attempt_count_by_subject(self, subject):
-        count = 0
-        marks = 0
-        for answer in self.answers.filter(question__subject = subject):
-            marks += answer.marks
-            if answer.status == "2" or answer.status == "4":
-                count += 1
-        self.marks_obtained = float(marks)
-        self.save()
-        return count
+        return self.answers.filter(Q(question__subject=subject) & (Q(status="2") | Q(status="4"))).count()
+
+        # count = 0
+        # marks = 0
+        # for answer in self.answers.filter(question__subject = subject):
+        #     marks += answer.marks
+        #     if answer.status == "2" or answer.status == "4":
+        #         count += 1
+        # self.marks_obtained = float(marks)
+        # self.save()
+        # return count
 
     def _get_attempt_count_by_type(self, question_type):
-        count = 0
-        marks = 0
-        for answer in self.answers.filter(question__type = question_type):
-            marks += answer.marks
-            if answer.status == "2" or answer.status == "4":
-                count += 1
-        self.marks_obtained = float(marks)
-        self.save()
-        return count
+        return self.answers.filter(Q(question__type=question_type) & (Q(status="2") | Q(status="4"))).count()
+
+        # count = 0
+        # marks = 0
+        # for answer in self.answers.filter(question__type = question_type):
+        #     marks += answer.marks
+        #     if answer.status == "2" or answer.status == "4":
+        #         count += 1
+        # self.marks_obtained = float(marks)
+        # self.save()
+        # return count
 
     def get_attempt_count_in_mcq(self):
         return self._get_attempt_count_by_type(question_type="mcq")
@@ -1108,18 +1111,17 @@ class AnswerPaper(models.Model):
         return self._get_attempt_count_by_type(question_type="integer")
 
     def _get_correct_answer_num_by_subject(self, subject):
-        count = 0
-        for answer in self.answers.filter(question__subject=subject):
-            if answer.correct:
-                count += 1
-        return count
+        return self.answers.filter(Q(question__subject=subject) & Q(correct=True)).count()
+        
 
     def _get_correct_answer_num_by_type(self, question_type):
-        count = 0
-        for answer in self.answers.filter(question__type=question_type):
-            if answer.correct:
-                count += 1
-        return count
+        return self.answers.filter(Q(question__type=question_type) & Q(correct=True) & (Q(status="2") | Q(status="4"))).count()
+
+        # count = 0
+        # for answer in self.answers.filter(question__type=question_type):
+        #     if answer.correct:
+        #         count += 1
+        # return count
 
     def get_correct_answer_number_in_mcq(self):
         return self._get_correct_answer_num_by_type(question_type="mcq")
@@ -1143,23 +1145,30 @@ class AnswerPaper(models.Model):
 
     def _get_marks_obtained_by_subject(self, subject):
         """Updates the total marks earned by student for this paper."""
-        marks = 0
-        for question in self.questions.filter(subject=subject):
-            marks_list = [a.marks
-                          for a in self.answers.filter(question=question)]
-            max_marks = max(marks_list) if marks_list else 0.0
-            marks += max_marks
-        return marks
+        marks_by_subject = Sum('answers__marks', filter=Q(id=self.pk) & Q(answers__question__subject=subject))
+        marks_dict = AnswerPaper.objects.aggregate(marks_by_subject=marks_by_subject)
+        return marks_dict.get('marks_by_subject')
+        # marks = 0
+        # marks_dict =  self.answers.aggregate(Sum('marks'))
+        # for question in self.questions.filter(subject=subject):
+        #     marks_list = [a.marks
+        #                   for a in self.answers.filter(question=question)]
+        #     max_marks = max(marks_list) if marks_list else 0.0
+        #     marks += max_marks
+        # return marks
 
     def _get_marks_obtained_by_type(self, question_type):
         """Updates the total marks earned by student for this paper."""
-        marks = 0
-        for question in self.questions.filter(type=question_type):
-            marks_list = [a.marks
-                          for a in self.answers.filter(question=question)]
-            max_marks = max(marks_list) if marks_list else 0.0
-            marks += max_marks
-        return marks
+        marks_by_type = Sum('answers__marks', filter=Q(id=self.pk) & Q(answers__question__type=question_type))
+        marks_dict = AnswerPaper.objects.aggregate(marks_by_type=marks_by_type)
+        return marks_dict.get('marks_by_type')
+        # marks = 0
+        # for question in self.questions.filter(type=question_type):
+        #     marks_list = [a.marks
+        #                   for a in self.answers.filter(question=question)]
+        #     max_marks = max(marks_list) if marks_list else 0.0
+        #     marks += max_marks
+        # return marks
 
     def get_marks_obtained_in_integer(self):
         return self._get_marks_obtained_by_type(question_type="integer")
@@ -1204,32 +1213,13 @@ class AnswerPaper(models.Model):
         return self._get_marks_obtained_by_subject("mathematics")
 
     def get_marks_obtained(self):
-        marks = 0
-        for question in self.questions.all():
-            marks_list = [a.marks
-                          for a in self.answers.filter(question=question)]
-            max_marks = max(marks_list) if marks_list else 0.0
-            marks += max_marks
-        return marks
+        return self.marks_obtained
 
     def _update_marks_obtained(self):
         """Updates the total marks earned by student for this paper."""
-        marks = 0
-        for question in self.questions.all():
-            marks_list = [a.marks
-                          for a in self.answers.filter(question=question)]
-            max_marks = max(marks_list) if marks_list else 0.0
-            marks += max_marks
-        self.marks_obtained = marks
-
-    def update_marks_obtained(self):
-        marks = 0
-        for answer in self.answers.all():
-            if answer.correct:
-                marks += 4
-            elif answer.marks:
-                marks += answer.marks
-        return marks
+        marks_obtained = Sum('answers__marks', filter=Q(id=self.pk) & (Q(answers__status="2") | Q(answers__status="4") ))
+        marks_dict = AnswerPaper.objects.aggregate(marks_obtained=marks_obtained) 
+        self.marks_obtained = marks_dict.get('marks_obtained')
 
     def _update_percent(self):
         """Updates the percent gained by the student for this paper."""

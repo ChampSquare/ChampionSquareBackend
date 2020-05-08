@@ -73,8 +73,8 @@ $(document).ready(function()
     <thead>
     <tr>
         <th>Number</th>
-    <th> Name </th>
-    <th> Roll number </th>
+    <th> Username </th>
+    
         <th> Attempts </th>
         <th>Correct</th>
         <th>incorrect</th>
@@ -88,8 +88,8 @@ $(document).ready(function()
     </tr>
     </thead>
     <tbody>
-    {% for paper in papers %}
-        {% if paper.get_attempt_count > 0 %}
+        {% for paper in papers %}
+        <!-- {% if paper.get_attempt_count > 0 %} -->
     <tr>
 {#    <td>{{ paper.user.username }}</td>#}
 {#        <td>{{ paper.user.profile.student.batch }}</td>#}
@@ -98,8 +98,7 @@ $(document).ready(function()
 
 
     <td>    {{ forloop.counter }}</td>
-        <td> {{ paper.user.profile.student.name }}</td>
-
+        
         <td><a href="{{URL_ROOT}}/exam/manage/user_data/{{paper.user.id}}/{{paper.question_paper.id}}"> {{ paper.user.username }}</a>  </td>
         <td> {{ paper.get_attempt_count }} </td>
         <td>{{ paper.get_correct_answer_num }}</td>
@@ -112,7 +111,7 @@ $(document).ready(function()
 
         </div>
     </tr>
-        {% endif %}
+        <!-- {% endif %} -->
     {% endfor %}
     </tbody>
 </table>

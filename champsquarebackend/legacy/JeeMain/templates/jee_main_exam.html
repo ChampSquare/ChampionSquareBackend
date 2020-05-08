@@ -1,7 +1,6 @@
 {% load static %}
 {% load filters %}
 <!DOCTYPE html>
-<!-- saved from url=(0046)https://nta.ac.in/Quiz/Paper/JEEMain_Paper1_En -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -309,7 +308,7 @@ carries +4 marks each for correct answer and –1 mark for each wrong answer.</l
                                                     <h4 class="question-footer"> <img src="{% static 'img/up.png' %}" class="btnup pull-right"> </h4>
                                                 </div>
                                             </div>
-                                                                                    {% endfor %}
+                                            {% endfor %}
 
 
 
@@ -375,7 +374,7 @@ carries +4 marks each for correct answer and –1 mark for each wrong answer.</l
                 <div class="panel panel-default ">
                     <div class="panel-body " style="height:320px;overflow-y:scroll;">
                         <ul class="pagination test-questions">
-                            {% for question, answer in question_answers %}
+                            {% for question, answer in question_answers_2 %}
 
                             <li
                                     {% if forloop.counter == 1 %}
@@ -455,6 +454,7 @@ carries +4 marks each for correct answer and –1 mark for each wrong answer.</l
                         <div class="col-md-12 text-center">
                             <h4> Thank you, Submitted Successfully.</h4>
                             <h3>ChampionSquare wishes you all the best for your Jee Main Exam</h3>
+                            <h4><a href="{{URL_ROOT}}/exam/manage/user_data/{{paper.user.id}}/{{paper.question_paper.id}}">See Your Result</a></h4>
                            </div>
                     </div>
                 </div>

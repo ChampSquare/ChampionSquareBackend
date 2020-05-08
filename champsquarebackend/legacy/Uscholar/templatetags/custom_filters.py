@@ -1,5 +1,6 @@
 from django import template
 from django.template.defaultfilters import stringfilter
+import datetime
 
 register = template.Library()
 
@@ -18,4 +19,15 @@ def completed(answerpaper):
 
 @register.simple_tag(name="inprogress")
 def inprogress(answerpaper):
-	return answerpaper.filter(status="inprogress").count()
+    return answerpaper.filter(status="inprogress").count()
+
+@register.simple_tag(name="print_timestamp")
+def print_timestamp(timestamp):
+    try:
+        #assume, that timestamp is given in seconds with decimal point
+        ts = int(timestamp)
+    except ValueError:
+        return None
+    return datetime.timedelta(milliseconds=ts)
+
+register.filter(print_timestamp)
