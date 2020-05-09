@@ -239,6 +239,40 @@ function CheckResult() {
         $('#tbodyResult').append(tr);
     });
 
+    $.ajax({
+        url: '/jee_main/ajax/save_result/',
+        data: {
+            'paper_id': $('#paperId').val(),
+            'num_attempt': TotalAttempted,
+            'num_correct': TotalCorrect,
+            'num_wrong': TotalWrong,
+            'marks_obtained': score
+        },
+        dataType: 'json',
+        tryCount: 0,
+        retryLimit: 3,
+
+         success: function (data) {
+           // do something
+         },
+        error: function (xhr, textStatus, errorThrown) {
+            if(textStatus=='timeout') {
+                this.tryCount++;
+                if(this.tryCount <= this.retryLimit) {
+                    // try again
+                    $.ajax(this);
+                    return;
+                }
+                return;
+            }
+            if(xhr.status == 500) {
+                // handle error
+            } else {
+                // handle error
+            }
+        }
+      });
+
     $('#lblRTotalQuestion').text(TotalQuestion);
     $('#lblRTotalAttempted').text(TotalAttempted);
     $('#lblRTotalCorrect').text(TotalCorrect);
@@ -258,8 +292,10 @@ $(document).ready(function () {
     
     setInterval(function() {
         var active_div_id = $(".test-questions").find("li.active").find("a").attr("data-href");
-        $("#"+active_div_id).find(".time-spent").text(GetTime(getTimeSpent(active_div_id)));
-    }, delay);
+        $("#"+active_div_id).find(".time-spent").text(GetTime(getTimeSpent(active_div_id)+1000));
+        time_dict[active_div_id] = getTimeSpent(active_div_id)+1000
+        
+    }, 1000);
 
     $("#btnPrevQue").click(function () {
         PrevQuestion(!0)
