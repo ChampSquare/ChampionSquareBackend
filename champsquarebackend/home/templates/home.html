@@ -1,4 +1,4 @@
-{% load static %}
+{% load staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,7 +11,7 @@
     <title>ChampionSquare | An Online Academy</title>
 
     <!-- Favicons-->
-    <!-- <link rel="shortcut icon" href="{% static "home/img/favicon.ico" %}" type="image/x-icon"> -->
+    <link rel="shortcut icon" href="{% static "home/img/favicon.ico" %}" type="image/x-icon">
     <link rel="apple-touch-icon" type="image/x-icon" href="{% static "home/img/apple-touch-icon-57x57-precomposed.png" %}">
     <link rel="apple-touch-icon" type="image/x-icon" sizes="72x72" href="{% static "home/img/apple-touch-icon-72x72-precomposed.png" %}">
     <link rel="apple-touch-icon" type="image/x-icon" sizes="114x114" href="{% static "home/img/apple-touch-icon-114x114-precomposed.png" %}">
@@ -48,14 +48,6 @@
 		<div id="logo">
 			<a href="/"><img src="{% static "home/img/logo3.png" %}" width="149" height="42" data-retina="true" alt=""></a>
 		</div>
-		<ul id="top_menu">
-            {% if not request.user.is_authenticated %}
-			<li><a href="{% url 'Uscholar:login' %}" class="login">Login</a></li>
-			<li class="hidden_tablet"><a href="" class="btn_1 rounded">Admission</a></li>
-                {% else %}
-                <li><a href="{% url 'Uscholar:logout' %}" class="icon-logout">Logout</a></li>
-            {% endif %}
-		</ul>
 		<!-- /top_menu -->
 		<a href="#menu" class="btn_mobile">
 			<div class="hamburger hamburger--spin" id="hamburger">
@@ -67,7 +59,12 @@
 		<nav id="menu" class="main-menu">
 			<ul>
 				<li><span><a href="#0">Home</a></span></li>
-				<li><span><a href="#0">Courses</a></span></li>
+				<li><span><a href="#lectures">Courses</a></span></li>
+			<li><span><a href="{% url 'Uscholar:login' %}">Take Test</a></span></li>
+			{% if request.user.is_authenticated %}
+                <li><a href="{% url 'Uscholar:logout' %}" class="icon-logout">Logout</a></li>
+            {% endif %}
+
 			</ul>
 		</nav>
 		<!-- Search Menu -->
@@ -80,7 +77,8 @@
 			<div class="wrapper">
 				<div class="container">
 					<h3>What would you learn?</h3>
-					<p>Watch Lectures | Take Tests | Practice</p>
+					<p><a href="#lectures">Watch Lectures | </a> <a href="{% url 'Uscholar:login' %}">Take Tests</a> </p>
+					<!-- <p>Watch Lectures | Take Tests | Practice</p> -->
 {#					<form>#}
 {#						<div id="custom-search-input">#}
 {#							<div class="input-group">#}
@@ -111,7 +109,7 @@
 		</div>
 		<!-- /features -->
 
-		<div class="container-fluid margin_120_0">
+		<div class="container-fluid margin_120_0" id="lectures">
 			<div class="main_title_2">
 				<span><em></em></span>
 				<h2>ChampionSquare Popular Lectures</h2>
@@ -376,7 +374,7 @@
 	<!-- COMMON SCRIPTS -->
     <script src="{% static "home/js/jquery-2.2.4.min.js" %}"></script>
     <script src="{% static "home/js/common_scripts.js" %}"></script>
-    <script src="{% static "home/js/main.js" %}"></script>
+    <script src="{% static "home/js/main_script_home.js" %}"></script>
 	<script src="{% static "home/assets/validate.js" %}"></script>
     <script>
         close = document.getElementById("close");
