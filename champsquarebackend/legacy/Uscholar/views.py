@@ -416,10 +416,10 @@ def start(request, questionpaper_id=None, attempt_num=None):
         enroll_student(request, quest_paper.quiz.course.id)
     # prerequisite check and passing criteria
 
-    if quest_paper.quiz.is_expired():
-        if is_moderator(user):
-            return redirect("/exam/manage")
-        return redirect("/exam")
+    # if quest_paper.quiz.is_expired():
+    #     if is_moderator(user):
+    #         return redirect("/exam/manage")
+    #     return redirect("/exam")
     
     if quest_paper.quiz.has_prerequisite() and not quest_paper.is_prerequisite_passed(user):
         if is_moderator(user):
@@ -428,7 +428,7 @@ def start(request, questionpaper_id=None, attempt_num=None):
     # if any previous attempt
     last_attempt = AnswerPaper.objects.get_user_last_attempt(
         questionpaper=quest_paper, user=user)
-    if (last_attempt and last_attempt.is_attempt_inprogress()) or quest_paper.quiz.is_trial:
+    if last_attempt and last_attempt.is_attempt_inprogress():
         if quest_paper.quiz.type == "iit":
             return show_question(request, last_attempt.current_question(), last_attempt)
         else:
@@ -1395,11 +1395,13 @@ def test_quiz(request, mode, quiz_id):
     """creates a trial quiz for the moderators"""
     godmode = True if mode == "godmode" else False
     current_user = request.user
+    print("mode : " +mode)
     quiz = Quiz.objects.get(id=quiz_id)
     if (quiz.is_expired() or not quiz.active) and not godmode:
         return my_redirect('/exam/manage')
 
     trial_questionpaper = test_mode(current_user, godmode, None, quiz_id)
+    print(trial_questionpaper)
     return my_redirect("/exam/start/{0}".format(trial_questionpaper.id))
 
 

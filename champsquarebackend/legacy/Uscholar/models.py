@@ -224,9 +224,9 @@ class Course(models.Model):
             quiz = Quiz()
             demo_quiz = quiz.create_demo_quiz(course)
             demo_ques = Question()
-            demo_ques.create_demo_questions(user)
+            # demo_ques.create_demo_questions(user)
             demo_que_ppr = QuestionPaper()
-            demo_que_ppr.create_demo_quiz_ppr(demo_quiz, user)
+            # demo_que_ppr.create_demo_quiz_ppr(demo_quiz, user)
             success = True
         else:
             success = False
@@ -1213,7 +1213,9 @@ class AnswerPaper(models.Model):
         return self._get_marks_obtained_by_subject("mathematics")
 
     def get_marks_obtained(self):
-        return self.marks_obtained
+        marks_total = Sum('answers__marks', filter=Q(id=self.pk))
+        marks_dict = AnswerPaper.objects.aggregate(marks_total=marks_total)
+        return marks_dict.get('marks_total')
 
     def _update_marks_obtained(self):
         """Updates the total marks earned by student for this paper."""
