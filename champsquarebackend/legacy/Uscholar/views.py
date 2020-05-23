@@ -87,6 +87,14 @@ def view_webcam_feed(request):
         return render(request, 'webcam.html', {})
     return my_redirect('/')
 
+@login_required
+def video_test(request):
+    user = request.user
+    if user.groups.filter(name='moderator').count() > 0:
+        return render(request, 'videoroomtest.html', {})
+    return my_redirect('/')
+
+
 
 
 def instructions(request):

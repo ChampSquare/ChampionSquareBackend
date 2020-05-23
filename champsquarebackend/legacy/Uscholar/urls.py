@@ -34,6 +34,8 @@ urlpatterns = [
     path('manage/show_result/', views.show_results, name='show_result'),
     path('manage/show_result/<int:questionpaper_id>/', views.show_results, name='show_result'),
     path('manage/viewwebcam/', views.view_webcam_feed, name='webcam_feed'),
+    path('manage/videotest/', views.video_test, name='webcam_feed'),
+
 
     path('manage/addquestion/', views.add_question),
     path('manage/addquestion/<int:question_id>/', views.add_question),
