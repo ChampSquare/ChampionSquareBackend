@@ -469,7 +469,7 @@ function newRemoteFeed(id, display) {
 						}
 					});
 				}
-				Janus.attachMediaStream($('#screenvideo').get(0), stream);
+				
 				Janus.attachMediaStream($('#remotevideo'+remoteFeed.rfindex).get(0), stream);
 
 			},
