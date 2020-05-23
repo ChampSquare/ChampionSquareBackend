@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -12,26 +13,15 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.1.0/bootbox.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>
-<script type="text/javascript" src="/static/webcam/janus.js" ></script>
-<script type="text/javascript" src="/static/webcam/videoroomtest.js"></script>
-<script>
-	$(function() {
-		$(".navbar-static-top").load("navbar.html", function() {
-			$(".navbar-static-top li.dropdown").addClass("active");
-			$(".navbar-static-top a[href='videoroomtest.html']").parent().addClass("active");
-		});
-		$(".footer").load("footer.html");
-	});
-</script>
+<script type="text/javascript" src="{% static "webcam/js/janus.js" %}" ></script>
+<script type="text/javascript" src="{% static "webcam/js/videoroomtest.js" %}"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cerulean/bootstrap.min.css" type="text/css"/>
-<link rel="stylesheet" href="/static/webcam/css/demo.css" type="text/css"/>
+<link rel="stylesheet" href="{% static "webcam/css/demo.css" %}" type="text/css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.css"/>
 </head>
 <body>
 
-<nav class="navbar navbar-default navbar-static-top">
-</nav>
 
 <div class="container">
 	<div class="row">
@@ -137,8 +127,7 @@
 	</div>
 
 	<hr>
-	<div class="footer">
-	</div>
+	
 </div>
 
 </body>
