@@ -198,7 +198,7 @@ class Course(models.Model):
         return True if self.enrollment == enrollment_methods[1][0] else False
 
     def get_quizzes(self):
-        return self.quiz_set.filter(is_trial=False).order_by('-id')
+        return self.quiz_set.all()
 
     def activate(self):
         self.active = True

@@ -104,8 +104,11 @@ function check_instruction() {
                     openDialogModal('Please accept terms and conditions before proceeding.');
             } else {
                     $('.exam-instruction').hide();
+                    
                     $('.exam-countdown').hide();
                     $('.exam-paper').show();
+                    $('.exam-paper').removeClass('hide').show();
+                    
                     return $.ajax({
                  url: '/jee_main/ajax/save_instruction_read/',
                 data: {

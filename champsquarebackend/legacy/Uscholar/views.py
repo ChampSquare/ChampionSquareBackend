@@ -712,8 +712,8 @@ def courses(request):
     ci = RequestContext(request)
     if not is_moderator(user):
         raise Http404('You are not allowed to view this page')
-    courses = Course.objects.filter(creator=user, is_trial=False)
-    allotted_courses = Course.objects.filter(teachers=user, is_trial=False)
+    courses = Course.objects.filter(creator=user)
+    allotted_courses = Course.objects.filter(teachers=user)
     context = {'courses': courses, "allotted_courses": allotted_courses}
     return my_render_to_response(request, 'Uscholar/courses.html', context,
                                  context_instance=ci)
