@@ -235,7 +235,7 @@ class QuizForm(forms.ModelForm):
 
     class Meta:
         model = Quiz
-        exclude = ["is_trial"]
+        exclude = []
 
 
 class QuestionForm(forms.ModelForm):

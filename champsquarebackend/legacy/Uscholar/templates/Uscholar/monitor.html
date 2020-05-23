@@ -7,8 +7,8 @@
 
 
 {% block script %}
-<script src="{{ URL_ROOT }}/static/Uscholar/js/jquery.tablesorter.min.js"></script>
-<script type="text/javascript">
+<!-- <script src="{{ URL_ROOT }}/static/Uscholar/js/jquery.tablesorter.min.js"></script> -->
+<!-- <script type="text/javascript">
 $(document).ready(function()
     {
         $("#result-table").tablesorter({sortList: [[5,1]]});
@@ -22,7 +22,7 @@ $(document).ready(function()
             time_left.text(hh + ":" + mm + ":" + ss)
     }
 });
-</script>
+</script> -->
 
 {% endblock %}
 
@@ -69,9 +69,12 @@ $(document).ready(function()
 
 <p><a href="{{URL_ROOT}}/exam/manage/statistics/question/{{papers.0.question_paper.id}}">Question Statisitics</a></p>
 <p><a href="{{URL_ROOT}}/exam/manage/monitor/download_csv/{{papers.0.question_paper.id}}">Download CSV</a></p>
+<form name=form action="" method="post">
+    {% csrf_token %}
 <table id="result-table" class="tablesorter table table table-striped">
     <thead>
     <tr>
+        <th> </th>
         <th>Number</th>
     <th> Username </th>
     
@@ -89,13 +92,13 @@ $(document).ready(function()
     </thead>
     <tbody>
         {% for paper in papers %}
-        <!-- {% if paper.get_attempt_count > 0 %} -->
+      
     <tr>
 {#    <td>{{ paper.user.username }}</td>#}
 {#        <td>{{ paper.user.profile.student.batch }}</td>#}
 {#        <td>{{ paper.get_correct_answer_num }}</td>#}
 {#                <td>{{ paper.get_wrong_answer_num }}</td>#}
-
+<td><input type="checkbox" name="paper" value="{{paper.id}}"/></td>
 
     <td>    {{ forloop.counter }}</td>
         
@@ -111,10 +114,12 @@ $(document).ready(function()
 
         </div>
     </tr>
-        <!-- {% endif %} -->
+       
     {% endfor %}
     </tbody>
 </table>
+<button class="btn btn-danger" type="submit" name='delete' value='delete'>Delete Selected <span class="glyphicon glyphicon-minus"></span></button>
+</form>
 {% else %}
 <p> No answer papers so far. </p>
 {% endif %} {# if papers #}

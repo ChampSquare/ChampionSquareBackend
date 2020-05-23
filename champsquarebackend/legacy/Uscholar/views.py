@@ -80,6 +80,14 @@ def index(request):
 
     return my_redirect("/")
 
+@login_required
+def view_webcam_feed(request):
+    user = request.user
+    if user.groups.filter(name='moderator').count() > 0:
+        return render(request, 'webcam.html', {})
+    return my_redirect('/')
+
+
 
 def instructions(request):
     return my_render_to_response(request, "iframesInstruction.html", {})
@@ -421,22 +429,19 @@ def start(request, questionpaper_id=None, attempt_num=None):
     #         return redirect("/exam/manage")
     #     return redirect("/exam")
     
-    if quest_paper.quiz.has_prerequisite() and not quest_paper.is_prerequisite_passed(user):
-        if is_moderator(user):
-            return redirect("/exam/manage")
-        return redirect("/exam/")
+    
     # if any previous attempt
     last_attempt = AnswerPaper.objects.get_user_last_attempt(
         questionpaper=quest_paper, user=user)
-    if last_attempt and last_attempt.is_attempt_inprogress():
+    if last_attempt:
         if quest_paper.quiz.type == "iit":
             return show_question(request, last_attempt.current_question(), last_attempt)
         else:
             return show_jee_main_question(request, last_attempt)
 
-    elif last_attempt and not last_attempt.is_attempt_inprogress():
-        msg = 'You have already submitted this exam.'
-        return complete(request, msg, attempt_num, quest_paper.id)
+    # elif last_attempt and not last_attempt.is_attempt_inprogress():
+    #     msg = 'You have already submitted this exam.'
+    #     return complete(request, msg, attempt_num, quest_paper.id)
 
     # allowed to start
     # if not quest_paper.can_attempt_now(user):
@@ -512,9 +517,9 @@ def show_jee_main_question(request, paper, error_message=None, notification=None
         reason = 'The quiz has been deactivated!'
         return complete(request, reason, paper.attempt_number, paper.question_paper.id)
 
-    if paper.time_left() <= 0 and not is_moderator(request.user):
-        reason = 'Your time is up!'
-        return complete(request, reason, paper.attempt_number, paper.question_paper.id)
+    # if paper.time_left() <= 0 and not is_moderator(request.user):
+    #     reason = 'Your time is up!'
+    #     return complete(request, reason, paper.attempt_number, paper.question_paper.id)
     question_answers = zip(paper.question_paper.fixed_questions.all().order_by('id'),
                            paper.answers.all().order_by('question__id'))
 
@@ -819,22 +824,31 @@ def monitor(request, questionpaper_id=None):
 
 
     if questionpaper_id is None:
-        q_paper = QuestionPaper.objects.filter(Q(quiz__course__creator=user) |
-                                               Q(quiz__course__teachers=user),
-                                               quiz__is_trial=False
-                                               ).distinct()
+        # q_paper = QuestionPaper.objects.filter(Q(quiz__course__creator=user) |
+        #                                        Q(quiz__course__teachers=user)
+        #                                        ).distinct()
+        q_paper = QuestionPaper.objects.all()
         context = {'papers': [],
                    'quiz': None,
                    'quizzes': q_paper}
         return my_render_to_response(request, 'Uscholar/monitor.html', context,
                                      context_instance=ci)
     # quiz_id is not None.
+    if request.method == 'POST':
+        if request.POST.get('delete') == 'delete':
+            data = request.POST.getlist('paper')
+            if data is not None:
+                papers_to_delete = AnswerPaper.objects.filter(id__in=data)
+                for paper in papers_to_delete:
+                    paper.delete() # remember to soft delete in production
+
     papers = AnswerPaper.objects.all().order_by(
         '-marks_obtained')
     try:
-        q_paper = QuestionPaper.objects.filter(Q(quiz__course__creator=user) |
-                                               Q(quiz__course__teachers=user),
-                                               id=questionpaper_id).distinct()
+        # q_paper = QuestionPaper.objects.filter(Q(quiz__course__creator=user) |
+        #                                        Q(quiz__course__teachers=user),
+        #                                        id=questionpaper_id).distinct()
+        q_paper = QuestionPaper.objects.all()
     except QuestionPaper.DoesNotExist:
         q_paper = None
         latest_attempts = []
@@ -1193,7 +1207,7 @@ def grade_user(request, quiz_id=None, user_id=None, attempt_number=None):
     """
     current_user = request.user
     ci = RequestContext(request)
-    if not current_user.is_authenticated() or not is_moderator(current_user):
+    if not current_user.is_authenticated or not is_moderator(current_user):
         raise Http404('You are not allowed to view this page!')
     course_details = Course.objects.filter(Q(creator=current_user) |
                                            Q(teachers=current_user),
@@ -1388,6 +1402,8 @@ def test_mode(user, godmode=False, questions_list=None, quiz_id=None):
                                            .create_trial_paper_to_test_quiz\
                                             (trial_quiz, quiz_id)
     return trial_questionpaper
+
+    
 
 
 @login_required
