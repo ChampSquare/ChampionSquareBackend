@@ -29,11 +29,14 @@ urlpatterns = [
     # user management
     path('users/', include('champsquarebackend.users.urls', namespace='users')),
     path('accounts/', include('allauth.urls')),
+    path('ckeditor/', include('ckeditor_uploader.urls')),
 
     # urls for legacy site
     path('exam/', include('champsquarebackend.legacy.Uscholar.urls', namespace='Uscholar')),
     path('jee_main/', include('champsquarebackend.legacy.JeeMain.urls', namespace='JeeMain')),
     path('legacy/', include('champsquarebackend.legacy.Unicorn.urls', namespace="Unicorn")),
+    path('dashboard/', include('champsquarebackend.dashboard.urls', namespace="dashboard")),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

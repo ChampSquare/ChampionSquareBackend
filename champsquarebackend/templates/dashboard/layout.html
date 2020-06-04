@@ -1,0 +1,45 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block styles %}
+    {{block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static "dashboard/css/dashboard.css" %}" />
+{% endblock styles %}
+
+{% block extrastyles %}
+    {{ block.super }}
+    
+{% endblock extrastyles %}
+
+{% block title %}
+    {% trans "Dashboard" %} | {{ block.super }}
+{% endblock title %}
+
+{% block layout %}
+    {% block navbar %}
+      
+    {% endblock navbar %}
+
+    <div class="container-fluid dashboard">
+        {% block breadcrumbs %}
+            <ul class="breadcrumb">
+                <li><a href="#">{% trans "Dashboard" %}</a></li>
+            </ul>
+        {% endblock %}
+
+        <div class="content">
+            {% include "dashboard/partials/alert_messages.html" %}
+            {% block header %}
+                <div class="page-header action">
+                    <h1>{% block headertext %}{% endblock headertext %}</h1>
+                </div>
+            {% endblock header %}
+            <div class="page-content">
+                {% block content %}
+                    {% block dashboard_content %}{% endblock dashboard_content %}
+                {% endblock content %}
+            </div>
+        </div>
+    </div> <!-- /container -->
+{% endblock layout %}

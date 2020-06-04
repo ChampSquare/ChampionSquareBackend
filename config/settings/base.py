@@ -70,14 +70,21 @@ THIRD_PARTY_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    'ckeditor',
+    'ckeditor_uploader',
+    'django_tables2',
+    'widget_tweaks',
 ]
 
 LOCAL_APPS = [
-    "champsquarebackend.legacy.Uscholar",
+    "champsquarebackend.legacy.Uscholar.apps.UscholarConfig",
     "champsquarebackend.legacy.Unicorn",
     "champsquarebackend.legacy.JeeMain",
     "champsquarebackend.users.apps.UsersConfig",
     "champsquarebackend.home.apps.HomeConfig",
+    "champsquarebackend.quiz.apps.QuizConfig",
+    "champsquarebackend.dashboard.apps.DashboardConfig",
+
     # Your stuff: custom apps go here
 ]
 
@@ -287,3 +294,11 @@ EMAIL_HOST_USER = 'ujjawalkotafactory@gmail.com'
 EMAIL_HOST_PASSWORD = '1729Lamboo'
 
 ACCOUNT_SECURITY_API_KEY = 'jfjbgjhghgh'
+
+#settings for ckeditor
+CKEDITOR_JQUERY_URL = 'https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js'
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_ALLOW_NONIMAGE_FILES = False
+CKEDITOR_IMAGE_BACKEND = "pillow"
+
+DASHBOARD_QUESTION_LIST_ITEMS_PER_PAGE = 10

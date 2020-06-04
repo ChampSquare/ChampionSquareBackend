@@ -1,6 +1,6 @@
 var server = null;
 if(window.location.protocol === 'http:')
-	server = "http://" + window.location.hostname + "/janus";
+	server = "http://" + window.location.hostname + ":8088/janus";
 else
 	server = "https://" + window.location.hostname + "/janus";
 
@@ -58,40 +58,14 @@ $(document).ready(function() {
 									$('#details').remove();
 									screentest = pluginHandle;
 									Janus.log("Plugin attached! (" + screentest.getPlugin() + ", id=" + screentest.getId() + ")");
-									// Prepare the username registration
-									// $('#screenmenu').removeClass('hide').show();
-									// $('#createnow').removeClass('hide').show();
-									// $('#create').click(preShareScreen);
-									// $('#joinnow').removeClass('hide').show();
-									// $('#join').click(joinScreen);
                                     joinScreen();
-									// $('#desc').focus();
-									// $('#start').removeAttr('disabled').html("Stop")
-									// 	.click(function() {
-									// 		$(this).attr('disabled', true);
-									// 		janus.destroy();
-									// 	});
 								},
 								error: function(error) {
 									Janus.error("  -- Error attaching plugin...", error);
 									bootbox.alert("Error attaching plugin... " + error);
 								},
 								consentDialog: function(on) {
-									Janus.debug("Consent dialog should be " + (on ? "on" : "off") + " now");
-									if(on) {
-										// Darken screen
-										$.blockUI({
-											message: '',
-											css: {
-												border: 'none',
-												padding: '15px',
-												backgroundColor: 'transparent',
-												color: '#aaa'
-											} });
-									} else {
-										// Restore screen
-										$.unblockUI();
-									}
+									
 								},
 								webrtcState: function(on) {
 									Janus.log("Janus says our WebRTC PeerConnection is " + (on ? "up" : "down") + " now");
@@ -116,24 +90,7 @@ $(document).ready(function() {
 											$('#session').html(room);
 											$('#title').html(msg["description"]);
 											Janus.log("Successfully joined room " + msg["room"] + " with ID " + myid);
-											if(role === "publisher") {
-												// This is our session, publish our stream
-												Janus.debug("Negotiating WebRTC stream for our screen (capture " + capture + ")");
-												screentest.createOffer(
-													{
-														media: { video: capture, audioSend: true, videoRecv: false},	// Screen sharing Publishers are sendonly
-														success: function(jsep) {
-															Janus.debug("Got publisher SDP!");
-															Janus.debug(jsep);
-															var publish = { "request": "configure", "audio": true, "video": true };
-															screentest.send({"message": publish, "jsep": jsep});
-														},
-														error: function(error) {
-															Janus.error("WebRTC error:", error);
-															bootbox.alert("WebRTC error... " + JSON.stringify(error));
-														}
-													});
-											} else {
+											
 												// We're just watching a session, any feed to attach to?
 												if(msg["publishers"] !== undefined && msg["publishers"] !== null) {
 													var list = msg["publishers"];
@@ -146,7 +103,7 @@ $(document).ready(function() {
 														newRemoteFeed(id, display)
 													}
 												}
-											}
+											
 										} else if(event === "event") {
 											// Any feed to attach to?
 											if(role === "listener" && msg["publishers"] !== undefined && msg["publishers"] !== null) {
@@ -180,28 +137,11 @@ $(document).ready(function() {
 									}
 								},
 								onlocalstream: function(stream) {
-									Janus.debug(" ::: Got a local stream :::");
-									Janus.debug(stream);
-									$('#screenmenu').hide();
-									$('#room').removeClass('hide').show();
-									if($('#screenvideo').length === 0) {
-										$('#screencapture').append('<video class="rounded centered" id="screenvideo" width="100%" height="100%" autoplay playsinline muted="muted"/>');
-									}
-									Janus.attachMediaStream($('#screenvideo').get(0), stream);
-									if(screentest.webrtcStuff.pc.iceConnectionState !== "completed" &&
-											screentest.webrtcStuff.pc.iceConnectionState !== "connected") {
-										$("#screencapture").parent().block({
-											message: '<b>Publishing...</b>',
-											css: {
-												border: 'none',
-												backgroundColor: 'transparent',
-												color: 'white'
-											}
-										});
-									}
+									
 								},
 								onremotestream: function(stream) {
 									// The publisher stream is sendonly, we don't expect anything here
+                                    
 								},
 								oncleanup: function() {
 									Janus.log(" ::: Got a cleanup notification :::");
@@ -225,116 +165,7 @@ $(document).ready(function() {
 	}});
 });
 
-function checkEnterShare(field, event) {
-	var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
-	if(theCode == 13) {
-		preShareScreen();
-		return false;
-	} else {
-		return true;
-	}
-}
-
-function preShareScreen() {
-	if(!Janus.isExtensionEnabled()) {
-		bootbox.alert("You're using Chrome but don't have the screensharing extension installed: click <b><a href='https://chrome.google.com/webstore/detail/janus-webrtc-screensharin/hapfgfdkleiggjjpfpenajgdnfckjpaj' target='_blank'>here</a></b> to do so", function() {
-			window.location.reload();
-		});
-		return;
-	}
-	// Create a new room
-	$('#desc').attr('disabled', true);
-	$('#create').attr('disabled', true).unbind('click');
-	$('#roomid').attr('disabled', true);
-	$('#join').attr('disabled', true).unbind('click');
-	if($('#desc').val() === "") {
-		bootbox.alert("Please insert a description for the room");
-		$('#desc').removeAttr('disabled', true);
-		$('#create').removeAttr('disabled', true).click(preShareScreen);
-		$('#roomid').removeAttr('disabled', true);
-		$('#join').removeAttr('disabled', true).click(joinScreen);
-		return;
-	}
-	capture = "screen";
-	if(navigator.mozGetUserMedia) {
-		// Firefox needs a different constraint for screen and window sharing
-		bootbox.dialog({
-			title: "Share whole screen or a window?",
-			message: "Firefox handles screensharing in a different way: are you going to share the whole screen, or would you rather pick a single window/application to share instead?",
-			buttons: {
-				screen: {
-					label: "Share screen",
-					className: "btn-primary",
-					callback: function() {
-						capture = "screen";
-						shareScreen();
-					}
-				},
-				window: {
-					label: "Pick a window",
-					className: "btn-success",
-					callback: function() {
-						capture = "window";
-						shareScreen();
-					}
-				}
-			},
-			onEscape: function() {
-				$('#desc').removeAttr('disabled', true);
-				$('#create').removeAttr('disabled', true).click(preShareScreen);
-				$('#roomid').removeAttr('disabled', true);
-				$('#join').removeAttr('disabled', true).click(joinScreen);
-			}
-		});
-	} else {
-		shareScreen();
-	}
-}
-
-function shareScreen() {
-	// Create a new room
-	var desc = $('#desc').val();
-	role = "publisher";
-	var create = { "request": "create", "description": desc, "bitrate": 500000, "publishers": 1 };
-	screentest.send({"message": create, success: function(result) {
-		var event = result["videoroom"];
-		Janus.debug("Event: " + event);
-		if(event != undefined && event != null) {
-			// Our own screen sharing session has been created, join it
-			room = result["room"];
-			Janus.log("Screen sharing session created: " + room);
-			myusername = randomString(12);
-			var register = { "request": "join", "room": room, "ptype": "publisher", "display": myusername };
-			screentest.send({"message": register});
-		}
-	}});
-}
-
-function checkEnterJoin(field, event) {
-	var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
-	if(theCode == 13) {
-		joinScreen();
-		return false;
-	} else {
-		return true;
-	}
-}
-
 function joinScreen() {
-	// Join an existing screen sharing session
-	// $('#desc').attr('disabled', true);
-	// $('#create').attr('disabled', true).unbind('click');
-	// $('#roomid').attr('disabled', true);
-	// $('#join').attr('disabled', true).unbind('click');
-	// var roomid = $('#roomid').val();
-	// if(isNaN(roomid)) {
-	// 	bootbox.alert("Session identifiers are numeric only");
-	// 	$('#desc').removeAttr('disabled', true);
-	// 	$('#create').removeAttr('disabled', true).click(preShareScreen);
-	// 	$('#roomid').removeAttr('disabled', true);
-	// 	$('#join').removeAttr('disabled', true).click(joinScreen);
-	// 	return;
-	// }
 	room = parseInt(room);
 	role = "listener";
 	myusername = randomString(12);
@@ -426,20 +257,6 @@ function newRemoteFeed(id, display) {
 				// The subscriber stream is recvonly, we don't expect anything here
 			},
 			onremotestream: function(stream) {
-				if($('#screenvideo').length === 0) {
-					// No remote video yet
-					$('#screencapture').append('<video class="rounded centered" id="waitingvideo" width="100%" height="100%" />');
-					$('#screencapture').append('<video class="rounded centered hide" id="screenvideo" width="100%" height="100%" autoplay playsinline/>');
-					// Show the video, hide the spinner and show the resolution when we get a playing event
-					$("#screenvideo").bind("playing", function () {
-						$('#waitingvideo').remove();
-						$('#screenvideo').removeClass('hide');
-						if(spinner !== null && spinner !== undefined)
-							spinner.stop();
-						spinner = null;
-					});
-				}
-
                 if($('#remotevideo'+remoteFeed.rfindex).length === 0) {
 					addButtons = true;
 					// No remote video yet

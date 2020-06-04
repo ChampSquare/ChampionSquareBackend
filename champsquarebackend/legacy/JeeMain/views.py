@@ -5,7 +5,7 @@ from django.utils import timezone
 
 
 from .models import Result
-from champsquarebackend.legacy.Uscholar.models import Question, AnswerPaper
+from champsquarebackend.legacy.Uscholar.models import Question, AnswerPaper, VideoRecord
 
 
 @login_required
@@ -104,3 +104,22 @@ def save_instruction_state(request):
         'success': True
     }
     return JsonResponse(data)
+
+def save_video_record(request):
+    answer_paper_id = request.GET.get('paper_id', None)
+    video_record_type = request.GET.get('video_record_type', None)
+    record_id = request.GET.get('record_id', None)
+    answer_paper = AnswerPaper.objects.get(id=answer_paper_id)
+    name = answer_paper.user.username
+    rec_file_name = record_id
+
+    print("answer_paper_id: {0}\n record_id: {1}\n type: {2}".format(answer_paper_id, record_id, video_record_type))
+    video_record = VideoRecord(answer_paper=answer_paper, name=name,
+                    video_record_type=video_record_type,
+                    record_id=record_id, rec_file_name=rec_file_name)
+    video_record.save()
+    date = {
+        'success': True
+    }
+    return JsonResponse(date)
+

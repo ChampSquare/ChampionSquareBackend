@@ -14,6 +14,7 @@ from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from taggit.managers import TaggableManager
 from django.utils import timezone
+from django.conf import settings
 
 from django.core.files import File
 try:
@@ -1380,6 +1381,39 @@ class AnswerPaper(models.Model):
         q = self.question_paper.quiz
         return u'AnswerPaper paper of {0} {1} for quiz {2}'\
                .format(u.first_name, u.last_name, q.description)
+
+VIDEO_RECORD_TYPE = (
+    ('webcam', 'Webcam'),
+    ('screen', 'Screen Recording')
+)
+
+class VideoRecord(models.Model):
+    answer_paper = models.ForeignKey(AnswerPaper, on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
+    video_record_type = models.CharField(max_length=20, choices=VIDEO_RECORD_TYPE)
+    record_id = models.CharField(max_length=50, null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    rec_file_name = models.CharField(max_length=50, null=True, blank=True)
+
+    def __str__(self):
+        return "{0}, type: {1}".format(self.name, self.video_record_type)
+
+    def create_record_file(self):
+        file_name = self.record_id+"_"+self.video_record_type+".nfo"
+
+        video_rec_dir = str(settings.ROOT_DIR)+'/video_records/'
+        # video_rec_dir = "/Users/andy1729/.janus/share/janus/videoroom_rec/"
+        with open(video_rec_dir+file_name, 'w') as f:
+            video_file = File(f)
+            if self.video_record_type == 'webcam':
+                video_file.write("[{0}]\n name = {1}\ndate = {2}\naudio = {3}_{4}-audio.mjr\nvideo = {3}_{4}-video.mjr"
+                                 .format(self.record_id, self.name, self.date_created, self.rec_file_name, self.video_record_type))
+            else:
+                video_file.write("[{0}]\n name = {1}\ndate = {2}\n video = {0}_{3}-video.mjr"
+                                 .format(self.record_id, self.name, self.date_created, self.video_record_type))
+    
+
+
 
 ###############################################################################
 

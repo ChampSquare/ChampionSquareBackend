@@ -12,6 +12,6 @@ urlpatterns = [
     path('ajax/clear_answer/', views.clear_answer, name='clear_answer'),
     path('ajax/save_unanswered/', views.save_unanswered, name='save_unanswered'),
     path('ajax/save_answered/', views.save_answer, name='save_answer'),
-    path('ajax/save_instruction_read/', views.save_instruction_state, name='save_instruction_state')
-
+    path('ajax/save_instruction_read/', views.save_instruction_state, name='save_instruction_state'),
+    path('ajax/save_video_record/', views.save_video_record, name='save_video_record')
 ]
