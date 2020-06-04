@@ -1401,7 +1401,7 @@ class VideoRecord(models.Model):
     def create_record_file(self):
         file_name = self.record_id+"_"+self.video_record_type+".nfo"
 
-        video_rec_dir = str(settings.ROOT_DIR)+'/video_records/'
+        video_rec_dir = str(settings.ROOT_DIR)+'/video_recordings/'
         # video_rec_dir = "/Users/andy1729/.janus/share/janus/videoroom_rec/"
         with open(video_rec_dir+file_name, 'w') as f:
             video_file = File(f)
