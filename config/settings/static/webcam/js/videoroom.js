@@ -1,6 +1,6 @@
 var server = null;
 if(window.location.protocol === 'http:')
-	server = "http://" + window.location.hostname + "/janus";
+	server = "http://" + window.location.hostname + ":8088/janus";
 else
 	server = "https://" + window.location.hostname + "/janus";
 
@@ -43,6 +43,7 @@ $(document).ready(function() {
 							{
 								plugin: "janus.plugin.videoroom",
 								opaqueId: "videoroomtest-"+Janus.randomString(12),
+					
 								success: function(pluginHandle) {
 									$('#details').remove();
 									sfutest = pluginHandle;
@@ -209,8 +210,40 @@ function publishOwnFeed(useAudio) {
 			success: function(jsep) {
 				Janus.debug("Got publisher SDP!");
 				Janus.debug(jsep);
-				var publish = { "request": "configure", "audio": useAudio, "video": true };
+				var publish = { "request": "configure", "audio": useAudio, "video": true, "filename": myid.toString()+"_webcam" };
 				sfutest.send({"message": publish, "jsep": jsep});
+
+				$.ajax({
+        url: '/jee_main/ajax/save_video_record/',
+        data: {
+            'paper_id': $('#paperId').val(),
+            'video_record_type': 'webcam',
+            'record_id': myid
+        },
+        dataType: 'json',
+        tryCount: 0,
+        retryLimit: 3,
+
+         success: function (data) {
+           // do something
+         },
+        error: function (xhr, textStatus, errorThrown) {
+            if(textStatus=='timeout') {
+                this.tryCount++;
+                if(this.tryCount <= this.retryLimit) {
+                    // try again
+                    $.ajax(this);
+                    return;
+                }
+                return;
+            }
+            if(xhr.status == 500) {
+                // handle error
+            } else {
+                // handle error
+            }
+        }
+      });
 			},
 			error: function(error) {
 				Janus.error("WebRTC error:", error);
@@ -294,12 +327,45 @@ function startScreenSharing() {
 												Janus.debug("Negotiating WebRTC stream for our screen (capture " + capture + ")");
 												screentest.createOffer(
 													{
-														media: { video: capture, audioSend: true, videoRecv: false},	// Screen sharing Publishers are sendonly
+														media: { video: capture, audioSend: false, videoRecv: false},	// Screen sharing Publishers are sendonly
 														success: function(jsep) {
 															Janus.debug("Got publisher SDP!");
 															Janus.debug(jsep);
-															var publish = { "request": "configure", "audio": true, "video": true };
+															var publish = { "request": "configure", "audio": true, "video": true, "filename": myid.toString()+"_screen" };
 															screentest.send({"message": publish, "jsep": jsep});
+
+															$.ajax({
+        url: '/jee_main/ajax/save_video_record/',
+        data: {
+            'paper_id': $('#paperId').val(),
+            'video_record_type': 'screen',
+            'record_id': myid
+        },
+        dataType: 'json',
+        tryCount: 0,
+        retryLimit: 3,
+
+         success: function (data) {
+           // do something
+         },
+        error: function (xhr, textStatus, errorThrown) {
+            if(textStatus=='timeout') {
+                this.tryCount++;
+                if(this.tryCount <= this.retryLimit) {
+                    // try again
+                    $.ajax(this);
+                    return;
+                }
+                return;
+            }
+            if(xhr.status == 500) {
+                // handle error
+            } else {
+                // handle error
+            }
+        }
+      });
+															
 														},
 														error: function(error) {
 															Janus.error("WebRTC error:", error);
@@ -364,4 +430,5 @@ function shareScreen() {
 	role = "publisher";
 	var register = { "request": "join", "room": room, "ptype": "publisher", "display": "Screen View" };
 	screentest.send({"message": register});
+
 }
