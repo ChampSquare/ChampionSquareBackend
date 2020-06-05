@@ -28,6 +28,7 @@ ChampionSquare | Online Test Platform
   <meta name="viewport" content="width=device-width, initial-scale=1">
 {#  <link rel="apple-touch-icon" href="apple-touch-icon.png">#}
 {#    <link rel="shortcut icon" href="{{ URL_ROOT }}/static/Unicorn/images/favicon.ico">#}
+{% block css %}
 
   <link rel="stylesheet" href="{{ URL_ROOT }}/static/Uscholar/css/bootstrap.min.css">
   <link rel="stylesheet" href="{{ URL_ROOT }}/static/Uscholar/css/font-awesome.css" type="text/css" />
@@ -35,6 +36,7 @@ ChampionSquare | Online Test Platform
   <link rel="stylesheet" href="{{ URL_ROOT }}/static/Uscholar/css/sticky-footer.css" type="text/css" />
   <link rel="stylesheet" href="{{ URL_ROOT }}/static/Uscholar/css/dashboard.css" type="text/css" />
 
+  {% endblock %}
 
 
 
@@ -44,12 +46,9 @@ ChampionSquare | Online Test Platform
   <meta name="description" content="">
   <meta name="author" content="">
   {% endblock %}
-
-  {% block css %}
-  {% endblock %}
+  {% block script %}
   <script language="JavaScript" type="text/javascript" src="{{ URL_ROOT }}/static/Uscholar/js/jquery-1.9.1.min.js"></script>
   <script src="{{ URL_ROOT }}/static/Uscholar/js/bootstrap.min.js"></script>
-  {% block script %}
   {% endblock %}
 </head>
 

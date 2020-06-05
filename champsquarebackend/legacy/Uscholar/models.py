@@ -1406,10 +1406,10 @@ class VideoRecord(models.Model):
         with open(video_rec_dir+file_name, 'w') as f:
             video_file = File(f)
             if self.video_record_type == 'webcam':
-                video_file.write("[{0}]\n name = {1}\ndate = {2}\naudio = {3}_{4}-audio.mjr\nvideo = {3}_{4}-video.mjr"
+                video_file.write("[{0}]\n name = {1}-{4}\ndate = {2}\naudio = {3}_{4}-audio.mjr\nvideo = {3}_{4}-video.mjr"
                                  .format(self.record_id, self.name, self.date_created, self.rec_file_name, self.video_record_type))
             else:
-                video_file.write("[{0}]\n name = {1}\ndate = {2}\n video = {0}_{3}-video.mjr"
+                video_file.write("[{0}]\n name = {1}-{3}\ndate = {2}\n video = {0}_{3}-video.mjr"
                                  .format(self.record_id, self.name, self.date_created, self.video_record_type))
     
 

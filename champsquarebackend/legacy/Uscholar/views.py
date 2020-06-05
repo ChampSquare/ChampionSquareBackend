@@ -88,6 +88,13 @@ def view_webcam_feed(request):
     return my_redirect('/')
 
 @login_required
+def view_stored_video(request):
+    user = request.user
+    if user.groups.filter(name='moderator').count() > 0:
+        return render(request, 'video_history.html', {})
+    return my_redirect('/')
+
+@login_required
 def video_test(request):
     user = request.user
     if user.groups.filter(name='moderator').count() > 0:
