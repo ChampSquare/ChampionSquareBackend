@@ -95,6 +95,13 @@ def view_stored_video(request):
     return my_redirect('/')
 
 @login_required
+def view_stored_video_websocket(request):
+    user = request.user
+    if user.groups.filter(name='moderator').count() > 0:
+        return render(request, 'websockettest.html', {})
+    return my_redirect('/')
+
+@login_required
 def video_test(request):
     user = request.user
     if user.groups.filter(name='moderator').count() > 0:

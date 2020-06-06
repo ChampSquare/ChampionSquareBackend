@@ -36,6 +36,7 @@ urlpatterns = [
     path('manage/viewwebcam/', views.view_webcam_feed, name='webcam_feed'),
     # path('manage/videotest/', views.video_test, name='webcam_feed'),
     path('manage/view_saved_video/', views.view_stored_video, name='saved_video'),
+    path('manage/view_saved_video_websocket/', views.view_stored_video_websocket, name='saved_video_websocket'),
 
 
 
