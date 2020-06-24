@@ -25,8 +25,16 @@ class QuestionListView(SingleTableView):
         ctx['question_type_selection_form'] = self.question_type_selection_form
         return ctx
 
+    def get_caption(self):
+        return _('Questions')
+
+    def get_table(self, **kwargs):
+        table = super().get_table(**kwargs)
+        table.caption = self.get_caption()
+        return table
+
     def get_table_pagination(self, table):
-        return dict(per_page=settings.DASHBOARD_QUESTION_LIST_ITEMS_PER_PAGE)
+        return dict(per_page=5)
 
     def get_queryset(self):
         """
@@ -72,3 +80,4 @@ class QuestionCreateUpdateView(generic.UpdateView):
 
 
 question_list_view = QuestionListView.as_view()
+

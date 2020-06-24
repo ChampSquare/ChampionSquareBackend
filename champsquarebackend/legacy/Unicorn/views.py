@@ -19,7 +19,7 @@ from .tmp_storage import TempFolderStorage, CacheStorage
 
 from authy.api import AuthyApiClient
 
-from champsquarebackend.legacy.Uscholar.models import Profile, Course
+from champsquarebackend.legacy.Uscholar.models import Profile
 
 
 URL_ROOT = ''
@@ -42,9 +42,9 @@ def my_render_to_response(template, context=None, **kwargs):
 
 def home(request):
     user = request.user
-    courses = Course.objects.filter(active=True, is_trial=False)
+    
     title = 'All Courses'
-    context = {'user': user, 'courses': courses, 'title': title}
+    context = {'user': user, 'title': title}
 
     # if request.method == 'GET':
     #     form = ContactForm()

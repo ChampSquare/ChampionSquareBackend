@@ -57,6 +57,9 @@ class AnswerOptions(models.Model):
     
 
 class Question(TimestampedModel, ModelWithMetadata):
+    """
+        model for Question
+    """
     description = RichTextUploadingField()
     subject = models.ForeignKey(Subject, null=True, blank=True,
                                 on_delete=models.SET_NULL, 
@@ -80,6 +83,19 @@ class Question(TimestampedModel, ModelWithMetadata):
 
     def __str__(self) -> str:
         return '{0} : {1} : {2}'.format(self.id, self.subject, self.question_type)
+
+
+class Category(models.Model):
+    """
+        Used to store a group of quizzes with same attributes/purposes
+        Like 'Recruitment Tests' category will have quizzes used for requirement
+
+        The deployment will create at lest one group named 'All' to which all tests
+        will be part and can be changed by creating different categories.
+    """
+
+    name = models.CharField(_('Name'), max_length=128)
+    slug = 
     
 
 

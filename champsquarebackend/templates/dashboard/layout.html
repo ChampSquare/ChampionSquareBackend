@@ -9,6 +9,10 @@
 
 {% block extrastyles %}
     {{ block.super }}
+    <link rel="stylesheet" href="{% static "championsquare/js/select2/select2.min.css" %}" />
+    <link rel="stylesheet" href="{% static "championsquare/css/select2-bootstrap.min.css" %}" />
+    <link rel="stylesheet" href="{% static "championsquare/js/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" %}" />
+    <link rel="stylesheet" href="{% static "championsquare/css/datetimepicker.css" %}" />
     
 {% endblock extrastyles %}
 
@@ -43,3 +47,44 @@
         </div>
     </div> <!-- /container -->
 {% endblock layout %}
+
+{# Local scripts #}
+{% block scripts %}
+    <!-- Twitter Bootstrap -->
+    <script src="{% static "championsquare/js/bootstrap3/bootstrap.min.js" %}"></script>
+    <!-- Oscar -->
+    <script src="{% static "championsquare/js/championsquare/ui.js" %}"></script>
+{% endblock %}
+
+
+{% block extrascripts %}
+    {{ block.super }}
+
+    {# jQuery plugins #}
+    <script src="{% static "championsquare/js/mousewheel/jquery.mousewheel.js" %}"></script>
+    <script src="{% static "championsquare/js/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js" %}"></script>
+    <script src="{% static "championsquare/js/bootstrap-datetimepicker/locales/bootstrap-datetimepicker.all.js" %}"></script>
+    <script src="{% static "championsquare/js/inputmask/jquery.inputmask.bundle.js" %}"></script>
+    <script src="{% static "championsquare/js/select2/select2.min.js" %}"></script>
+    <script src="{% static "championsquare/js/jquery-sortable/jquery-sortable-min.js" %}"></script>
+    <script src="{% static "championsquare/js/championsquare/dashboard.js" %}"></script>
+    <script src="{% static "championsquare/js/championsquare/RelatedObjectLookups.js" %}"></script>
+    <script src="{% static "championsquare/js/tinymce/tinymce.min.js" %}"></script>
+    <script src="{% static "championsquare/js/tinymce/jquery.tinymce.min.js" %}"></script>
+{% endblock %}
+
+{% block onbodyload %}
+    {{ block.super }}
+
+    // Javascript to enable link to tab
+    var url = document.location.toString();
+    if (url.match('#')) {
+        $('.nav-list a[href="#' + url.split('#')[1] + '"]').tab('show');
+    }
+
+    // Change hash for page-reload
+    $('.nav-list a').on('shown.bs.tab', function (e) {
+        window.location.hash = e.target.hash;
+    });
+
+{% endblock %}

@@ -1,50 +1,17 @@
 from django import forms
-from .models import get_model_class, Profile, Quiz, Question, Course,\
-                         QuestionPaper
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 
-from textwrap import dedent
 try:
     from string import letters
 except ImportError:
     from string import ascii_letters as letters
 from string import punctuation, digits
-import datetime
-import pytz
-from django.template import Template
-# from material import Layout, Row, Column, Fieldset, Span2, Span3, Span5, Span6, Span10
 
-
-
-# from . import Uscholar as forms
 from champsquarebackend.legacy.Unicorn.models import Student
-
-
-
-subjects = (
-       ("select", "Select Language"),
-       ("physics", "Physics"),
-       ("chemistry", "Chemistry"),
-       ("mathematics", "Mathematics"),
-       ("biology", "Biology"),
-   )
-
-
-question_types = (
-    ("select", "Select Question Type"),
-    ("mcq", "Multiple Choice"),
-    ("mcc", "Multiple Correct Choices"),
-    ("integer", "Answer in Integer"),
-    ("paragraph", "Paragraph Type"),
-    ("match", "Matching Type")
-    )
-
-test_case_types = (
-        ("mcqtestcase", "MCQ Testcase"),
-        ("integertestcase", "Integer Testcase"),
-        )
+from .models import get_model_class, Profile, Quiz, Question, \
+                         QuestionPaper, question_types, Subject
 
 
 
@@ -65,6 +32,9 @@ def get_object_form(model, exclude_fields=None):
 
 
 class AddUserForm(forms.Form):
+    """
+        Form used to add user
+    """
     roll_number = forms.CharField \
         (max_length=30, help_text="Use a dummy if you don't have one.")
     name = forms.CharField(max_length=30)
@@ -101,9 +71,6 @@ class AddUserForm(forms.Form):
         new_profile.save()
 
         return u_name, pwd
-
-
-
 
 
 class UserRegisterForm(forms.Form):
@@ -224,14 +191,9 @@ class QuizForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
-        course_id = kwargs.pop('course')
         super(QuizForm, self).__init__(*args, **kwargs)
-        self.fields['prerequisite'] = forms.ModelChoiceField(
-                queryset=Quiz.objects.filter(course__id=course_id,
-                                             is_trial=False))
-        self.fields['prerequisite'].required = False
-        self.fields['course'] = forms.ModelChoiceField(
-                queryset=Course.objects.filter(id=course_id), empty_label=None)
+    
+        
 
     class Meta:
         model = Quiz
@@ -255,22 +217,13 @@ class QuestionFilterForm(forms.Form):
         points_list = questions.values_list('points', flat=True).distinct()
         points_options = [(None, 'Select Marks')]
         points_options.extend([(point, point) for point in points_list])
+        self.fields['subject'] = forms.ModelChoiceField(queryset=Subject.objects.all(), empty_label='Choose Subject')
         self.fields['marks'] = forms.FloatField(widget=forms.Select\
                                                     (choices=points_options))
 
-    subject = forms.CharField(max_length=8, widget=forms.Select\
-                                (choices=subjects))
+
     question_type = forms.CharField(max_length=8, widget=forms.Select\
                                     (choices=question_types))
-
-
-class CourseForm(forms.ModelForm):
-    """ course form for moderators """
-
-    class Meta:
-        model = Course
-        exclude = ['creator', 'requests', 'students', 'rejected',
-            'created_on', 'is_trial', 'teachers']
 
 
 class ProfileForm(forms.ModelForm):
@@ -296,8 +249,9 @@ class QuestionPaperForm(forms.ModelForm):
         model = QuestionPaper
         fields = []
 
-
-class UploadFileForm(forms.Form):
-    file = forms.FileField()
+class SubjectForm(forms.ModelForm):
+    class Meta:
+        model = Subject
+        fields = ['subject']
 
 

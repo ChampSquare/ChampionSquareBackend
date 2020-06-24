@@ -10,19 +10,6 @@ from champsquarebackend.legacy.Uscholar.models import AnswerPaper, Question
 User = get_user_model()
 
 
-class UserAnswer(models.Model):
-    """Answer submitted by user"""
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    question_num = models.IntegerField(default=0)
-    user_answer = models.CharField(max_length=5)
-    right_answer = models.CharField(max_length=5)
-
-    def get_answer_status(self):
-        return self.user_answer == self.right_answer
-
-    def __str__(self):
-        return self.user_answer
-
 
 class Result(models.Model):
     """AnswerPaper of user, one paper for each test"""

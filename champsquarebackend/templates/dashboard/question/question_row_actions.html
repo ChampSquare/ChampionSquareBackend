@@ -4,14 +4,14 @@
     <div class="btn-group">
         <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">
             {% trans "Actions" %}
-            <span class="caret"></span>
+            
         </button>
         <ul class="dropdown-menu pull-right">
             <li>
-                <a href="#">{% trans "Edit" %}</a>
+                <a href="{% url 'Uscholar:edit_question' question_id=record.id %}{% querystring %}">{% trans "Edit" %}</a>
             </li>
             <li>
-                <a href="#"> {% trans "View on site" %}</a>
+                <a href="{{ record.get_absolute_url }}"> {% trans "View on site" %}</a>
             </li>
             <li>
                 <a href="#">{% trans "Delete" %}</a>
