@@ -1,5 +1,58 @@
+import unicodedata
+import re
+
 from django.conf import settings
 from django.utils.module_loading import import_string
+from django.utils.text import slugify as django_slugify
+
+SLUGIFY_RE = re.compile(r'[^\w\s-]', re.UNICODE)
+
+
+def default_slugifier(value, allow_unicode=False):
+    """
+    Oscar's default slugifier function. When unicode is allowed
+    it uses Django's slugify function, otherwise it uses cautious_slugify.
+    """
+    if allow_unicode:
+        return django_slugify(value, allow_unicode=True)
+    else:
+        return cautious_slugify(value)
+
+def cautious_slugify(value):
+    """
+    Convert a string to ASCII exactly as Django's slugify does, with the exception
+    that any non-ASCII alphanumeric characters (that cannot be ASCIIfied under Unicode
+    normalisation) are escaped into codes like 'u0421' instead of being deleted entirely.
+    This ensures that the result of slugifying e.g. Cyrillic text will not be an empty
+    string, and can thus be safely used as an identifier (albeit not a human-readable one).
+
+    cautious_slugify was copied from Wagtail:
+    <https://github.com/wagtail/wagtail/blob/8b420b9/wagtail/core/utils.py>
+
+    Copyright (c) 2014-present Torchbox Ltd and individual contributors.
+    Released under the BSD 3-clause "New" or "Revised" License
+    <https://github.com/wagtail/wagtail/blob/8b420b9/LICENSE>
+
+    Date: 2018-06-15
+    """
+    # Normalize the string to decomposed unicode form. This causes accented Latin
+    # characters to be split into 'base character' + 'accent modifier'; the latter will
+    # be stripped out by the regexp, resulting in an ASCII-clean character that doesn't
+    # need to be escaped
+    value = unicodedata.normalize('NFKD', value)
+
+    # Strip out characters that aren't letterlike, underscores or hyphens,
+    # using the same regexp that slugify uses. This ensures that non-ASCII non-letters
+    # (e.g. accent modifiers, fancy punctuation) get stripped rather than escaped
+    value = SLUGIFY_RE.sub('', value)
+
+    # Encode as ASCII, escaping non-ASCII characters with backslashreplace, then convert
+    # back to a unicode string (which is what slugify expects)
+    value = value.encode('ascii', 'backslashreplace').decode('ascii')
+
+    # Pass to slugify to perform final conversion (whitespace stripping); this will
+    # also strip out the backslashes from the 'backslashreplace' conversion
+    return django_slugify(value)
 
 def slugify(value):
     """

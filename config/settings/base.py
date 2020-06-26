@@ -77,9 +77,9 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "champsquarebackend.legacy.Uscholar.apps.UscholarConfig",
-    "champsquarebackend.legacy.Unicorn",
-    "champsquarebackend.legacy.JeeMain",
+    # "champsquarebackend.legacy.Uscholar.apps.UscholarConfig",
+    # "champsquarebackend.legacy.Unicorn",
+    # "champsquarebackend.legacy.JeeMain",
     "champsquarebackend.users.apps.UsersConfig",
     "champsquarebackend.home.apps.HomeConfig",
     "champsquarebackend.quiz.apps.QuizConfig",
@@ -303,6 +303,8 @@ CKEDITOR_IMAGE_BACKEND = "pillow"
 
 DASHBOARD_QUESTION_LIST_ITEMS_PER_PAGE = 10
 
+
+# settings for message framework
 from django.contrib.messages import constants as messages
 
 MESSAGE_TAGS = {
@@ -312,3 +314,14 @@ MESSAGE_TAGS = {
     messages.WARNING: 'alert-warning',
     messages.ERROR: 'alert-danger',
 }
+
+# Hidden features, if any
+SETTINGS_HIDDEN_FEATURES = []
+
+# Slug handling
+SETTINGS_SLUG_FUNCTION = 'championsquarebackend.core.utils.default_slugifier'
+SETTINGS_SLUG_MAP = {}
+SETTINGS_SLUG_BLACKLIST = []
+SETTINGS_SLUG_ALLOW_UNICODE = False
+
+SETTINGS__DYNAMIC_CLASS_LOADER = 'champsquarebackend.core.loading.default_class_loader'
