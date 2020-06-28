@@ -1,17 +1,15 @@
 from django.db import models
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
 from django.template import engines
 from django.template.loader import get_template
 from django.template.exceptions import TemplateDoesNotExist
 
-from ckeditor_uploader.fields import RichTextUploadingField
-
 from champsquarebackend.models.models import TimestampedModel
 from champsquarebackend.models.fields import AutoSlugField
 from champsquarebackend.apps.communication.managers import CommunicationTypeManager
+from champsquarebackend.core.compat import get_user_model
 
 User = get_user_model()
 
@@ -25,7 +23,8 @@ class Email(TimestampedModel):
                              null=True)
     email = models.EmailField(_('Email Address'), null=True, blank=True)
     subject = models.TextField(_('Subject'), max_length=255)
-    body_text = RichTextUploadingField(_('Body Text'))
+    body_text = models.TextField(_("Body Text"))
+    body_html = models.TextField(_("Body HTML"), blank=True)
     date_sent = models.DateTimeField(_("Date Sent"), auto_now_add=True)
 
     class Meta:

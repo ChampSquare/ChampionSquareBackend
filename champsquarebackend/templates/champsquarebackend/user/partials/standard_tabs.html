@@ -1,0 +1,12 @@
+{% load i18n %}
+{% load display_tags %}
+
+<li{% if active_tab == 'profile' %} class="active"{% endif %}>
+    <a href="{% url 'user:profile-view' %}">{% trans "Profile" %}</a>
+</li>
+<li{% if active_tab == 'emails' %} class="active"{% endif %}>
+    <a href="{% url 'user:email-list' %}">{% trans "Email History" %}</a>
+</li>
+<li{% if active_tab == 'notifications' %} class="active"{% endif %}>
+    <a href="{% url 'user:notifications-inbox' %}">{% trans "Notifications" %}</a>
+</li>

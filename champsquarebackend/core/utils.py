@@ -1,9 +1,25 @@
 import unicodedata
 import re
+import datetime
+import logging
+
 
 from django.conf import settings
 from django.utils.module_loading import import_string
 from django.utils.text import slugify as django_slugify
+from django.shortcuts import resolve_url, redirect
+from django.utils.timezone import get_current_timezone, is_naive, make_aware
+from babel.dates import format_timedelta as format_td
+from django.template.defaultfilters import date as date_filter
+from django.utils.translation import get_language, to_locale
+
+
+try:
+    # Django 3.0 and above
+    from django.utils.http import url_has_allowed_host_and_scheme       # noqa F401
+except ImportError:
+    from django.utils.http import is_safe_url as url_has_allowed_host_and_scheme
+
 
 SLUGIFY_RE = re.compile(r'[^\w\s-]', re.UNICODE)
 
@@ -59,7 +75,7 @@ def slugify(value):
     Slugify a string
 
     The SETTINGS_SLUG_FUNCTION can be set with a dotted path to the slug
-    function to use, defaults to 'oscar.core.utils.default_slugifier'.
+    function to use, defaults to 'champsquarebackend.core.utils.default_slugifier'.
 
     SETTINGS_SLUG_MAP can be set of a dictionary of target:replacement pairs
 
@@ -82,3 +98,65 @@ def slugify(value):
         slug = slug.replace('-' + word, '')
 
     return slug
+
+def safe_referrer(request, default):
+    """
+    Takes the request and a default URL. Returns HTTP_REFERER if it's safe
+    to use and set, and the default URL otherwise.
+
+    The default URL can be a model with get_absolute_url defined, a urlname
+    or a regular URL
+    """
+    referrer = request.META.get('HTTP_REFERER')
+    if referrer and url_has_allowed_host_and_scheme(referrer, request.get_host()):
+        return referrer
+    if default:
+        # Try to resolve. Can take a model instance, Django URL name or URL.
+        return resolve_url(default)
+    else:
+        # Allow passing in '' and None as default
+        return default
+
+def redirect_to_referrer(request, default):
+    """
+    Takes request.META and a default URL to redirect to.
+
+    Returns a HttpResponseRedirect to HTTP_REFERER if it exists and is a safe
+    URL; to the default URL otherwise.
+    """
+    return redirect(safe_referrer(request, default))
+
+def format_timedelta(td):
+    """
+    Takes an instance of timedelta and formats it as a readable translated string
+    """
+    return format_td(
+        td,
+        threshold=2,
+        locale=to_locale(get_language() or settings.LANGUAGE_CODE)
+    )
+
+
+def format_datetime(dt, format=None):
+    """
+    Takes an instance of datetime, converts it to the current timezone and
+    formats it as a string. Use this instead of
+    django.core.templatefilters.date, which expects localtime.
+
+    :param format: Common will be settings.DATETIME_FORMAT or
+                   settings.DATE_FORMAT, or the resp. shorthands
+                   ('DATETIME_FORMAT', 'DATE_FORMAT')
+    """
+    if is_naive(dt):
+        localtime = make_aware(dt, get_current_timezone())
+        logging.warning(
+            "champsquarebackend.core.utils.format_datetime received native datetime")
+    else:
+        localtime = dt.astimezone(get_current_timezone())
+    return date_filter(localtime, format)
+
+
+def datetime_combine(date, time):
+    """Timezone aware version of `datetime.datetime.combine`"""
+    return make_aware(
+        datetime.datetime.combine(date, time), get_current_timezone())

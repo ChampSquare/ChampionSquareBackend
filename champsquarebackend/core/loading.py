@@ -1,43 +1,46 @@
-from functools import lru_cache
 import sys
 import traceback
+import warnings
+from functools import lru_cache
 from importlib import import_module
 
 from django.apps import apps
 from django.apps.config import MODELS_MODULE_NAME
-from django.core.exceptions import AppRegistryNotReady
 from django.conf import settings
+from django.core.exceptions import AppRegistryNotReady
 from django.utils.module_loading import import_string
 
 from champsquarebackend.core.exceptions import (
-    AppNotFoundError, ClassNotFoundError, ModuleNotFoundError
-)
-
+    AppNotFoundError, ClassNotFoundError, ModuleNotFoundError)
 
 
 def get_class(module_label, classname, module_prefix='champsquarebackend.apps'):
     """
     Dynamically import a single class from the given module.
 
-    A simple wrapper around `get_classes` for the case of loading
-    a single class.
+    This is a simple wrapper around `get_classes` for the case of loading a
+    single class.
 
     Args:
         module_label (str): Module label comprising the app label and the
-        module name, separated by a dot. for example 'question.forms'.
+            module name, separated by a dot.  For example, 'catalogue.forms'.
+        classname (str): Name of the class to be imported.
 
     Returns:
         The requested class object or `None` if it can't be found
     """
     return get_classes(module_label, [classname], module_prefix)[0]
 
+
 @lru_cache(maxsize=100)
 def get_class_loader():
     return import_string(settings.SETTINGS_DYNAMIC_CLASS_LOADER)
 
+
 def get_classes(module_label, classnames, module_prefix='champsquarebackend.apps'):
     class_loader = get_class_loader()
     return class_loader(module_label, classnames, module_prefix)
+
 
 def default_class_loader(module_label, classnames, module_prefix):
     """
@@ -47,15 +50,27 @@ def default_class_loader(module_label, classnames, module_prefix):
     against the passed module label.  If the requested class can't be found in
     the matching module, then we attempt to import it from the corresponding
     core app.
+
+    This is very similar to ``django.db.models.get_model`` function for
+    dynamically loading models.  This function is more general though as it can
+    load any class from the matching app, not just a model.
+
+    Args:
+        module_label (str): Module label comprising the app label and the
+            module name, separated by a dot.  For example, 'catalogue.forms'.
+        classname (str): Name of the class to be imported.
+
+    Returns:
+        The requested class object or ``None`` if it can't be found
     """
+
     if '.' not in module_label:
         # Importing from top-level modules is not supported, e.g.
-        # get_class('question', 'Question').
         raise ValueError(
             "Importing from top-level modules is not supported")
 
-    # import from champsquarebackend package (should succeed in most cases)
-    # e.g. 'champsquarebackend.apps.dashboard.question.forms'
+    # import from Oscar package (should succeed in most cases)
+    # e.g. 'champsquarebackend.apps.dashboard.catalogue.forms'
     champsquarebackend_module_label = "%s.%s" % (module_prefix, module_label)
     champsquarebackend_module = _import_module(champsquarebackend_module_label, classnames)
 
@@ -64,7 +79,7 @@ def default_class_loader(module_label, classnames, module_prefix):
     # depending on what is set in INSTALLED_APPS
     app_name = _find_registered_app_name(module_label)
     if app_name.startswith('%s.' % module_prefix):
-        # The entry is obviously an Champsquarebackend one, we don't import again
+        # The entry is obviously an Oscar one, we don't import again
         local_module = None
     else:
         # Attempt to import the classes from the local module
@@ -83,6 +98,7 @@ def default_class_loader(module_label, classnames, module_prefix):
 
     # return imported classes, giving preference to ones from the local package
     return _pluck_classes([local_module, champsquarebackend_module], classnames)
+
 
 def _import_module(module_label, classnames):
     """
@@ -165,12 +181,14 @@ def get_profile_class():
     app_label, model_name = settings.AUTH_PROFILE_MODULE.split('.')
     return get_model(app_label, model_name)
 
+
 def feature_hidden(feature_name):
     """
-     Test if a certain feature is disabled
+    Test if a certain Oscar feature is disabled.
     """
     return (feature_name is not None
             and feature_name in settings.SETTINGS_HIDDEN_FEATURES)
+
 
 def get_model(app_label, model_name):
     """

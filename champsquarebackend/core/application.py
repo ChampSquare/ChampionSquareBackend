@@ -16,7 +16,7 @@ class AppConfigMixin(object):
     login_url = None
 
     #: A name that allows the functionality within this app to be disabled
-    hidden_feature_name = None
+    hidable_feature_name = None
 
     #: Maps view names to lists of permissions. Expects tuples of
     #: lists as dictionary values. A list is a set of permissions that all
@@ -108,7 +108,7 @@ class AppConfigMixin(object):
             view_name = url.split(':')[1]
         else:
             view_name = url
-        return self.permissions_map.get(view_name, self.default_permssions)
+        return self.permissions_map.get(view_name, self.default_permissions)
 
     def get_url_decorator(self, pattern):
         """
@@ -124,10 +124,10 @@ class AppConfigMixin(object):
         See permissions_required decorator for details
         """
 
-        from .views.decorators import permssions_required
+        from champsquarebackend.views.decorators import permissions_required
         permssions = self.get_permissions(pattern.name)
         if permssions:
-            return permssions_required(permssions, login_url=self.login_url)
+            return permissions_required(permssions, login_url=self.login_url)
 
     @property
     def urls(self):

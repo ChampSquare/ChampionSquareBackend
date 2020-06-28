@@ -8,10 +8,15 @@ import os
 
 ROOT_DIR = Path(__file__).parents[2]
 
+location = lambda x: os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), x)
+
+
 # champsquarebackend/)
 APPS_DIR = ROOT_DIR / "champsquarebackend"
 
 env = environ.Env()
+
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=True)
 if READ_DOT_ENV_FILE:
@@ -64,12 +69,11 @@ DJANGO_APPS = [
     # "django.contrib.humanize", # Handy template tags
     "django.contrib.admin",
     "django.forms",
+    'django.contrib.flatpages',
+    
 ]
 THIRD_PARTY_APPS = [
     "crispy_forms",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
     'ckeditor',
     'ckeditor_uploader',
     'django_tables2',
@@ -80,10 +84,15 @@ LOCAL_APPS = [
     # "champsquarebackend.legacy.Uscholar.apps.UscholarConfig",
     # "champsquarebackend.legacy.Unicorn",
     # "champsquarebackend.legacy.JeeMain",
-    "champsquarebackend.users.apps.UsersConfig",
-    "champsquarebackend.home.apps.HomeConfig",
-    "champsquarebackend.quiz.apps.QuizConfig",
-    "champsquarebackend.dashboard.apps.DashboardConfig",
+    "champsquarebackend.config.OnlineTestPlatform",
+    "champsquarebackend.apps.user.apps.UserConfig",
+    # "champsquarebackend.apps.home.apps.HomeConfig",
+    # "champsquarebackend.apps.quiz.apps.QuizConfig",
+    "champsquarebackend.apps.communication.apps.CommunicationConfig",
+    "champsquarebackend.apps.dashboard.apps.DashboardConfig",
+    'champsquarebackend.apps.dashboard.users.apps.UsersDashboardConfig',
+    'champsquarebackend.apps.dashboard.pages.apps.PagesDashboardConfig',
+    'champsquarebackend.apps.dashboard.communications.apps.CommunicationsDashboardConfig',
 
     # Your stuff: custom apps go here
 ]
@@ -111,15 +120,15 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS + LEGACY_SUPPORT_AP
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#authentication-backends
 AUTHENTICATION_BACKENDS = [
+    'champsquarebackend.apps.user.auth_backends.EmailBackend',
     "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-user-model
-AUTH_USER_MODEL = "users.User"
+AUTH_USER_MODEL = "user.User"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
-LOGIN_REDIRECT_URL = "users:redirect"
+LOGIN_REDIRECT_URL = "/"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
-LOGIN_URL = "/exam/login"
+LOGIN_URL = "/user/login"
 
 # PASSWORDS
 # ------------------------------------------------------------------------------
@@ -146,6 +155,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/dev/ref/settings/#middleware
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -154,7 +165,13 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+
 ]
+
+CACHES = {
+    'default': env.cache(default='locmemcache://'),
+}
 
 # STATIC
 # ------------------------------------------------------------------------------
@@ -172,7 +189,15 @@ MIDDLEWARE = [
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
+STATIC_ROOT = location('public/static')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_DIRS = (
+    location('static/'),
+)
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+)
 
 
 # MEDIA
@@ -190,7 +215,7 @@ TEMPLATES = [
         # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-TEMPLATES-BACKEND
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         # https://docs.djangoproject.com/en/dev/ref/settings/#template-dirs
-        "DIRS": [str(APPS_DIR / "templates")],
+        "DIRS": [location('templates')],
         "OPTIONS": {
             # https://docs.djangoproject.com/en/dev/ref/settings/#template-loaders
             # https://docs.djangoproject.com/en/dev/ref/templates/api/#loader-types
@@ -200,15 +225,19 @@ TEMPLATES = [
             ],
             # https://docs.djangoproject.com/en/dev/ref/settings/#template-context-processors
             "context_processors": [
+                "django.contrib.auth.context_processors.auth",
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
                 "django.template.context_processors.i18n",
                 "django.template.context_processors.media",
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
+
+                # championsquare specific
+                "champsquarebackend.apps.communication.notifications.context_processors.notifications",
                 "champsquarebackend.utils.context_processors.settings_context",
+                "champsquarebackend.core.context_processors.metadata",
             ],
         },
     }
@@ -315,13 +344,4 @@ MESSAGE_TAGS = {
     messages.ERROR: 'alert-danger',
 }
 
-# Hidden features, if any
-SETTINGS_HIDDEN_FEATURES = []
-
-# Slug handling
-SETTINGS_SLUG_FUNCTION = 'championsquarebackend.core.utils.default_slugifier'
-SETTINGS_SLUG_MAP = {}
-SETTINGS_SLUG_BLACKLIST = []
-SETTINGS_SLUG_ALLOW_UNICODE = False
-
-SETTINGS__DYNAMIC_CLASS_LOADER = 'champsquarebackend.core.loading.default_class_loader'
+from champsquarebackend.defaults import *

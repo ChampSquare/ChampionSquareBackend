@@ -19,23 +19,19 @@ from django.conf.urls.static import static
 from django.views import defaults as default_view
 from django.views.generic import TemplateView
 from django.urls import path, include
+from django.apps import apps
 
 urlpatterns = [
-    path('', include('champsquarebackend.home.urls', namespace='home'), name='home'),
-    # path('', include('champsquarebackend.home.urls', namespace='home')),
     path('about/', TemplateView.as_view(template_name="pages/about.html"), name="about"),
     # django admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # user management
-    path('users/', include('champsquarebackend.users.urls', namespace='users')),
-    path('accounts/', include('allauth.urls')),
     path('ckeditor/', include('ckeditor_uploader.urls')),
 
-    # urls for legacy site
-    # path('exam/', include('champsquarebackend.legacy.Uscholar.urls', namespace='Uscholar')),
-    # path('jee_main/', include('champsquarebackend.legacy.JeeMain.urls', namespace='JeeMain')),
-    # path('legacy/', include('champsquarebackend.legacy.Unicorn.urls', namespace="Unicorn")),
-    path('dashboard/', include('champsquarebackend.dashboard.urls', namespace="dashboard")),
+    # app's urls
+    path('', include(apps.get_app_config('champsquarebackend').urls[0])),
+
+
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
@@ -54,6 +50,3 @@ if settings.DEBUG:
         import debug_toolbar
 
         urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns
-
-
-    
