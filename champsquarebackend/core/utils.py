@@ -26,7 +26,7 @@ SLUGIFY_RE = re.compile(r'[^\w\s-]', re.UNICODE)
 
 def default_slugifier(value, allow_unicode=False):
     """
-    Oscar's default slugifier function. When unicode is allowed
+     default slugifier function. When unicode is allowed
     it uses Django's slugify function, otherwise it uses cautious_slugify.
     """
     if allow_unicode:

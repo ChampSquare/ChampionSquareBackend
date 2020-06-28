@@ -45,7 +45,7 @@ SETTINGS_COOKIES_DELETE_ON_LOGOUT = []
 
 
 
-# Hidden Oscar features
+# Hidden features
 SETTINGS_HIDDEN_FEATURES = []
 
 # Menu structure of the dashboard navigation

@@ -30,17 +30,14 @@ def get_user_model():
 
     This used to live in compat to support both Django 1.4's fixed User model
     and custom user models introduced thereafter.
-    Support for Django 1.4 has since been dropped in Oscar, but our
-    get_user_model remains because code relies on us annotating the _meta class
-    with the additional fields, and other code might rely on it as well.
+   
     """
 
     try:
         model = get_model(AUTH_USER_APP_LABEL, AUTH_USER_MODEL_NAME)
     except LookupError:
         # Convert exception to an ImproperlyConfigured exception for
-        # backwards compatibility with previous Oscar versions and the
-        # original get_user_model method in Django.
+        # backwards compatibility 
         raise ImproperlyConfigured(
             "AUTH_USER_MODEL refers to model '%s' that has not been installed"
             % settings.AUTH_USER_MODEL)
@@ -116,7 +113,7 @@ class UnicodeCSVWriter:
         # If encoding is UTF-8, insert a Byte Order Mark at the start of the
         # file for compatibility with MS Excel.
         if (self.encoding == 'utf-8'
-                and getattr(settings, 'OSCAR_CSV_INCLUDE_BOM', False)):
+                and getattr(settings, 'SETTINGS_CSV_INCLUDE_BOM', False)):
             self.f.write('\ufeff')
 
     def writerow(self, row):

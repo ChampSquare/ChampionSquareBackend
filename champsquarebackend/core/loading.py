@@ -20,14 +20,6 @@ def get_class(module_label, classname, module_prefix='champsquarebackend.apps'):
 
     This is a simple wrapper around `get_classes` for the case of loading a
     single class.
-
-    Args:
-        module_label (str): Module label comprising the app label and the
-            module name, separated by a dot.  For example, 'catalogue.forms'.
-        classname (str): Name of the class to be imported.
-
-    Returns:
-        The requested class object or `None` if it can't be found
     """
     return get_classes(module_label, [classname], module_prefix)[0]
 
@@ -50,18 +42,6 @@ def default_class_loader(module_label, classnames, module_prefix):
     against the passed module label.  If the requested class can't be found in
     the matching module, then we attempt to import it from the corresponding
     core app.
-
-    This is very similar to ``django.db.models.get_model`` function for
-    dynamically loading models.  This function is more general though as it can
-    load any class from the matching app, not just a model.
-
-    Args:
-        module_label (str): Module label comprising the app label and the
-            module name, separated by a dot.  For example, 'catalogue.forms'.
-        classname (str): Name of the class to be imported.
-
-    Returns:
-        The requested class object or ``None`` if it can't be found
     """
 
     if '.' not in module_label:
