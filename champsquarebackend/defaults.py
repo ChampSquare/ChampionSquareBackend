@@ -55,7 +55,20 @@ SETTINGS_DASHBOARD_NAVIGATION = [
         'icon': 'icon-th-list',
         'url_name': 'dashboard:index',
     },
-    
+    {
+        'label': _('Questions'),
+        'icon': 'icon-sitemap',
+        'children': [
+            {
+                'label': _('Questions'),
+                'url_name': 'dashboard:questions-list',
+            },
+            {
+                'label': _('Subjects'),
+                'url_name': 'dashboard:question-subject-create',
+            }
+        ]
+    },
     {
         'label': _('Users'),
         'icon': 'icon-group',

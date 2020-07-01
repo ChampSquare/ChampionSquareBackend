@@ -1,5 +1,6 @@
 from django.apps import apps
-from django.conf.urls import include, url
+from django.urls import path
+from django.conf.urls import include
 from django.utils.translation import gettext_lazy as _
 
 from champsquarebackend.core.application import AppDashboardConfig
@@ -23,22 +24,24 @@ class DashboardConfig(AppDashboardConfig):
         self.users_app = apps.get_app_config('users_dashboard')
         self.pages_app = apps.get_app_config('pages_dashboard')
         self.comms_app = apps.get_app_config('communications_dashboard')
+        self.questions_app = apps.get_app_config('questions_dashboard')
         
     def get_urls(self):
         from django.contrib.auth import views as auth_views
         from django.contrib.auth.forms import AuthenticationForm
 
         urls = [
-            url(r'^$', self.index_view.as_view(), name='index'),
-            url(r'^users/', include(self.users_app.urls[0])),
-            url(r'^pages/', include(self.pages_app.urls[0])),
-            url(r'^comms/', include(self.comms_app.urls[0])),
+            path('', self.index_view.as_view(), name='index'),
+            path('users/', include(self.users_app.urls[0])),
+            path('pages/', include(self.pages_app.urls[0])),
+            path('comms/', include(self.comms_app.urls[0])),
+            path('questions/', include(self.questions_app.urls[0])),
             
-            url(r'^login/$',
+            path('login/',
                 auth_views.LoginView.as_view(template_name='champsquarebackend/dashboard/login.html',
                                              authentication_form=AuthenticationForm),
                 name='login'),
-            url(r'^logout/$', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+            path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
 
         ]
         return self.post_process_urls(urls)

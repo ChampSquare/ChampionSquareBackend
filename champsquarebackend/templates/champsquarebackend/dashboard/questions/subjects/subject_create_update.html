@@ -1,0 +1,31 @@
+{% extends 'champsquarebackend/dashboard/layout.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block body_class %}{{ block.super }} create-page subject{% endblock %}
+
+{% block title %}
+    {{ title }} | {% trans "Subjects" %} | {{ block.super }}
+{% endblock %}
+
+{% block headertext %}{{ title }}{% endblock %}
+
+{% block dashboard_content %}
+<form name=form id=form action="" method="post" enctype="multipart/form-data" >
+    {% csrf_token %}
+<center><table class="table">
+{{ form.as_p }}
+
+</table></center>
+<button class="btn btn-success" type="submit" name="save_question">Save</button> <br /><br />
+
+
+</center>
+</form>
+   
+{% endblock dashboard_content %}
+
+{% block extrascripts %}
+ {{ block.super }} 
+{% endblock extrascripts %}
+

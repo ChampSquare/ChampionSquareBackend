@@ -86,12 +86,14 @@ LOCAL_APPS = [
     # "champsquarebackend.legacy.JeeMain",
     "champsquarebackend.config.OnlineTestPlatform",
     "champsquarebackend.apps.user.apps.UserConfig",
+    "champsquarebackend.apps.question.apps.QuestionConfig",
     # "champsquarebackend.apps.home.apps.HomeConfig",
     # "champsquarebackend.apps.quiz.apps.QuizConfig",
     "champsquarebackend.apps.communication.apps.CommunicationConfig",
     "champsquarebackend.apps.dashboard.apps.DashboardConfig",
     'champsquarebackend.apps.dashboard.users.apps.UsersDashboardConfig',
     'champsquarebackend.apps.dashboard.pages.apps.PagesDashboardConfig',
+    'champsquarebackend.apps.dashboard.questions.apps.QuestionsDashboardConfig',
     'champsquarebackend.apps.dashboard.communications.apps.CommunicationsDashboardConfig',
 
     # Your stuff: custom apps go here

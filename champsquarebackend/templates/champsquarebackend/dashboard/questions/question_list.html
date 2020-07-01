@@ -1,0 +1,57 @@
+{% extends 'champsquarebackend/dashboard/layout.html' %}
+{% load i18n %}
+{% load render_table from django_tables2 %}
+
+{% block body_class %} {{ block.super }} Questions {% endblock %}
+
+{% block title %}
+{% trans "Question List" %} | {{ block.super }}
+{% endblock title %}
+
+{% block breadcrumbs %}
+    <ul class="breadcrumb">
+        <li>
+            <a href="{% url 'dashboard:index' %}">{% trans "Dashboard" %}</a>
+        </li>
+        <li class="active">{% trans "Questions" %}</li>
+    </ul>
+{% endblock %}
+
+{% block header %}
+    <div class="page-header">
+        <a href="{% url 'dashboard:question-create' %}" class="btn btn-primary btn-lg pull-right"><i class="icon-plus"></i> {% trans "Add Question" %}</a>
+        <h1>{% trans "Questions" %}</h1>
+    </div>
+{% endblock header %}
+
+{% block dashboard_content %}
+
+    {% if questions %}
+   
+        {% block question_list %}
+            <form method="post">
+                {% csrf_token %}
+                {% render_table questions %}
+            </form>
+            <div class="modal fade" id="product-image-modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title"></h4>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img class="img-responsive center-block">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endblock question_list %}
+    {% else %}
+        <p>{% trans "No question found" %}</p> <a href="{% url 'dashboard:question-create' %}">Add New Question</a>
+    {% endif %}
+{% endblock dashboard_content %}
+
+{% block onbodyload %}
+    {{ block.super }}
+{% endblock onbodyload %}

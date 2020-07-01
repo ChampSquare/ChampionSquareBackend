@@ -10,4 +10,16 @@ if not is_model_registered('question', 'Subject'):
     class Subject(AbstractSubject):
         pass
 
-    __all__.append['Subject']
+    __all__.append('Subject')
+
+if not is_model_registered('question', 'Topic'):
+    class Topic(AbstractTopic):
+        pass
+
+    __all__.append('Topic')
+
+if not is_model_registered('question', 'Question'):
+    class Question(AbstractQuestion):
+        pass
+
+    __all__.append('Question')
