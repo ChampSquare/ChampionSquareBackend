@@ -70,6 +70,20 @@ SETTINGS_DASHBOARD_NAVIGATION = [
         ]
     },
     {
+        'label': _('Test Manager'),
+        'icon': 'icon-bullhorn',
+        'children': [
+            {
+                'label': _('Quizzes'),
+                'url_name': 'dashboard:quiz-list',
+            },
+            {
+                'label': _('Category'),
+                'url_name': 'dashboard:quiz-category-create',
+            }
+        ]
+    },
+    {
         'label': _('Users'),
         'icon': 'icon-group',
         'children': [

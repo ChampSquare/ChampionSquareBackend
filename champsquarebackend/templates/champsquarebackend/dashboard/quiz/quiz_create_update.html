@@ -1,0 +1,128 @@
+{% extends 'champsquarebackend/dashboard/layout.html' %}
+{% load form_tags %}
+{% load i18n %}
+{% load static %}
+
+{% block body_class %}{{ block.super }} create-page quiz{% endblock %}
+
+{% block title %}
+    {{ title }} | {% trans "Quiz | Create" %} | {{ block.super }}
+{% endblock %}
+{% block breadcrumbs %}
+    <ul class="breadcrumb">
+        <li>
+            <a href="{% url 'dashboard:index' %}">{% trans "Dashboard" %}</a>
+        </li>
+        <li>
+            <a href="{% url 'dashboard:quiz-list' %}">{% trans "Quizzes" %}</a>
+        </li>
+
+        
+        <li class="active">{{ title }}</li>
+    </ul>
+{% endblock %}
+
+{% block headertext %}{{ title }}{% endblock %}
+
+{% block dashboard_content %}
+<form name=form id=form action="" class="form-stacked wysiwyg fixed-actions" method="post" enctype="multipart/form-data" >
+    {% csrf_token %}
+    <div class="row">
+
+        {% block tab_nav %}
+            <div class="col-md-3">
+                <div data-spy="affix" data-offset-top="200">
+                    <div class="table-header">
+                        <h3>{% trans "Quiz Entry Options" %}</h3>
+                    </div>
+                    <ul class="nav nav-list bs-docs-sidenav" id="product_update_tabs">
+
+                        {% block tabs %}
+                        <li><a href="#quiz-details" data-toggle="tab">{% trans 'Add Quiz Details' %}</a></li>
+                        <li><a href="#quiz-questionpaper" data-toggle="tab">{% trans 'Add Questions' %}</a></li>
+
+                        {% endblock tabs %}
+                    </ul>
+                </div>
+            </div>
+        {% endblock tab_nav %}
+
+        <div class="col-md-9">
+            <div class="tab-content">
+                {% block tab_content %}
+                    {% block quiz-details %}
+                        <div class="tab-pane active" id="quiz-details">
+                            <div class="table-header">
+                                <h3>{% trans "Quiz details" %}</h3>
+                            </div>
+                            <div class="well product-class-details">
+                                {% block quiz_details_content %}
+                                    {% if form.non_field_errors %}
+                                        {% for error in form.non_field_errors %}
+                                            <div class="alert alert-error control-group error">
+                                                <span class="error-block"><i class="icon-exclamation-sign"></i> {{ error }}</span>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% for field in form  %}
+                                        {% include 'champsquarebackend/dashboard/partials/form_field.html' with field=field %}      
+                                    {% endfor %}
+                                {% endblock quiz_details_content %}  
+                            </div>
+                        </div>
+                    {% endblock %}
+
+                    {% block quiz-questionpaper %}
+                    <div class="tab-pane" id="quiz-questionpaper">
+                        <div class="table-header">
+                            <h3>{% trans "Question Paper" %}</h3>
+                        </div>
+                        <div class="well">
+                            {% block quiz-questionpaper_content %}  
+                                
+                            {% endblock quiz-questionpaper_content %}  
+                        </div>
+                    </div>
+                      
+                    {% endblock quiz-questionpaper %}
+                {% endblock tab_content %}
+            </div>
+        </div>
+    </div>
+
+    {% block fixed_actions_group %}
+    <div class="fixed-actions-group">
+        <div class="form-group">
+            <div class="pull-left">
+                <a href="{% url 'dashboard:quiz-list' %}">
+                    {% trans "Cancel" %}
+                </a>
+            </div>
+
+            <div class="pull-right">    
+                <button class="btn btn-default btn-lg" name="action" type="submit" value="create-another-quiz" data-loading-text="{% trans 'Saving...' %}">
+                        {% trans "Save and add another quiz" %}
+                </button>
+                <button class="btn btn-default btn-lg" name="action" type="submit" value="continue" data-loading-text="{% trans 'Saving...' %}">
+                    {% trans "Save and continue editing" %}
+                </button>
+                <button class="btn btn-primary btn-lg" name="action" type="submit" value="save" data-loading-text="{% trans 'Saving...' %}">
+                    {% trans "Save" %}
+                </button>
+            </div>
+            {% if quiz %}
+                <a class="btn btn-success btn-lg" href="{{ quiz.get_absolute_url }}">{% trans "View on site" %}</a>
+            {% endif %}
+        </div>
+    </div>
+   {% endblock fixed_actions_group %}
+</form>
+   
+{% endblock dashboard_content %}
+
+{% block extrascripts %}
+ {{ block.super }}
+ <script type="text/javascript" src="{% static "ckeditor/ckeditor-init.js" %}"></script>
+ <script type="text/javascript" src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>  
+{% endblock extrascripts %}
+

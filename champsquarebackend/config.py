@@ -11,15 +11,16 @@ class OnlineTestPlatform(AppConfig):
 
     def ready(self):
         from django.contrib.auth.forms import SetPasswordForm
-
-        # self.quiz_app = apps.get_app_config('quiz')
         self.user_app = apps.get_app_config('user')
+        self.question_app = apps.get_app_config('question')
+        self.quiz_app = apps.get_app_config('quiz')
         # self.dashboard_app = apps.get_app_config('dashboard')
         self.communication_app = apps.get_app_config('communication')
 
         self.password_reset_form = get_class('user.forms', 'PasswordResetForm')
         self.set_password_form = SetPasswordForm
         self.dashboard_app = apps.get_app_config('dashboard')
+        
 
 
     def get_urls(self):
@@ -32,6 +33,8 @@ class OnlineTestPlatform(AppConfig):
             # path('quiz/', self.quiz_app.urls),
             path('user/', self.user_app.urls),
             path('dashboard/', self.dashboard_app.urls),
+            path('question/', self.question_app.urls),
+            path('quiz/', self.quiz_app.urls),
 
             # path('dashboard/', self.dashboard_app.urls),
 

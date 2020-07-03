@@ -1,0 +1,8 @@
+{% extends 'champsquarebackend/dashboard/quiz/step_form.html' %}
+{% load i18n %}
+
+{% block progress %}
+    {% include 'champsquarebackend/dashboard/quiz/progress.html' with step=1 %}
+{% endblock %}
+
+{% block submittext %}{% trans "Continue to step 2" %}{% endblock %}

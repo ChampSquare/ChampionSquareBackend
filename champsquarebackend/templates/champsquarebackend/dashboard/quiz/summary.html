@@ -1,0 +1,35 @@
+{% load i18n %}
+
+<div class="table-header">
+    <h3>{% trans "quiz summary" %}</h3>
+</div>
+<div class="well-stacked">
+    {% if session_quiz.name %}
+        <div class="well">
+            <a href="{% if session_quiz.pk %}{% url 'dashboard:quiz-metadata' pk=session_quiz.pk %}{% else %}{% url 'dashboard:quiz-metadata' %}{% endif %}" class="btn btn-default pull-right">{% trans "Edit" %}</a>
+            <p><strong>{% trans "Name" %}:</strong><br /> {{ session_quiz.name }}</p>
+            {% if session_quiz.description %}
+            <p><strong>{% trans "Description" %}:</strong><br /> {{ session_quiz.description|safe|striptags|truncatewords:8 }}</p>
+            {% endif %}
+            <p><strong>{% trans "Duration" %}:</strong><br /> {{ session_quiz.duration }}</p>
+
+        </div>
+    {% endif %}
+    {% if session_quiz.questionpaper %}
+        <div class="well">
+            <a href="{% if session_quiz.pk %}{% url 'dashboard:quiz-questionpaper' pk=session_quiz.pk %}{% else %}{% url 'dashboard:quiz-benefit' %}{% endif %}" class="btn btn-default pull-right">{% trans "Edit" %}</a>
+            <p><strong>{% trans "No of Questions" %}:</strong><br /> {{ session_quiz.questionpaper.total_questions }}</p>
+            <p><strong>{% trans "Total Marks" %}:</strong><br /> {{ session_quiz..total_marks }}</p>
+
+        </div>
+    {% endif %}
+    
+    {% if session_quiz.pk %}
+        <div class="well">
+            <a href="{% if session_quiz.pk %}{% url 'dashboard:quiz-restrictions' pk=session_quiz.pk %}{% else %}{% url 'dashboard:quiz-restrictions' %}{% endif %}" class="btn btn-default pull-right">{% trans "Edit" %}</a>
+            <p><strong>{% trans "Restrictions" %}:</strong> <br/> 
+            
+
+        </div>
+    {% endif %}
+</div>

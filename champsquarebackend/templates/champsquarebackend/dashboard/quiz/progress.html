@@ -1,0 +1,27 @@
+{% load i18n %}
+
+<div data-spy="affix" class="affix-top" data-offset-top="200">
+    <div class="table-header">
+        <h3>{% trans "Steps" %}</h3>
+    </div>
+    <ul class="nav nav-list bs-docs-sidenav">
+        <li class="step1 {% if step == 1 %}active{% else %}{% if step > 1 %}visited{% else %}disabled{% endif %}{% endif %}">
+            {% if step == 2 or step == 3 %}
+            <a href="{% if session_quiz.pk %}{% url 'dashboard:quiz-metadata' pk=session_quiz.pk %}{% else %}{% url 'dashboard:quiz-metadata' %}{% endif %}">{% trans "1. Name and description" %}</a>
+            {% else %}
+                <span>{% trans "1. Name and description" %}</span>
+            {% endif %}
+        </li>
+        <li class="step2 {% if step == 2 %}active{% else %}{% if step > 2 %}visited{% else %}disabled{% endif %}{% endif %}">
+            {% if step == 3 %}
+            <a href="{% if session_quiz.pk %}{% url 'dashboard:quiz-questionpaper' pk=session_quiz.pk %}{% else %}{% url 'dashboard:quiz-questionpaper' %}{% endif %}">{% trans "2. QuestionPaper" %}</a>
+            {% else %}
+            <span>{% trans "2. QuestionPaper" %}</span>
+            {% endif %}
+        </li>
+        
+        <li class="step4 {% if step == 3 %}active{% else %}disabled{% endif %}">
+            <span>{% trans "3. Restrictions" %}</span>
+        </li>
+    </ul>
+</div>

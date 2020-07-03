@@ -1,0 +1,23 @@
+{% extends 'champsquarebackend/dashboard/quiz/step_form.html' %}
+
+
+{% load i18n %}
+
+{% block progress %}
+    {% include 'champsquarebackend/dashboard/quiz/progress.html' with step=2 %}
+{% endblock %}
+
+{% block form_fields %}
+    <span class="error-block">{{ form.non_field_errors }}</span>
+
+    {% for field in form  %}
+        {% include 'champsquarebackend/dashboard/partials/form_field.html' with field=field %}      
+    {% endfor %}
+{% endblock %}
+
+{% block submittext %}{% trans "Continue to step 3" %}{% endblock %}
+
+{% block onbodyload %}
+    {{ block.super }}
+    champsquarebackend.dashboard.quiz.init();
+{% endblock %}

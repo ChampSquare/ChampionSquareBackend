@@ -60,7 +60,7 @@ class QuestionListView(SingleTableView):
             Build the queryset for this list
         """
         queryset = Question.objects.all()
-        return queryset
+        return queryset     
 
 class QuestionCreateUpdateView(generic.UpdateView):
     """

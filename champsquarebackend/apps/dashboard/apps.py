@@ -25,6 +25,8 @@ class DashboardConfig(AppDashboardConfig):
         self.pages_app = apps.get_app_config('pages_dashboard')
         self.comms_app = apps.get_app_config('communications_dashboard')
         self.questions_app = apps.get_app_config('questions_dashboard')
+        self.quiz_app = apps.get_app_config('quiz_dashboard')
+
         
     def get_urls(self):
         from django.contrib.auth import views as auth_views
@@ -36,6 +38,8 @@ class DashboardConfig(AppDashboardConfig):
             path('pages/', include(self.pages_app.urls[0])),
             path('comms/', include(self.comms_app.urls[0])),
             path('questions/', include(self.questions_app.urls[0])),
+            path('quiz/', include(self.quiz_app.urls[0])),
+
             
             path('login/',
                 auth_views.LoginView.as_view(template_name='champsquarebackend/dashboard/login.html',
