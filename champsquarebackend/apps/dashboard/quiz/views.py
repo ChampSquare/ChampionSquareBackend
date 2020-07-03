@@ -372,8 +372,6 @@ class QuizQuestionPaperCreateUpdateView(QuizWizardStepView):
     def get_title(self):
         return _("Question Paper")
 
-    def form_valid(self, form):
-        
 
 class QuizRestrictionscreateUpdateView(QuizWizardStepView):
     step_name = 'restrictions'
