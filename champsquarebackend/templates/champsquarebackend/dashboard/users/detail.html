@@ -77,10 +77,7 @@
                             </tr>
                         {% endwith %}
                     {% endif %}
-                    <tr>
-                        <th>{% trans "Reviews written" %}</th>
-                        <td>{{ user.reviews.count }}</td>
-                    </tr>
+                   
                     {% if user.email %}
                         <tr>
                             <th>{% trans "Actions" %}</th>
