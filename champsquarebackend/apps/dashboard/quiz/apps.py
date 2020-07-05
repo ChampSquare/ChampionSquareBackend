@@ -18,8 +18,10 @@ class QuizDashboardConfig(AppDashboardConfig):
         self.category_create_update_view = get_class('dashboard.quiz.views', 'CategoryCreateUpdateView')
         self.quiz_metadata_create_update_view = get_class('dashboard.quiz.views', 'QuizMetaDataCreateUpdateView')
         self.quiz_questionpaper_create_update_view = get_class('dashboard.quiz.views', 'QuizQuestionPaperCreateUpdateView')
-        self.quiz_restrictions_create_update_view = get_class('dashboard.quiz.views', 'QuizRestrictionscreateUpdateView')
+        self.quiz_restrictions_create_update_view = get_class('dashboard.quiz.views', 'QuizRestrictionsCreateUpdateView')
+        self.questionpaper_create_update_view = get_class('dashboard.quiz.views', 'QuestionPaperCreateUpdateView')
         
+
     def get_urls(self):
         urls = [
             path('', self.quiz_list_view.as_view(), name='quiz-list'),
@@ -27,6 +29,7 @@ class QuizDashboardConfig(AppDashboardConfig):
             path('quiz-update/<int:pk>/', self.quiz_create_update_view.as_view(), name='quiz-update'),
             path('quiz-category-create/', self.category_create_update_view.as_view(), name='quiz-category-create'),
             path('quiz-category-update/<int:pk>/', self.category_create_update_view.as_view(), name='quiz-category-update'),
+            path('questionpaper-create/<int:pk>/', self.questionpaper_create_update_view.as_view(), name='quiz-questionpaper-update'),
 
             #creation
             path('new/name-and-description/', self.quiz_metadata_create_update_view.as_view(),

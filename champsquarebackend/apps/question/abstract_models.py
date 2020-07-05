@@ -114,3 +114,7 @@ class AbstractQuestion(TimestampedModel, ModelWithMetadata):
 
     def __str__(self) -> str:
         return '{0} : {1} : {2}'.format(self.id, self.subject, self.question_type)
+    
+    @property
+    def get_description(self):
+        return self.description

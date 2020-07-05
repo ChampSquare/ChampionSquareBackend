@@ -6,7 +6,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.contrib import messages
 from django.urls import reverse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
@@ -20,11 +20,13 @@ from champsquarebackend.core.loading import get_classes, get_model, get_class
 
 CategoryForm, QuizMetaForm, QuestionPaperForm, QuizRestrictionsForm \
     = get_classes('dashboard.quiz.forms', ['CategoryForm', 'QuizMetaForm',
-                    'QuestionPaperForm', 'QuizRestrictionsForm'])
+                  'QuestionPaperForm', 'QuizRestrictionsForm'])
 Category = get_model('quiz', 'category')
 Quiz = get_model('quiz', 'quiz')
+QuestionPaper = get_model('quiz', 'questionpaper')
 QuizForm = get_class('dashboard.quiz.forms', 'QuizForm')
 QuizTable = get_class('dashboard.quiz.tables', 'QuizTable')
+Question = get_model('question', 'question')
 
 # Create your views here.
 
@@ -373,7 +375,7 @@ class QuizQuestionPaperCreateUpdateView(QuizWizardStepView):
         return _("Question Paper")
 
 
-class QuizRestrictionscreateUpdateView(QuizWizardStepView):
+class QuizRestrictionsCreateUpdateView(QuizWizardStepView):
     step_name = 'restrictions'
     form_class = QuizRestrictionsForm
     template_name = 'champsquarebackend/dashboard/quiz/quiz_restrictions_form.html'
@@ -390,6 +392,98 @@ class QuizRestrictionscreateUpdateView(QuizWizardStepView):
     def get_title(self):
         return _("Restrictions")
 
+class QuestionPaperCreateUpdateView(UpdateView):
+    """
+        Dashboard view that can be used to create and update
+        Category (similar to questions). It can be used in two different ways,
+        each of them with unique URL pattern:
+        - when creating a new subject.
+        - when editing an existing question, this view is called with
+        subject's primary key.
+    """
+    template_name = 'champsquarebackend/dashboard/quiz/questionpaper_create_update.html'
+    model = QuestionPaper
+    context_object_name = 'questionpaper'
+    form_class = QuestionPaperForm
+    creating = None
+
+    def get_object(self, queryset=None):
+        """
+            This parts allows generic.UpdateView to handle creating
+            questions as well. The only distinction between an UpdateView
+            and a CreateView is that self.object is None. We emulate this behavior.
+        """
+        self.creating = 'pk' not in self.kwargs
+        if self.creating:
+            return None #success
+        else:
+            quiz = get_object_or_404(Quiz, pk=self.kwargs['pk'])
+            return quiz
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['title'] = self.get_page_title()
+        ctx['questions'] = Question.objects.all()
+        
+        if self.object.questionpaper:
+            ctx['questions_in_questionpaper'] = self.object.questionpaper.questions.all()
+            ctx['questions'] = Question.objects.exclude(
+            id__in=self.object.questionpaper.questions.values_list('id', flat=True))
+
+        # edit : add context data in here
+
+        return ctx
+
+
+    def get_page_title(self):
+        if self.creating:
+            return _('Create new questionpaper')
+        else:
+            return _('Update questionpaper ')
+
+    def form_valid(self, form):
+        action = self.request.POST.get('action')
+
+        if action == "add-questions":
+            question_ids = self.request.POST.getlist('questions', None)
+            questions_to_add = Question.objects.filter(id__in=question_ids)
+            if self.object.questionpaper:
+                self.object.questionpaper.questions.add(*questions_to_add)
+                
+            else:
+                questionpaper = QuestionPaper.objects.create()
+                questionpaper.questions.add(*questions_to_add)
+                self.object.questionpaper = questionpaper
+            
+            
+            self.object.save()
+            messages.success(self.request, _('Successfully added chosen questions'))
+            return HttpResponseRedirect(reverse('dashboard:quiz-questionpaper-update', kwargs={'pk': self.object.id}))
+            
+        elif action == 'remove-questions':
+            question_ids = self.request.POST.getlist('added-questions', None)
+            questions_to_remove = self.object.questionpaper.questions.filter(id__in=question_ids)
+            self.object.questionpaper.questions.remove(*questions_to_remove)
+            messages.success(self.request, _('Successfully removed chosen questions'))
+
+        else:
+            form.save()
+            messages.success(self.request, "Form saved successfully")
+            return HttpResponseRedirect(self.get_success_url())
+
+            
+            
+    def get_success_url(self):
+        """
+            return a success message and redirects to given url
+        """
+        if self.creating:
+            msg = _("Added quiz '%s'") % self.object.__str__()
+        else:
+            msg = _("Updated quiz '%s'") % self.object.__str__()
+        messages.success(self.request, msg)
+
+        return reverse('dashboard:quiz-list')
 
 
     

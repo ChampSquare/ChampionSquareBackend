@@ -1,0 +1,116 @@
+{% extends 'champsquarebackend/dashboard/layout.html' %}
+{% load form_tags %}
+{% load i18n %}
+{% load static %}
+
+{% block extrastyles %}
+{{ block.super }}
+
+<link rel="stylesheet" href="{% static "champsquarebackend/css/dashboard_quiz_questionpaper_create.css" %}" />
+
+  
+{% endblock extrastyles %}
+
+{% block body_class %}{{ block.super }} create-page quiz{% endblock %}
+
+{% block title %}
+    {{ title }} | {% trans "Quiz | Create" %} | {{ block.super }}
+{% endblock %}
+{% block breadcrumbs %}
+    <ul class="breadcrumb">
+        <li>
+            <a href="{% url 'dashboard:index' %}">{% trans "Dashboard" %}</a>
+        </li>
+        <li>
+            <a href="{% url 'dashboard:quiz-list' %}">{% trans "Quizzes" %}</a>
+        </li>
+
+        
+        <li class="active">{{ title }}</li>
+    </ul>
+{% endblock %}
+
+
+
+{% block dashboard_content %}
+<form name=form id=form action="" class="form-stacked wysiwyg fixed-actions" method="post" enctype="multipart/form-data" >
+    {% csrf_token %}
+    
+           
+        <div class="tab-content">
+            <!-- common to fixed and random questions -->
+            
+        
+            <div id="fixed-questions">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div id="fixed-available-wrapper">
+                            <p><u>Select questions to add:</u></p>
+                            <div id="fixed-available">
+                                {% for question in questions %}
+                                    
+                                        <div class="form-check">
+                                           <input type="checkbox" class="form-check-input" id="question-list" name="questions" data-qid="{{question.id}}" value={{question.id}}>
+                                           <label class="form-check-label qcard" for="question-list">{{forloop.counter }}. {{question.description|safe}}</label>
+                                        </div>
+                                    
+                                {% endfor %}
+                            </div>
+                            <br />
+                            <button id="add-questions" name="action" value="add-questions" class="btn small btn-success pull-right" type="submit">Add to paper</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div id="fixed-added-wrapper">
+                            <p><u>Questions currently in paper:</u></p>
+                            <div id="fixed-added">
+                                {% for question in questions_in_questionpaper %}
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="added-question-list" name="added-questions" data-qid="{{question.id}}" value={{question.id}}>
+                                        <label class="form-check-label qcard" for="added-question-list">{{forloop.counter }}. {{question.description|safe}}</label>
+                                    </div>
+                                {% endfor %}
+                                    
+                            </div>
+                             <br /> <br />
+                            <button id="remove-questions" name="action" value="remove-questions" class="btn small btn-danger pull-right" type="submit">Remove from paper</button>
+                        </div>
+                    </div>
+                </div> <!-- /.row -->
+                <br>
+                
+            </div> <!-- /#fixed-questions -->
+        
+           
+        </div>
+        <!-- /.tab-content -->
+       
+        <br>
+        
+    {% block fixed_actions_group %}
+    <div class="fixed-actions-group">
+        <div class="form-group">
+            <div class="pull-left">
+                <a href="{% url 'dashboard:quiz-list' %}">
+                    {% trans "Cancel" %}
+                </a>
+            </div>
+
+            <div class="pull-right">    
+               
+                
+                <a class="btn btn-primary btn-lg" href="{% url 'dashboard:quiz-list' %}">
+                    {% trans "Back To QuizList" %}
+                </a>
+            </div>
+            {% if quiz %}
+                <a class="btn btn-success btn-lg" href="{{ quiz.get_absolute_url }}">{% trans "View on site" %}</a>
+            {% endif %}
+        </div>
+    </div>
+   {% endblock fixed_actions_group %}
+</form>
+
+   
+{% endblock dashboard_content %}
+

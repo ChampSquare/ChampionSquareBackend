@@ -9,6 +9,7 @@ from champsquarebackend.forms import widgets
 Category = get_model('quiz', 'category')
 Quiz = get_model('quiz', 'quiz')
 QuestionPaper = get_model('quiz', 'questionpaper')
+Question = get_model('question', 'question')
 
 
 
@@ -44,10 +45,9 @@ class QuestionPaperForm(forms.ModelForm):
     """
         Form for adding questions to Quiz
     """
-
     class Meta:
         model = QuestionPaper
-        fields = ['questions', 'shuffle_questions']
+        fields = ['questions']
 
 class QuizRestrictionsForm(forms.ModelForm):
     start_date_time = forms.DateTimeField(
@@ -75,4 +75,5 @@ class QuizRestrictionsForm(forms.ModelForm):
             raise forms.ValidationError(_(
                 "The end date must be after the start date"))
         return cleaned_data
+
 
