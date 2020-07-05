@@ -3,7 +3,7 @@ from collections import OrderedDict
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
-SETTINGS_WEBSITE_NAME = 'ChampionSquare'
+SETTINGS_WEBSITE_NAME = 'BrowseITSolutions'
 SETTINGS_WEBSITE_TAGLINE = ''
 SETTINGS_HOMEPAGE = '/'
 
@@ -88,7 +88,7 @@ SETTINGS_DASHBOARD_NAVIGATION = [
         'icon': 'icon-group',
         'children': [
             {
-                'label': _('Customers'),
+                'label': _('Users List'),
                 'url_name': 'dashboard:users-index',
             },
         ]
