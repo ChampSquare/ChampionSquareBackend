@@ -111,7 +111,7 @@
                     {% block user_orders %}
                         <div id="user_orders" class="tab-pane active">
                             <table class="table table-striped table-bordered table-hover">
-                                <caption>{% trans "Orders" %}</caption>
+                                <caption>{% trans "Tests" %}</caption>
                                 {% with orders=user.orders.all %}
                                     {% if orders %}
                                         <tr>
@@ -133,7 +133,7 @@
                                             </tr>
                                         {% endfor %}
                                     {% else %}
-                                        <tr><td>{% trans "This user has not placed any orders yet." %}</td></tr>
+                                        <tr><td>{% trans "This user has not  participated in any test yet." %}</td></tr>
                                     {% endif %}
                                 {% endwith %}
                             </table>
@@ -141,34 +141,12 @@
                         </div>
                     {% endblock %}
 
-                    {% block user_addresses %}
-                        <div id="user_addresses" class="tab-pane">
-                            <h2>{% trans "Addresses" %}</h2>
-                            <div class="row">
-                                {% for address in user.addresses.all %}
-
-                                    <div class="col-md-3">
-                                        <div class="well well-info">
-                                            {% for field in address.active_address_fields %}
-                                                {{ field }}<br/>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                    {% if forloop.counter|divisibleby:4 %}
-                                    </div>
-                                    <div class="row">
-                                    {% endif %}
-                                {% empty %}
-                                    <p>{% trans "This user has not saved any addresses." %}</p>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    {% endblock %}
+                    
 
                     {% block user_reviews %}
                         <div id="user_reviews" class="tab-pane">
                             <table class="table table-striped table-bordered table-hover">
-                                <caption>{% trans "Reviews" %}</caption>
+                                <caption>{% trans "Results" %}</caption>
                                 {% if user.reviews.count %}
                                     <tr>
                                         <th>{% trans "Product ID" %}</th>
@@ -187,7 +165,7 @@
                                         </tr>
                                     {% endfor %}
                                 {% else %}
-                                    <tr><td>{% trans "This user has not written any reviews yet." %}</td></tr>
+                                    <tr><td>{% trans "This user has not participated in any test yet." %}</td></tr>
                                 {% endif %}
                             </table>
 
