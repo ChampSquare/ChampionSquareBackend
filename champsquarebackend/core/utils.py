@@ -2,6 +2,7 @@ import unicodedata
 import re
 import datetime
 import logging
+import socket
 
 
 from django.conf import settings
@@ -13,6 +14,7 @@ from babel.dates import format_timedelta as format_td
 from django.template.defaultfilters import date as date_filter
 from django.utils.translation import get_language, to_locale
 
+from ipware import get_client_ip
 
 try:
     # Django 3.0 and above
@@ -160,3 +162,18 @@ def datetime_combine(date, time):
     """Timezone aware version of `datetime.datetime.combine`"""
     return make_aware(
         datetime.datetime.combine(date, time), get_current_timezone())
+
+def get_ip_address(request):
+    client_ip, is_routable = get_client_ip(request)
+    if client_ip is None:
+        return None
+    return client_ip
+
+def is_ip_address_valid(ip_address):
+    if ip_address is None:
+        return False
+    try:
+        socket.inet_aton(ip_address)
+        return True
+    except socket.error:
+        return False

@@ -1,0 +1,2 @@
+class AccessNotGranted(Exception):
+    pass

@@ -21,6 +21,21 @@ class ModelWithMetadata(models.Model):
             self.metadata = {}
         self.metadata.update(items)
 
+    def append_value(self, key:str, value):
+        # if metadata is None or key not in metadata
+        if not self.metadata or key in self.metadata:
+            self.store_value_in_metadata({key: list(value)})
+        # if value is not a list
+        elif not isinstance(self.get_value_from_metadata(key), list):
+            # create a list with existing and new data
+            value_list = list(self.get_value_from_metadata(key), value)
+            # add the dict
+            self.store_value_in_metadata({key: value_list})
+        else:
+            value_list = self.get_value_from_metadata(key).append(value)
+
+
+
     def clear_metadata(self):
         self.metadata = {}
 

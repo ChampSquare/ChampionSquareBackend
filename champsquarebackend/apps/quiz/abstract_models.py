@@ -1,6 +1,9 @@
+import uuid
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from django.core.exceptions import PermissionDenied
 
 # from taggit.managers import TaggableManager
 from ckeditor_uploader.fields import RichTextUploadingField
@@ -9,10 +12,11 @@ from champsquarebackend.models.models import TimestampedModel, ModelWithMetadata
 from champsquarebackend.models.fields import AutoSlugField
 from champsquarebackend.core.compat import get_user_model
 from champsquarebackend.core.loading import get_model
+from . import exceptions
 # Create your models here.
 
-user = get_user_model()
-Question = get_model('question', 'question')
+User = get_user_model()
+
 
 class AbstractCategory(models.Model):
     """
@@ -100,6 +104,9 @@ class AbstractQuiz(TimestampedModel, ModelWithMetadata):
     view_answerpaper = models.BooleanField(default=False,
                                            help_text='Is user allowed to view his test report after he submits the test!')
 
+    users = models.ManyToManyField(User, blank=True, related_name='users',
+                                   verbose_name=_('Users'), default=1)
+
     class Meta:
         abstract = True
         app_label = 'quiz'
@@ -119,6 +126,47 @@ class AbstractQuiz(TimestampedModel, ModelWithMetadata):
             mins = (dt.seconds + dt.days * 24 * 3600) / 60.0
         return mins
 
+    def check_user_eligibility(self, user):
+        """ 
+            checks whether user is eligible to take this quiz or not,
+            return: True, False
+        """
+        # a staff is always allowed to take quiz
+        if user.is_staff:
+            return True
+
+        if hasattr(self, 'users') and user in self.users.all():
+            if not self.multiple_attempts_allowed and self.has_user_taken_quiz(user):
+                return False
+        # todo: if user is not users list return False
+        return True
+
+    def has_user_taken_quiz(self, user):
+        """
+            checks whether given user has already take the quiz or not
+        """
+        return user in self.get_all_participants
+
+    @property
+    def has_questions(self):
+        return hasattr(self, 'questionpaper') and self.questionpaper.get_questions_num > 0
+
+    @property
+    def get_all_participants(self):
+        return self.participants.all()
+        
+    def can_be_taken(self, user):
+        """
+            checks if this quiz can be taken or not
+        """
+        if not self.has_questions:
+            return False, 'reason: quiz has no question'
+        
+        if not self.check_user_eligibility(user):
+            return False, 'reason: user has already taken the quiz and multi-attempt is not allowed for this quiz'
+
+        return user.is_staff or self.is_published, 'reason: quiz is not published'
+
 
     @property
     def is_started(self):
@@ -137,9 +185,9 @@ class AbstractQuestionPaper(TimestampedModel, ModelWithMetadata):
     # Each question paper is unique to all students appearing in quiz
     # although oreder can be changed by re-shuffling of questions for each user
 
-    questions = models.ManyToManyField(Question, 
-                                       verbose_name=_('Questions'),
-                                       related_name='questions')
+    questions = models.ManyToManyField(
+        'question.Question', related_name='includes',
+        verbose_name=_('Questions'))
     # if true, questions will appear in random orders for each users
     shuffle_questions = models.BooleanField(default=False)
     # total number of questions that will appear in exam
@@ -160,43 +208,101 @@ class AbstractQuestionPaper(TimestampedModel, ModelWithMetadata):
         """ Update total marks of quiz """
         pass
 
+    def add_question(self, question, display_order=None):
+        """ Add question to questionpaper
+
+        When adding a question that is already in the questionpaper, preven 
+        re-adding it.
+
+        If display_order is specified, update it.
+
+        Default display_order for a new question in the questionpaper is 0;
+        This puts the question at the top of the list
+        """
+
+        pass
+
+    def get_all_questions(self):
+        return self.questions.all()
+
+    @property
+    def get_questions_num(self):
+        return self.get_all_questions().count()
+
+    def get_all_subjects(self):
+        """ returns list of all subjects in this questionpaper"""
+        return list(self.questions.order_by().values_list('subject__name', flat=True).distinct())
+
+
+
 
 class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
     """
         An answer paper for a student -- one per student typically
-    """
-    # the user taking this exam
-    users = models.ForeignKey(user, on_delete=models.CASCADE, related_name='user')
-    
+    """   
     # quiz to which answerpaper is associated
-    quiz = models.ForeignKey('quiz.Quiz', on_delete=models.PROTECT)
-
-    # questionpaper to which this AnswerPaper belongs
-    question_paper = models.ForeignKey('quiz.QuestionPaper', on_delete=models.CASCADE)
-
-    # the attempt number for the questionpaper
-    # 0 -> User has not taken the exam
-    # 1 -> User has taken the exam
-    # > 1 -> Multiple attempt is enabled and user has taken multiple attempts
-    attempt_number = models.IntegerField(_('Attempt number'))
-
+    quiz = models.ForeignKey('quiz.Quiz', on_delete=models.PROTECT, related_name='answerpapers')
+    # an unique identifer
+    participant_number = models.UUIDField(default=uuid.uuid4, editable=False)
+    # is trial, trail quizzes are one which are taken by staff members for debugging
+    is_trial = models.BooleanField(_('Is trial?'), default=False)
+    last_accessed = models.DateTimeField(_('Last Access Time'), null=True, blank=True)
+    is_started = models.BooleanField(_('Is test started?'), default=False)
+    is_submitted = models.BooleanField(_('Is Test Submitted?'), default=False)
     # the time when paper was started by user
-    start_time = models.DateTimeField(_('Start time of paper'))
+    start_time = models.DateTimeField(_('Start time of paper'), blank=True, null=True)
 
-    # the time when paper was submitted by user
+    # the time by when paper must be submitted
     end_time = models.DateTimeField(_('End time of paper'), blank=True, null=True)
-
-    # last active time -> time when user was last active while
-    # taking the exam, this will be used to write the logic
-    # in case a network error happens during the exam
-    last_active_time = models.DateTimeField(_('last active time of user'))
-
-    # user's ip address from which the exam was started
-    # this will be set at start time
-    user_ip = models.GenericIPAddressField(_('IP address of user'))
 
     class Meta:
         abstract = True
         app_label = 'quiz'
         verbose_name = _('AnswerPaper')
         verbose_name_plural = _("AnswerPapers")
+    
+    @property
+    def is_editable(self):
+        """
+            The answer paper can't be edited before and after the quiz
+        """
+        return self.is_started and not self.is_submitted
+
+    def save(self, *args, **kwargs):
+        self.last_accessed = timezone.now()
+        super().save(*args, **kwargs) # Call the real save() method
+
+
+
+class AbstractAnswer(ModelWithMetadata):
+    """
+     An answer submitted by user taking the exam
+    """
+    question = models.ForeignKey('question.Question', on_delete=models.PROTECT)
+    answerpaper = models.ForeignKey('quiz.AnswerPaper', on_delete=models.PROTECT,
+                                    related_name='answers', verbose_name=_('AnswerPaper'))
+    answer = models.CharField(_("Answer"), max_length=128, blank=True)
+    is_correct = models.BooleanField(
+        _('Is this answer correct?'), default=False)
+    points = models.FloatField(_("points gained"), default=0.0)
+    ANSWER_STATUS_OPTIONS = (
+        ('unattempted', 'Not Attempted'),
+        ('skipped', 'Skipped'),
+        ('answered', 'Answered'),
+        ('marked', 'Marked For Review'),
+        ('answered_and_marked', 'Answered & Marked For Review')
+    )
+    status = models.CharField(
+        _('Status of Answer'),
+        max_length=30, choices=ANSWER_STATUS_OPTIONS,
+        default='unattempted')
+    time_taken = models.FloatField(
+        _('Time Taken'),
+        default=0.0,
+        help_text=_('Time Spent on particular question'))
+
+    class Meta:
+        abstract = True
+        app_label = 'quiz'
+        verbose_name = _('Answer submitted by user')
+        verbose_name_plural = _('Answers submitted by user')

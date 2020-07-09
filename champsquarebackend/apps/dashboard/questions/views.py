@@ -142,5 +142,5 @@ class QuestionCreateUpdateView(generic.UpdateView):
             )
         else:
             # go back to question list
-            return reverse('dashboard:questions-list', kwargs={})
+            return reverse('dashboard:questions-list', kwargs={})   
         

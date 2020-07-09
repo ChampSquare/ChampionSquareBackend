@@ -14,7 +14,9 @@
                 <a href="{% url 'dashboard:quiz-questionpaper-update' pk=record.id %}">{% trans "Update QuestionPaper" %}</a>
             </li>
             <li>
-                <a href="{{ record.get_absolute_url }}"> {% trans "View on site" %}</a>
+                <a {% if record.has_questions %}
+                    href="{% url 'quiz:quiz-take' pk=record.id %}"
+                {% endif %}> {% trans "Take Quiz" %}</a>
             </li>
             <li>
                 <a href="#">{% trans "Delete" %}</a>

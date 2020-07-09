@@ -6,7 +6,9 @@ from ckeditor_uploader.fields import RichTextUploadingField
 
 from champsquarebackend.models.models import TimestampedModel, ModelWithMetadata
 from champsquarebackend.models.fields import AutoSlugField
+from champsquarebackend.core.loading import get_class
 
+BrowsableQuestionManager = get_class('question.managers', 'BrowsableQuestionManager')
 
 class AbstractSubject(models.Model):
     """
@@ -85,7 +87,10 @@ class AbstractQuestion(TimestampedModel, ModelWithMetadata):
     question_type = models.CharField(_('type of question'), max_length=50,
                                      default='mcq', choices=QUESTION_TYPES)
     # answer_options = models.ManyToManyField(AnswerOptions, verbose_name=_('Answer Options'))
-    right_answer = models.CharField(_('right answer'), max_length=10, null=True, blank=True)
+    right_answer = models.CharField(
+        _('right answer'),
+        max_length=10, null=True, blank=True,
+        help_text=_('Right Answer of question, must be an Integer. eg - 1 for option a, 2 for option b and so on'))
     # inactive question won't appear in test
     active = models.BooleanField(_('question active?'), default=True)
     points = models.FloatField(_('points that each question carry'), default=4.0)
@@ -97,12 +102,20 @@ class AbstractQuestion(TimestampedModel, ModelWithMetadata):
                 ('medium', 'Medium'),
                 ('hard', 'Hard')
                 )
-    difficulty_level = models.CharField(_('difficulty level of question'),
-                                        max_length=20, blank=True,
-                                        null=True, choices=DIFFICULTY_LEVEL)
-    solution = RichTextUploadingField(_('Solution of question'), blank=True, null=True)
+    difficulty_level = models.CharField(
+        _('difficulty level of question'),
+        max_length=20, blank=True,
+        null=True, choices=DIFFICULTY_LEVEL)
+    flagged = models.PositiveIntegerField(
+        _('Flag Wrong Questions'), default=0,
+        help_text=_('Flag a wrong question'))
+    solution = RichTextUploadingField(
+        _('Solution of question'), blank=True, null=True)
     # tags for the Question
     # tags = TaggableManager(blank=True)
+
+    objects = models.Manager()
+    browsable = BrowsableQuestionManager()
 
     class Meta:
         abstract = True

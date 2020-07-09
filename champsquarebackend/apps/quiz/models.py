@@ -29,3 +29,9 @@ if not is_model_registered('quiz', 'AnswerPaper'):
         pass
 
     __all__.append('AnswerPaper')
+
+if not is_model_registered('quiz', 'Answer'):
+    class Answer(AbstractAnswer):
+        pass
+
+    __all__.append('Answer')
