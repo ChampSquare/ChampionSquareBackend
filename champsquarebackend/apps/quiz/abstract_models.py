@@ -149,7 +149,9 @@ class AbstractQuiz(TimestampedModel, ModelWithMetadata):
 
     @property
     def has_questions(self):
-        return hasattr(self, 'questionpaper') and self.questionpaper.get_questions_num > 0
+        if not hasattr(self, 'questionpaper') or self.questionpaper is  None:
+            return False
+        return  self.questionpaper.get_questions_num > 0
 
     @property
     def get_all_participants(self):
