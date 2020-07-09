@@ -1,0 +1,9 @@
+{% load django_tables2 %}
+{% load i18n %}
+
+{% if record.has_questions %}
+  <a href="{% url 'dashboard:quiz-questionpaper-update' pk=record.id %}">{{ record.questionpaper.get_questions_num }}</a>
+  {% else %}
+  <a href="{% url 'dashboard:quiz-questionpaper-update' pk=record.id %}">Add Questions</a>
+{% endif %}
+
