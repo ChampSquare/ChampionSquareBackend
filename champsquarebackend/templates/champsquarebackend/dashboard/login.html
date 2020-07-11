@@ -1,12 +1,12 @@
-{% extends "dashboard/base.html" %}
+{% extends "champsquarebackend/dashboard/base.html" %}
 {% load i18n %}
 {% load static %}
 {% load widget_tweaks %}
 {% block styles %}
     {% if use_less %}
-        <link rel="stylesheet/less" type="text/css" href="{% static "oscar/less/dashboard.less" %}" />
+        <link rel="stylesheet/less" type="text/css" href="{% static "champsquarebackend/less/dashboard.less" %}" />
     {% else %}
-        <link rel="stylesheet" type="text/css" href="{% static "oscar/css/dashboard.css" %}" />
+        <link rel="stylesheet" type="text/css" href="{% static "champsquarebackend/css/dashboard_style.css" %}" />
     {% endif %}
 {% endblock %}
 
@@ -20,7 +20,7 @@
     <div class="panel col-sm-offset-4 col-sm-4">
         <div class="panel-body">
         <form method="post" novalidate>
-            <h1>{{ shop_name }}</h1>
+            <h1>{{ website_name }}</h1>
             <hr>
 
             {% if form.errors %}

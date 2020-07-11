@@ -69,7 +69,7 @@ class RegisterUserMixin(object):
                 'Multiple users with identical email address and password'
                 'were found. Marking all but one as not active.')
             # As this section explicitly deals with the form being submitted
-            # twice, this is about the only place in Oscar where we don't
+            # twice, this is about the only place in champsquarebackend where we don't
             # ignore capitalisation when looking up an email address.
             # We might otherwise accidentally mark unrelated users as inactive
             users = User.objects.filter(email=user.email)

@@ -1,4 +1,4 @@
-{% extends "oscar/communication/emails/base.txt" %}
+{% extends "champsquarebackend/communication/emails/base.txt" %}
 {% load i18n %}
 {% load url_tags %}
 

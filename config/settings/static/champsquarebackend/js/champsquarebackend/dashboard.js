@@ -1,6 +1,6 @@
 /*global jQuery */
 
-var oscar = (function(o, $) {
+var champsquarebackend = (function(o, $) {
 
     o.getCsrfToken = function() {
         // Extract CSRF token from cookies
@@ -120,7 +120,7 @@ var oscar = (function(o, $) {
                     'language': o.dashboard.options.languageCode,
                     'minView': 2
                 };
-                var $dates = $(el).find('[data-oscarWidget="date"]').not('.no-widget-init').not('.no-widget-init *');
+                var $dates = $(el).find('[data-champsquarebackendWidget="date"]').not('.no-widget-init').not('.no-widget-init *');
                 $dates.each(function(ind, ele) {
                     var $ele = $(ele),
                         config = $.extend({}, defaultDatepickerConfig, {
@@ -136,7 +136,7 @@ var oscar = (function(o, $) {
                     'language': o.dashboard.options.languageCode,
                     'initialDate': o.dashboard.options.initialDate
                 };
-                var $datetimes = $(el).find('[data-oscarWidget="datetime"]').not('.no-widget-init').not('.no-widget-init *');
+                var $datetimes = $(el).find('[data-champsquarebackendWidget="datetime"]').not('.no-widget-init').not('.no-widget-init *');
                 $datetimes.each(function(ind, ele) {
                     var $ele = $(ele),
                         config = $.extend({}, defaultDatetimepickerConfig, {
@@ -153,7 +153,7 @@ var oscar = (function(o, $) {
                     'language': o.dashboard.options.languageCode,
                     'initialDate': o.dashboard.options.initialDate
                 };
-                var $times = $(el).find('[data-oscarWidget="time"]').not('.no-widget-init').not('.no-widget-init *');
+                var $times = $(el).find('[data-champsquarebackendWidget="time"]').not('.no-widget-init').not('.no-widget-init *');
                 $times.each(function(ind, ele) {
                     var $ele = $(ele),
                         config = $.extend({}, defaultTimepickerConfig, {
@@ -187,9 +187,9 @@ var oscar = (function(o, $) {
         },
         offers: {
             init: function() {
-                oscar.dashboard.offers.adjustBenefitForm();
+                champsquarebackend.dashboard.offers.adjustBenefitForm();
                 $('#id_type').change(function() {
-                    oscar.dashboard.offers.adjustBenefitForm();
+                    champsquarebackend.dashboard.offers.adjustBenefitForm();
                 });
             },
             adjustBenefitForm: function() {
@@ -358,4 +358,4 @@ var oscar = (function(o, $) {
 
     return o;
 
-})(oscar || {}, jQuery);
+})(champsquarebackend || {}, jQuery);

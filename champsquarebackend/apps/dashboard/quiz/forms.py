@@ -45,6 +45,10 @@ class QuestionPaperForm(forms.ModelForm):
     """
         Form for adding questions to Quiz
     """
+    questions = forms.ModelMultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        queryset=Question.objects.all())
+
     class Meta:
         model = QuestionPaper
         fields = ['questions']

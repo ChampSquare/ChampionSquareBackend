@@ -143,7 +143,7 @@ class AppConfig(AppConfigMixin, DjangoAppConfig):
     """
 
 class AppDashboardConfig(AppConfig):
-    login_url = settings.LOGIN_URL
+    login_url = reverse_lazy('dashboard:login')
 
 
 

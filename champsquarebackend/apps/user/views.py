@@ -42,7 +42,7 @@ class AccountSummaryView(generic.RedirectView):
     View that exists for legacy reasons and customisability. It commonly gets
     called when the user clicks on "Account" in the navbar.
 
-    Oscar defaults to just redirecting to the profile summary page (and
+    champsquarebackend defaults to just redirecting to the profile summary page (and
     that redirect can be configured via SETTINGS_ACCOUNT_REDIRECT_URL), but
     it's also likely you want to display an 'account overview' page or
     such like. The presence of this view allows just that, without

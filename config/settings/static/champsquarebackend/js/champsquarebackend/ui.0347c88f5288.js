@@ -1,6 +1,6 @@
 /*global jQuery */
 
-var oscar = (function(o, $) {
+var champsquarebackend = (function(o, $) {
     // Replicate Django's flash messages so they can be used by AJAX callbacks.
     o.messages = {
         addMessage: function(tag, msg) {
@@ -287,7 +287,7 @@ var oscar = (function(o, $) {
                     'language': o.datetimepickers.options.languageCode,
                     'minView': 2
                 };
-                var $dates = $(el).find('[data-oscarWidget="date"]').not('.no-widget-init').not('.no-widget-init *');
+                var $dates = $(el).find('[data-champsquarebackendWidget="date"]').not('.no-widget-init').not('.no-widget-init *');
                 $dates.each(function(ind, ele) {
                     var $ele = $(ele),
                         config = $.extend({}, defaultDatepickerConfig, {
@@ -302,7 +302,7 @@ var oscar = (function(o, $) {
                     'autoclose': true,
                     'language': o.datetimepickers.options.languageCode
                 };
-                var $datetimes = $(el).find('[data-oscarWidget="datetime"]').not('.no-widget-init').not('.no-widget-init *');
+                var $datetimes = $(el).find('[data-champsquarebackendWidget="datetime"]').not('.no-widget-init').not('.no-widget-init *');
                 $datetimes.each(function(ind, ele) {
                     var $ele = $(ele),
                         config = $.extend({}, defaultDatetimepickerConfig, {
@@ -318,7 +318,7 @@ var oscar = (function(o, $) {
                     'autoclose': true,
                     'language': o.datetimepickers.options.languageCode
                 };
-                var $times = $(el).find('[data-oscarWidget="time"]').not('.no-widget-init').not('.no-widget-init *');
+                var $times = $(el).find('[data-champsquarebackendWidget="time"]').not('.no-widget-init').not('.no-widget-init *');
                 $times.each(function(ind, ele) {
                     var $ele = $(ele),
                         config = $.extend({}, defaultTimepickerConfig, {
@@ -346,4 +346,4 @@ var oscar = (function(o, $) {
 
     return o;
 
-})(oscar || {}, jQuery);
+})(champsquarebackend || {}, jQuery);

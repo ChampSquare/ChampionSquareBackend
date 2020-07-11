@@ -131,3 +131,7 @@ class AbstractQuestion(TimestampedModel, ModelWithMetadata):
     @property
     def get_description(self):
         return self.description
+
+    @property
+    def get_right_answer(self):
+        return self.right_answer

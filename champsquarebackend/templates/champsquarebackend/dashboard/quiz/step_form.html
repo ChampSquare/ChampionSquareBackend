@@ -25,7 +25,7 @@
     </li>
     {% if quiz.pk %}
     <li>
-        <a href="{% url 'dashboard:quiz-detail' pk=quiz.pk %}">{{ quiz.name }}</a>
+        <a href="#">{{ quiz.name }}</a>
     </li>
     {% else %}
     <li>
@@ -53,6 +53,7 @@
         </div>
         <div class="{% if session_quiz %}col-md-6{% else %}col-md-9{% endif %}">
             <form method="post" class="form-stacked wysiwyg fixed-actions">
+                {% block form_header %}
                 <div class="table-header">
                     <h3>{{ title }}</h3>
                 </div>
@@ -64,6 +65,8 @@
                     {% endblock %}
                     {% block form_extradata %}{% endblock %}
                 </div>
+                {% endblock form_header %}
+                
 
                 {% block form_actions %}
 

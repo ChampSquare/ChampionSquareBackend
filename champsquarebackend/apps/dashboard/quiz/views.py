@@ -16,7 +16,7 @@ from django_tables2 import SingleTableMixin, SingleTableView
 
 
 from champsquarebackend.core.loading import get_classes, get_model, get_class
-
+from champsquarebackend.views.generic import BulkEditMixin
 
 CategoryForm, QuizMetaForm, QuestionPaperForm, QuizRestrictionsForm \
     = get_classes('dashboard.quiz.forms', ['CategoryForm', 'QuizMetaForm',
@@ -206,14 +206,17 @@ class QuizWizardStepView(FormView):
         # Adjust kwargs to avoid trying to save the category instance
         form_data = form.cleaned_data.copy()
         category = form_data.get('category', None)
+        users = form_data.get('users', None)
+        users_list = []
         questions = form_data.get('questions', None)
         if category is not None:
             form_data['category'] = category.id
         question_list = []
         if questions is not None:
             for question in questions:
-                question_list.append(question.id)
+                question_list.append(question.first().id)
             form_data['questions'] = question_list
+        
         form_kwargs = {'data': form_data}
         json_data = json.dumps(form_kwargs, cls=DjangoJSONEncoder)
 
@@ -235,7 +238,7 @@ class QuizWizardStepView(FormView):
 
         # We don't store the object instance as that is not JSON serialisable.
         # Instead, we save an alternative form
-        instance = form.save(commit=False)
+        instance = form.save(commit=True)
         json_qs = serializers.serialize('json', [instance])
 
         session_data[self._key(is_object=True)] = json_qs
@@ -330,9 +333,11 @@ class QuizWizardStepView(FormView):
         else:
             msg = _("quiz '%s' created!") % quiz.name
         messages.success(self.request, msg)
-
         return HttpResponseRedirect(reverse(
-            'dashboard:quiz-detail', kwargs={'pk': quiz.pk}))
+            'dashboard:quiz-list'))
+
+        # return HttpResponseRedirect(reverse(
+        #     'dashboard:quiz-list', kwargs={'pk': quiz.pk}))
 
     def get_success_url(self):
         if self.update:
@@ -360,9 +365,11 @@ class QuizMetaDataCreateUpdateView(QuizWizardStepView):
     def get_title(self):
         return _("Quiz Detail")
 
-class QuizQuestionPaperCreateUpdateView(QuizWizardStepView):
+class QuizQuestionPaperCreateUpdateView(QuizWizardStepView, BulkEditMixin):
     step_name = 'questionpaper'
+    actions = ('add_selected_questions')
     form_class = QuestionPaperForm
+    context_object_name = 'questions'
     template_name = 'champsquarebackend/dashboard/quiz/quiz_questionpaper_form.html'
     previous_view = QuizMetaDataCreateUpdateView
     url_name = 'dashboard:quiz-questionpaper'
@@ -371,8 +378,22 @@ class QuizQuestionPaperCreateUpdateView(QuizWizardStepView):
     def get_instance(self):
         return self.quiz.questionpaper
 
+    def get_queryset(self):
+        return Question.objects.all()
+
     def get_title(self):
         return _("Question Paper")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['questions'] = Question.objects.all()
+        return ctx
+
+    def add_selected_questions(self, request, questions):
+        questionpaper = self.get_instance()
+        questionpaper.questions.add(*questions)
+        num_questions = len(questions)
+        messages.success(request, _("Added %d questions to questionpaper" % num_questions))
 
 
 class QuizRestrictionsCreateUpdateView(QuizWizardStepView):
@@ -470,9 +491,8 @@ class QuestionPaperCreateUpdateView(UpdateView):
             form.save()
             messages.success(self.request, "Form saved successfully")
             return HttpResponseRedirect(self.get_success_url())
+            
 
-            
-            
     def get_success_url(self):
         """
             return a success message and redirects to given url

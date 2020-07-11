@@ -49,7 +49,7 @@ def default_class_loader(module_label, classnames, module_prefix):
         raise ValueError(
             "Importing from top-level modules is not supported")
 
-    # import from Oscar package (should succeed in most cases)
+    # import from champsquarebackend package (should succeed in most cases)
     # e.g. 'champsquarebackend.apps.dashboard.catalogue.forms'
     champsquarebackend_module_label = "%s.%s" % (module_prefix, module_label)
     champsquarebackend_module = _import_module(champsquarebackend_module_label, classnames)
@@ -59,7 +59,7 @@ def default_class_loader(module_label, classnames, module_prefix):
     # depending on what is set in INSTALLED_APPS
     app_name = _find_registered_app_name(module_label)
     if app_name.startswith('%s.' % module_prefix):
-        # The entry is obviously an Oscar one, we don't import again
+        # The entry is obviously an champsquarebackend one, we don't import again
         local_module = None
     else:
         # Attempt to import the classes from the local module
@@ -129,7 +129,7 @@ def _pluck_classes(modules, classnames):
 
 def _find_registered_app_name(module_label):
     """
-    Given a module label, finds the name of the matching Oscar app from the
+    Given a module label, finds the name of the matching champsquarebackend app from the
     Django app registry.
     """
     from champsquarebackend.core.application import AppConfig
@@ -142,7 +142,7 @@ def _find_registered_app_name(module_label):
             "Couldn't find an app to import %s from" % module_label)
     if not isinstance(app_config, AppConfig):
         raise AppNotFoundError(
-            "Couldn't find an Oscar app to import %s from" % module_label)
+            "Couldn't find an champsquarebackend app to import %s from" % module_label)
     return app_config.name
 
 
@@ -151,7 +151,7 @@ def get_profile_class():
     Return the profile model class
     """
     # The AUTH_PROFILE_MODULE setting was deprecated in Django 1.5, but it
-    # makes sense for Oscar to continue to use it. Projects built on Django
+    # makes sense for champsquarebackend to continue to use it. Projects built on Django
     # 1.4 are likely to have used a profile class and it's very difficult to
     # upgrade to a single user model. Hence, we should continue to support
     # having a separate profile class even if Django doesn't.
@@ -164,7 +164,7 @@ def get_profile_class():
 
 def feature_hidden(feature_name):
     """
-    Test if a certain Oscar feature is disabled.
+    Test if a certain champsquarebackend feature is disabled.
     """
     return (feature_name is not None
             and feature_name in settings.SETTINGS_HIDDEN_FEATURES)
@@ -206,7 +206,7 @@ def get_model(app_label, model_name):
 def is_model_registered(app_label, model_name):
     """
     Checks whether a given model is registered. This is used to only
-    register Oscar models if they aren't overridden by a forked app.
+    register champsquarebackend models if they aren't overridden by a forked app.
     """
     try:
         apps.get_registered_model(app_label, model_name)

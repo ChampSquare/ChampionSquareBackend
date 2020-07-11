@@ -8,9 +8,9 @@ from django.urls import reverse
 class RelatedFieldWidgetWrapper(Widget):
     """
     This class is a wrapper to a given widget to add the add icon for the
-    Oscar dashboard.
+    champsquarebackend dashboard.
     """
-    template_name = 'oscar/dashboard/widgets/related_widget_wrapper.html'
+    template_name = 'champsquarebackend/dashboard/widgets/related_widget_wrapper.html'
 
     IS_POPUP_VALUE = '1'
     IS_POPUP_VAR = '_popup'
@@ -87,4 +87,4 @@ class RelatedFieldWidgetWrapper(Widget):
 
 class RelatedMultipleFieldWidgetWrapper(RelatedFieldWidgetWrapper):
 
-    template_name = 'oscar/dashboard/widgets/related_multiple_widget_wrapper.html'
+    template_name = 'champsquarebackend/dashboard/widgets/related_multiple_widget_wrapper.html'

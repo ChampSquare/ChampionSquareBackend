@@ -16,6 +16,7 @@ from . import exceptions
 # Create your models here.
 
 User = get_user_model()
+Answer = get_model('quiz', 'answer')
 
 
 class AbstractCategory(models.Model):
@@ -241,11 +242,12 @@ class AbstractQuestionPaper(TimestampedModel, ModelWithMetadata):
 class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
     """
         An answer paper for a student -- one per student typically
-    """   
+    """
+    # an unique identifer
+    participant_number = models.UUIDField(default=uuid.uuid4, editable=False)   
     # quiz to which answerpaper is associated
     quiz = models.ForeignKey('quiz.Quiz', on_delete=models.PROTECT, related_name='answerpapers')
-    # an unique identifer
-    participant_number = models.UUIDField(default=uuid.uuid4, editable=False)
+    
     # is trial, trail quizzes are one which are taken by staff members for debugging
     is_trial = models.BooleanField(_('Is trial?'), default=False)
     last_accessed = models.DateTimeField(_('Last Access Time'), null=True, blank=True)
@@ -273,6 +275,68 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
     def save(self, *args, **kwargs):
         self.last_accessed = timezone.now()
         super().save(*args, **kwargs) # Call the real save() method
+
+    def add_answer_key(self, question_id, answer_key="NA", status="0", time_spent=0):
+        current_question = self.quiz.questionpaper.questions.get(id=question_id)
+        user_answer = self.answers.filter(question=current_question).first()
+        expected_answer = current_question.get_right_answer
+
+        if user_answer is None:
+            user_answer = Answer(question=current_question, answer=answer_key, time_spent=time_spent)
+            user_answer.save()
+            self.answers.add(user_answer)
+
+        else:
+            user_answer.set_answer(answer_key)
+            user_answer.set_status(status)
+            user_answer.set_time_spent(time_spent)
+            if status == "2" or status == "4":
+                if current_question.type == "integer":
+                    try:
+                        expected_answer = float(expected_answer)
+                        answer_key = float(answer_key)
+
+                        if expected_answer == round(answer_key, 2) or expected_answer == self.truncate(answer_key, 2):
+                            user_answer.mark_answer(True)
+                            user_answer.set_marks(current_question.points)
+
+                        else:
+                            user_answer.mark_answer(False)
+                            user_answer.set_marks(current_question.negative_point)
+                    except (TypeError, ValueError):
+                        user_answer.mark_answer(False)
+                        user_answer.set_marks(current_question.negative_point)
+
+                else:
+                    if expected_answer == answer_key:
+                        user_answer.mark_answer(True)
+                        user_answer.set_marks(current_question.points)
+                    else:
+                        user_answer.mark_answer(False)
+                        user_answer.set_marks(current_question.negative_point)
+            elif status == "3":
+                user_answer.mark_answer(False)
+                user_answer.set_marks(0)
+
+            user_answer.save()
+
+    def save_unanswered(self, question_id, time_spent=0):
+        current_question = self.question.objects.get(id=question_id)
+        user_answer = self.answers.filter(question=current_question).first()
+        if user_answer.status == "0":
+            user_answer.set_status("1")
+        user_answer.set_time_spent(time_spent)
+        user_answer.save()
+
+    def clear_answer(self, question_id):
+        """ clear previous answers and mark answer as unanswered, status='1' """
+        current_question = Question.objects.get(id=question_id)
+        user_answer = self.answers.filter(question=current_question).first()
+        user_answer.set_status("1")
+        user_answer.set_marks("0")
+        user_answer.set_answer("NA")
+        user_answer.mark_answer(False)
+        user_answer.save()
 
 
 

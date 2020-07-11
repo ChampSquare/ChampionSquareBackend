@@ -9,7 +9,7 @@
     </ul>
 
     {% if notifications %}
-        {% include "oscar/partials/pagination.html" %}
+        {% include "champsquarebackend/partials/pagination.html" %}
 
         <form action="{% url 'user:notifications-update' %}" method="post">
             {% csrf_token %}
@@ -65,5 +65,5 @@
 
 {% block onbodyload %}
     {{ block.super }}
-    oscar.notifications.init();
+    champsquarebackend.notifications.init();
 {% endblock %}

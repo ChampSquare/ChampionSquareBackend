@@ -1,4 +1,4 @@
-/*global jQuery,oscar */
+/*global jQuery,champsquarebackend */
 /*!
  * Code in this file copied and modified from Django's admin app
  * Source-code file: django/contrib/admin/static/admin/js/admin/RelatedObjectLookups.js
@@ -129,7 +129,7 @@
     $('body').on('click', '.related-widget-wrapper-link', function(e) {
         e.preventDefault();
         if (this.href) {
-            var event = $.Event('oscar:show-related', {href: this.href});
+            var event = $.Event('champsquarebackend:show-related', {href: this.href});
             $(this).trigger(event);
             if (!event.isDefaultPrevented()) {
                 o.showRelatedObjectPopup(this);
@@ -137,7 +137,7 @@
         }
     });
     $('body').on('change', '.related-widget-wrapper select', function() {
-        var event = $.Event('oscar:update-related');
+        var event = $.Event('champsquarebackend:update-related');
         $(this).trigger(event);
         if (!event.isDefaultPrevented()) {
             o.updateRelatedObjectLinks(this);
@@ -145,4 +145,4 @@
     });
     $('.related-widget-wrapper select').trigger('change');
 
-})(oscar || {}, jQuery);
+})(champsquarebackend || {}, jQuery);
