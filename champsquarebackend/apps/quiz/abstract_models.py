@@ -16,7 +16,7 @@ from . import exceptions
 # Create your models here.
 
 User = get_user_model()
-Answer = get_model('quiz', 'answer')
+
 
 
 class AbstractCategory(models.Model):
@@ -246,7 +246,9 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
     # an unique identifer
     participant_number = models.UUIDField(default=uuid.uuid4, editable=False)   
     # quiz to which answerpaper is associated
-    quiz = models.ForeignKey('quiz.Quiz', on_delete=models.PROTECT, related_name='answerpapers')
+    quiz = models.ForeignKey('quiz.Quiz',
+                             on_delete=models.PROTECT,
+                             related_name='answerpapers')
     
     # is trial, trail quizzes are one which are taken by staff members for debugging
     is_trial = models.BooleanField(_('Is trial?'), default=False)
@@ -276,67 +278,62 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
         self.last_accessed = timezone.now()
         super().save(*args, **kwargs) # Call the real save() method
 
-    def add_answer_key(self, question_id, answer_key="NA", status="0", time_spent=0):
+    def add_answer_key(self, question_id, answer_key="NA", status="unanswered", time_taken=0):
         current_question = self.quiz.questionpaper.questions.get(id=question_id)
         user_answer = self.answers.filter(question=current_question).first()
         expected_answer = current_question.get_right_answer
 
         if user_answer is None:
-            user_answer = Answer(question=current_question, answer=answer_key, time_spent=time_spent)
+            user_answer = self.answers.create(question=current_question,
+                                              answer=answer_key,
+                                              status=status,
+                                              time_taken=time_taken)
             user_answer.save()
             self.answers.add(user_answer)
 
         else:
             user_answer.set_answer(answer_key)
             user_answer.set_status(status)
-            user_answer.set_time_spent(time_spent)
-            if status == "2" or status == "4":
-                if current_question.type == "integer":
+            user_answer.set_time_taken(time_taken)
+            if status == "answered" or status == "answered_marked":
+                if current_question.question_type == "integer":
                     try:
                         expected_answer = float(expected_answer)
                         answer_key = float(answer_key)
 
                         if expected_answer == round(answer_key, 2) or expected_answer == self.truncate(answer_key, 2):
                             user_answer.mark_answer(True)
-                            user_answer.set_marks(current_question.points)
+                            user_answer.set_points(current_question.points)
 
                         else:
                             user_answer.mark_answer(False)
-                            user_answer.set_marks(current_question.negative_point)
+                            user_answer.set_points(current_question.negative_points)
                     except (TypeError, ValueError):
                         user_answer.mark_answer(False)
-                        user_answer.set_marks(current_question.negative_point)
+                        user_answer.set_points(current_question.negative_points)
 
                 else:
                     if expected_answer == answer_key:
                         user_answer.mark_answer(True)
-                        user_answer.set_marks(current_question.points)
+                        user_answer.set_points(current_question.points)
                     else:
                         user_answer.mark_answer(False)
-                        user_answer.set_marks(current_question.negative_point)
-            elif status == "3":
+                        user_answer.set_points(current_question.negative_points)
+            else:
                 user_answer.mark_answer(False)
-                user_answer.set_marks(0)
+                user_answer.set_points(0)
 
             user_answer.save()
 
-    def save_unanswered(self, question_id, time_spent=0):
-        current_question = self.question.objects.get(id=question_id)
-        user_answer = self.answers.filter(question=current_question).first()
-        if user_answer.status == "0":
-            user_answer.set_status("1")
-        user_answer.set_time_spent(time_spent)
-        user_answer.save()
+    def save_unanswered(self, question_id, time_taken=0):
+        self.add_answer_key(question_id=question_id,
+                            time_taken=time_taken,
+                            status="unanswered",
+                            answer_key="NA")
 
-    def clear_answer(self, question_id):
+    def clear_answer(self, question_id, time_taken=0):
         """ clear previous answers and mark answer as unanswered, status='1' """
-        current_question = Question.objects.get(id=question_id)
-        user_answer = self.answers.filter(question=current_question).first()
-        user_answer.set_status("1")
-        user_answer.set_marks("0")
-        user_answer.set_answer("NA")
-        user_answer.mark_answer(False)
-        user_answer.save()
+        self.save_unanswered(question_id=question_id, time_taken=time_taken)
 
 
 
@@ -352,16 +349,16 @@ class AbstractAnswer(ModelWithMetadata):
         _('Is this answer correct?'), default=False)
     points = models.FloatField(_("points gained"), default=0.0)
     ANSWER_STATUS_OPTIONS = (
-        ('unattempted', 'Not Attempted'),
-        ('skipped', 'Skipped'),
+        ('unvisited', 'Not Visited'),
+        ('unanswered', 'Unanswered'),
         ('answered', 'Answered'),
         ('marked', 'Marked For Review'),
-        ('answered_and_marked', 'Answered & Marked For Review')
+        ('answered_marked', 'Answered & Marked For Review')
     )
     status = models.CharField(
         _('Status of Answer'),
         max_length=30, choices=ANSWER_STATUS_OPTIONS,
-        default='unattempted')
+        default='unvisited')
     time_taken = models.FloatField(
         _('Time Taken'),
         default=0.0,
@@ -372,3 +369,21 @@ class AbstractAnswer(ModelWithMetadata):
         app_label = 'quiz'
         verbose_name = _('Answer submitted by user')
         verbose_name_plural = _('Answers submitted by user')
+
+    def set_points(self, points):
+        self.points = points
+
+    def set_answer(self, answer_key):
+        self.answer = answer_key
+
+    def set_time_taken(self, time_taken):
+        self.time_taken = time_taken
+
+    def mark_answer(self, is_correct):
+        self.is_correct = is_correct
+
+    def set_status(self, status):
+        self.status = status
+
+    def __str__(self):
+        return self.answer

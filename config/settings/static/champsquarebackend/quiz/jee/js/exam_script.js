@@ -1,14 +1,39 @@
-var myInterval, AttemptedAns = [], TotalTime = 0;
+var myInterval, AttemptedAns = [], TotalTime = 0, time_dict = {}, delay = 1000, myStartExamInterval;
 
 function NextQuestion(e) {
+    var active_div_id = $(".test-questions").find("li.active").find("a").attr("data-href");
+    var question_id = $(".questionId"+ active_div_id).val();
+    saveUnanswered(question_id, getTimeSpent(active_div_id));
+
     var t = $(".test-questions").find("li.active");
-    if (CheckNextPrevButtons(), t.is(":last-child")) return !1;
-    $(".test-questions").find("li").removeClass("active"), t.next().addClass("active"), OpenCurrentQue(t.next().find("a")), e && (t.find("a").addClass("que-not-answered"), t.find("a").removeClass("que-not-attempted"));
+    if (CheckNextPrevButtons(), t.is(":last-child")) 
+        return !1;
+    $(".test-questions").find("li").removeClass("active"), 
+    t.next().addClass("active"), OpenCurrentQue(t.next().find("a")), e && (t.find("a").addClass("que-not-answered"), t.find("a").removeClass("que-not-attempted"));
     var a = t.attr("data-seq");
     $(".nav-tab-sections").find("li").removeClass("active"), $(".nav-tab-sections").find("li[data-id=" + a + "]").addClass("active"), CheckQueAttemptStatus()
 }
 
+function openDialogModal(alert_text) {
+    var modal = $("#myModal");
+
+// Get the <span> element that closes the modal
+  var span = $(".close")[0];
+  modal.find("alert-text").text(alert_text);
+   modal.css('display', 'block');
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.css('display', 'none');
+}
+}
+  
+
 function PrevQuestion(e) {
+    var active_div_id = $(".test-questions").find("li.active").find("a").attr("data-href");
+    var question_id = $(".questionId"+ active_div_id).val();
+    saveUnanswered(question_id, getTimeSpent(active_div_id));
+
     var t = $(".test-questions").find("li.active");
     if (CheckNextPrevButtons(), t.is(":first-child")) return !1;
     $(".test-questions").find("li").removeClass("active"), t.prev().addClass("active"), OpenCurrentQue(t.prev().find("a"));
@@ -28,19 +53,25 @@ function pad(e, t) {
 }
 
 function OpenCurrentQue(e) {
+    
     $(".tab-content").hide(), $("#lblQueNumber").text(e.text()), $("#" + e.attr("data-href")).show();
     var t = e.parent().attr("data-seq");
+    
+    $(".nav-tab-sections").find("li").removeClass("active"), 
+    $(".nav-tab-sections").find("li[data-id=" + t + "]").addClass("active"), CheckQueAttemptStatus()
 
-    $(".nav-tab-sections").find("li").removeClass("active"), $(".nav-tab-sections").find("li[data-id=" + t + "]").addClass("active"), CheckQueAttemptStatus()
-
-    var o = $(".test-questions").find("li.active"),
-            a = o.find("a").attr("data-href");
-    if(o.find("a").hasClass("que-not-attempted")) {
-     var question_id = $(".questionId"+ a).val();
-    saveUnanswered(question_id);
-    }
-
+    var active_div_id = $(".test-questions").find("li.active").find("a").attr("data-href");
+    var question_id = $(".questionId"+ active_div_id).val();
+    saveUnanswered(question_id, getTimeSpent(active_div_id));
 }
+
+function getTimeSpent(active_div_id) {
+    var time_spent = (parseInt($("#"+active_div_id).find("#time_spent_value").val()));
+    time_spent = time_spent ? time_spent : 0;
+    return active_div_id in time_dict ? time_dict[active_div_id] : time_spent;            
+}
+
+
 
 function CoundownTimer(e) {
     var t = 60 * e;
@@ -54,7 +85,7 @@ function CoundownTimer(e) {
 
 function CountUpTimer(e) {
     var t = 60 * e;
-    myInterval = setInterval(function () {
+    myStartExamInterval = setInterval(function () {
         myTimeSpan = 1e3 * t, $(".count-timer-title").text(GetTime(myTimeSpan)), t < 600 ?
             ($(".count-timer-title").addClass("time-started"),
                 $(".count-timer-title").removeClass("time-ending")) : ($(".count-timer-title").addClass("time-ending"),
@@ -64,17 +95,22 @@ function CountUpTimer(e) {
 
 function StartExam() {
     $("#btn_proceed").attr("disabled", false);
+    clearInterval(myStartExamInterval);
 }
 
 function check_instruction() {
             if ($('#' + "en" + '_ch').prop("checked") == false) {
-                    alert('Please accept terms and conditions before proceeding.');
+                    // alert('Please accept terms and conditions before proceeding.');
+                    openDialogModal('Please accept terms and conditions before proceeding.');
             } else {
                     $('.exam-instruction').hide();
+                    
                     $('.exam-countdown').hide();
                     $('.exam-paper').show();
+                    $('.exam-paper').removeClass('hide').show();
+                    
                     return $.ajax({
-                 url: '/jee_main/ajax/save_instruction_read/',
+                 url: '/quiz/ajax/save_instruction_read/',
                 data: {
                 'answer_paper_id': $('#paperId').val()
         },
@@ -118,14 +154,15 @@ function CheckQueAttemptStatus() {
     }), $(".lblTotalQuestion").text(e), $(".lblNotAttempted").text(t), $(".lblTotalSaved").text(a), $(".lblTotalSaveMarkForReview").text(n), $(".lblTotalMarkForReview").text(s), $(".lblNotVisited").text(i)
 }
 
-function saveAnswer(question_id, answer_key, status) {
+function saveAnswer(question_id, answer_key, status, time_spent) {
     return $.ajax({
-        url: '/jee_main/ajax/save_answer/',
+        url: '/quiz/ajax/save_answer/',
         data: {
             'answer_paper_id': $('#paperId').val(),
             'question_id': question_id,
             'answer_key': answer_key,
-            'status': status
+            'status': status,
+            'time_taken': time_spent
         },
         dataType: 'json',
         tryCount: 0,
@@ -134,12 +171,13 @@ function saveAnswer(question_id, answer_key, status) {
 
 }
 
-function saveUnanswered(question_id) {
+function saveUnanswered(question_id, time_spent) {
     return $.ajax({
-        url: '/jee_main/ajax/save_unanswered/',
+        url: '/quiz/ajax/save_unanswered/',
         data: {
             'answer_paper_id': $('#paperId').val(),
-            'question_id': question_id
+            'question_id': question_id,
+            'time_taken': time_spent 
         },
         dataType: 'json',
         tryCount: 0,
@@ -204,8 +242,8 @@ function CheckResult() {
         $('#tbodyResult').append(tr);
     });
 
-        $.ajax({
-        url: '/jee_main/ajax/save_result/',
+    $.ajax({
+        url: '/quiz/ajax/save_result/',
         data: {
             'paper_id': $('#paperId').val(),
             'num_attempt': TotalAttempted,
@@ -238,7 +276,6 @@ function CheckResult() {
         }
       });
 
-
     $('#lblRTotalQuestion').text(TotalQuestion);
     $('#lblRTotalAttempted').text(TotalAttempted);
     $('#lblRTotalCorrect').text(TotalCorrect);
@@ -255,6 +292,14 @@ $(document).ready(function () {
     CountUpTimer(parseInt($("#countdown_timer").val()));
     CheckNextPrevButtons();
     CheckQueAttemptStatus();
+    
+    setInterval(function() {
+        var active_div_id = $(".test-questions").find("li.active").find("a").attr("data-href");
+        $("#"+active_div_id).find(".time-spent").text(GetTime(getTimeSpent(active_div_id)+1000));
+        time_dict[active_div_id] = getTimeSpent(active_div_id)+1000
+        
+    }, 1000);
+
     $("#btnPrevQue").click(function () {
         PrevQuestion(!0)
     });
@@ -287,15 +332,20 @@ $(document).ready(function () {
             if ($("input[name='radios" + a + "']").each(function () {
                 $(this).is(":checked") && (n = !0)
             }), 0 == n) {
-                alert("Please choose an option");
+                // alert("Please choose an option");
+                // alert("Please choose an option");
+                openDialogModal("Please choose an option first, then click on save");
                 return !1
             }
             ;
         } else {
             $("input[name='answer" + a + "']").each(function ()
                 {
-                if( $(this).val().length === 0 || !Number.isInteger(Number($(this).val()))) {
-                    alert("Please enter an integer");
+                if( $(this).val().length === 0) {
+                    // alert("Please enter an integer");
+                    // alert("Please enter a numeric value!");
+                    openDialogModal("Please enter a numeric value first, then click on save");
+
                     throw new Error('This is not an error. This is just to abort javascript');
                 }
             });
@@ -308,7 +358,7 @@ $(document).ready(function () {
         }
 
         $(answer_key), t.find("a").removeClass("que-save-mark"), t.find("a").removeClass("que-mark"), t.find("a").addClass("que-save"), t.find("a").removeClass("que-not-answered"), t.find("a").removeClass("que-not-attempted"), NextQuestion(!1), CheckQueAttemptStatus()
-     saveAnswer(question_id, answer_key, "2")
+     saveAnswer(question_id, answer_key, "answered", getTimeSpent(a))
     });
 
     $(".btn-save-mark-answer").click(function (e) {
@@ -333,8 +383,10 @@ $(document).ready(function () {
         } else {
             $("input[name='answer" + a + "']").each(function ()
                 {
-                if( $(this).val().length === 0 || !Number.isInteger(Number($(this).val()))) {
-                    alert("Please enter an integer");
+                if( $(this).val().length === 0 ) {
+                    // alert("Please enter an integer");
+                    openDialogModal("Please enter a numeric value first, then click on save");
+
                     throw new Error('This is not an error. This is just to abort javascript');
                 }
             });
@@ -349,7 +401,7 @@ $(document).ready(function () {
 
         $(answer_key), t.find("a").removeClass("que-save"), t.find("a").removeClass("que-mark"), t.find("a").addClass("que-save-mark"), t.find("a").removeClass("que-not-answered"), t.find("a").removeClass("que-not-attempted"), NextQuestion(!1), CheckQueAttemptStatus()
 
-        saveAnswer(question_id, answer_key, "4");
+        saveAnswer(question_id, answer_key, "4", getTimeSpent(a));
 
     });
     $(".btn-mark-answer").click(function (e) {
@@ -366,7 +418,7 @@ $(document).ready(function () {
         }
 
         $("#" + a).find(".hdfQuestionID").val(), $("#" + a).find(".hdfPaperSetID").val(), $("#" + a).find(".hdfCurrectAns").val(), $("#" + a).find(".hdfCurrectAns").val(), t.find("a").removeClass("que-save-mark"), t.find("a").removeClass("que-save"), t.find("a").addClass("que-mark"), t.find("a").removeClass("que-not-answered"), t.find("a").removeClass("que-not-attempted"), NextQuestion(!1), CheckQueAttemptStatus()
-        saveAnswer(question_id, answer_key, "3");
+        saveAnswer(question_id, answer_key, "marked", getTimeSpent(a));
 
     });
     $(".btn-reset-answer").click(function (e) {
@@ -391,10 +443,11 @@ $(document).ready(function () {
             CheckQueAttemptStatus()
 
         $.ajax({
-        url: '/jee_main/ajax/clear_answer/',
+        url: '/quiz/ajax/clear_answer/',
         data: {
             'answer_paper_id': $('#paperId').val(),
-            'question_id': $(".questionId"+ a).val()
+            'question_id': $(".questionId"+ a).val(),
+            'time_taken': getTimeSpent(a)
         },
         dataType: 'json',
         tryCount: 0,

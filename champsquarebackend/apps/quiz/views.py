@@ -1,4 +1,4 @@
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.utils import timezone
@@ -50,54 +50,45 @@ def complete_exam(request, answer_paper):
     answer_paper.set_end_time(timezone.now())
 
 
-def save_answer(request):
-    answer_paper_id = request.GET.get('answer_paper_id', None)
-    q_id = request.GET.get('question_id')
-    answer_key = request.GET.get('answer_key')
-    status = request.GET.get('status')
-    time_spent = request.GET.get('time_spent')
+class SaveAnswer(DetailView):
+    """A base view for displaying a single object."""
+    def get(self, request, *args, **kwargs):
+        answer_paper_id = int(request.GET.get('answer_paper_id', None))
+        q_id = int(request.GET.get('question_id'))
+        answer_key = request.GET.get('answer_key')
+        status = request.GET.get('status')
+        time_taken = request.GET.get('time_taken')
 
-    paper = AnswerPaper.objects.get(id=answer_paper_id)
-    paper.add_answer_key(q_id, answer_key, status, time_spent)
-    data = {
-        'success': True
-    }
+        paper = AnswerPaper.objects.get(id=answer_paper_id)
+        paper.add_answer_key(q_id, answer_key, status, time_taken)
+        data = {
+            'success': True
+        }
 
-    return JsonResponse(data)
+        return JsonResponse(data)
 
+class ClearAnswer(DetailView):
+    def get(self, request, *args, **kwargs):
+        answer_paper_id = int(request.GET.get('answer_paper_id', None))
+        q_id = int(request.GET.get('question_id'))
+        time_taken = request.GET.get('time_taken')
+        paper = AnswerPaper.objects.get(id=answer_paper_id)
+        paper.clear_answer(q_id, time_taken=time_taken)
+        data = {
+            'success': True
+        }
 
-def clear_answer(request):
-    answer_paper_id = request.GET.get('answer_paper_id', None)
-    q_id = request.GET.get('question_id')
-    paper = AnswerPaper.objects.get(id=answer_paper_id)
-    paper.clear_answer(q_id)
-    data = {
-        'success': True
-    }
+        return JsonResponse(data)
 
-    return JsonResponse(data)
+class SaveUnanswered(DetailView):
+    def get(self, request, *args, **kwargs):
+        answer_paper_id = int(request.GET.get('answer_paper_id', None))
+        q_id = int(request.GET.get('question_id'))
+        time_taken = request.GET.get('time_taken')
+        paper = AnswerPaper.objects.get(id=answer_paper_id)
+        paper.save_unanswered(q_id, time_taken)
+        data = {
+            'success': True
+        }
 
-
-def save_unanswered(request):
-    answer_paper_id = request.GET.get('answer_paper_id', None)
-    q_id = request.GET.get('question_id')
-    time_spent = request.GET.get('time_spent')
-    paper = AnswerPaper.objects.get(id=answer_paper_id)
-    paper.save_unanswered(q_id, time_spent)
-    data = {
-        'success': True
-    }
-
-    return JsonResponse(data)
-
-
-def save_instruction_state(request):
-    answer_paper_id = request.GET.get('answer_paper_id', None)
-    paper = AnswerPaper.objects.get(id=answer_paper_id)
-    paper.instruction_read = True
-    paper.save()
-    data = {
-        'success': True
-    }
-    return JsonResponse(data)
-
+        return JsonResponse(data)

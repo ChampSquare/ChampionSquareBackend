@@ -16,10 +16,19 @@ class QuizConfig(AppConfig):
 
     def ready(self):
         self.quiz_take = get_class('quiz.views', 'QuizView')
+        self.save_answer = get_class('quiz.views', 'SaveAnswer')
+        self.save_unanswered = get_class('quiz.views', 'SaveUnanswered')
+        self.clear_answer = get_class('quiz.views', 'ClearAnswer')
 
     def get_urls(self):
         urls = [
             path('quiz-take/<int:pk>', self.quiz_take.as_view(), name='quiz-take'),
+            
+            # todo : create a better and secure way to submit answers
+            path('ajax/save_answer/', self.save_answer.as_view(), name='save_answer'),
+            path('ajax/clear_answer/', self.clear_answer.as_view(), name='clear_answer'),
+            path('ajax/save_unanswered/', self.save_unanswered.as_view(), name='save_unanswered'),
+            # path('ajax/save_video_record/', views.save_video_record, name='save_video_record')
         ]
 
         return self.post_process_urls(urls)
