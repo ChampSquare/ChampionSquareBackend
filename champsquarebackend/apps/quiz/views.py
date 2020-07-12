@@ -99,5 +99,3 @@ class AnswerPaperDetail(DetailView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(AnswerPaper, id=self.kwargs['pk'])
-
-    

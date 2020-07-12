@@ -320,14 +320,23 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
             user_answer.save()
 
     def save_unanswered(self, question_id, time_taken=0):
-        self.add_answer_key(question_id=question_id,
+        user_answer = self.answers.filter(question=question_id).first()
+        if user_answer is None:
+            self.add_answer_key(question_id=question_id,
                             time_taken=time_taken,
                             status="unanswered",
                             answer_key="NA")
 
+
     def clear_answer(self, question_id, time_taken=0):
         """ clear previous answers and mark answer as unanswered, status='1' """
-        self.save_unanswered(question_id=question_id, time_taken=time_taken)
+        user_answer = self.answers.filter(question=question_id).first()
+        if user_answer:
+            user_answer.set_points(0)
+            user_answer.set_status('unanswered')
+            user_answer.answer = "NA"
+            user_answer.set_time_taken(time_taken)
+            user_answer.save()
 
     def get_total_marks(self):
         return self.answers.aggregate(marks=Sum('points')).get('marks')
