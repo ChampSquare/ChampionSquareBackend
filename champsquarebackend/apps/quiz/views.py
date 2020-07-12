@@ -45,9 +45,6 @@ class QuizView(ListView):
 
 # Legacy code
 # todo: remove these and find better way to add answers
-def complete_exam(request, answer_paper):
-    answer_paper.update_marks()
-    answer_paper.set_end_time(timezone.now())
 
 
 class SaveAnswer(DetailView):
@@ -92,3 +89,15 @@ class SaveUnanswered(DetailView):
         }
 
         return JsonResponse(data)
+
+
+class AnswerPaperDetail(DetailView):
+    """ View to show answerpaper """
+    model = AnswerPaper
+    context_object_name = 'answerpaper'
+    template_name = 'champsquarebackend/quiz/answerpaper.html'
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(AnswerPaper, id=self.kwargs['pk'])
+
+    

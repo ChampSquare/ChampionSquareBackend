@@ -19,10 +19,12 @@ class QuizConfig(AppConfig):
         self.save_answer = get_class('quiz.views', 'SaveAnswer')
         self.save_unanswered = get_class('quiz.views', 'SaveUnanswered')
         self.clear_answer = get_class('quiz.views', 'ClearAnswer')
+        self.answerpaper_detail = get_class('quiz.views', 'AnswerPaperDetail')
 
     def get_urls(self):
         urls = [
             path('quiz-take/<int:pk>', self.quiz_take.as_view(), name='quiz-take'),
+            path('answerpaper/<int:pk>', self.answerpaper_detail.as_view(), name='answerpaper-detail'),
             
             # todo : create a better and secure way to submit answers
             path('ajax/save_answer/', self.save_answer.as_view(), name='save_answer'),

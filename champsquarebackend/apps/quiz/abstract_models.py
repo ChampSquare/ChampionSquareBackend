@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+from django.db.models import Sum, Q
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied
@@ -127,6 +128,10 @@ class AbstractQuiz(TimestampedModel, ModelWithMetadata):
             mins = (dt.seconds + dt.days * 24 * 3600) / 60.0
         return mins
 
+    def set_marks(self, marks):
+        self.total_marks = marks
+        self.save()
+
     def check_user_eligibility(self, user):
         """ 
             checks whether user is eligible to take this quiz or not,
@@ -207,23 +212,10 @@ class AbstractQuestionPaper(TimestampedModel, ModelWithMetadata):
         """ Update number of questions """
         self.total_questions = self.questions.count()
 
-    def _update_total_marks(self):
+    def calculate_marks(self):
         """ Update total marks of quiz """
-        pass
-
-    def add_question(self, question, display_order=None):
-        """ Add question to questionpaper
-
-        When adding a question that is already in the questionpaper, preven 
-        re-adding it.
-
-        If display_order is specified, update it.
-
-        Default display_order for a new question in the questionpaper is 0;
-        This puts the question at the top of the list
-        """
-
-        pass
+        return self.questions.aggregate(total_marks=Sum('points')) \
+                    .get('total_marks')
 
     def get_all_questions(self):
         return self.questions.all()
@@ -278,9 +270,11 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
         self.last_accessed = timezone.now()
         super().save(*args, **kwargs) # Call the real save() method
 
+    # code taken from legacy codebase
+    # todo: find a better and secure way to do these things
     def add_answer_key(self, question_id, answer_key="NA", status="unanswered", time_taken=0):
         current_question = self.quiz.questionpaper.questions.get(id=question_id)
-        user_answer = self.answers.filter(question=current_question).first()
+        user_answer = self.answers.filter(question=question_id).first()
         expected_answer = current_question.get_right_answer
 
         if user_answer is None:
@@ -334,6 +328,48 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
     def clear_answer(self, question_id, time_taken=0):
         """ clear previous answers and mark answer as unanswered, status='1' """
         self.save_unanswered(question_id=question_id, time_taken=time_taken)
+
+    def get_total_marks(self):
+        return self.answers.aggregate(marks=Sum('points')).get('marks')
+
+    def get_correct_answered_list(self):
+        """ get list of all correct answers """
+        return self.answers.filter(
+            Q(is_correct=True) & (Q(status="answered")
+            | Q(status="answered_marked")))
+
+    def get_wrong_answered_list(self):
+        """ get list of all wrong answers """
+        return self.answers.filter(
+            Q(is_correct=False) & (Q(status="answered")
+            | Q(status="answered_marked")))
+
+    def get_unanswered_list(self):
+        return self.answers.filter(Q(status="unanswered") | Q(status="marked"))
+
+    def get_not_visited_list(self):
+        return self.quiz.questionpaper.questions.exclude(
+            id__in=self.answers.values_list('question', flat=True))
+
+    @property
+    def get_correct_answers_num(self):
+        return self.get_correct_answered_list().count()
+
+    @property
+    def get_wrong_answers_num(self):
+        return self.get_wrong_answered_list().count()
+
+    @property
+    def get_unanswered_num(self):
+        return self.get_unanswered_list().count()
+
+    @property
+    def get_not_visited_num(self):
+        return self.get_not_visited_list().count()
+
+    @property
+    def participant(self):
+        return self.quiz.participants.filter(number=self.participant_number).first()
 
 
 

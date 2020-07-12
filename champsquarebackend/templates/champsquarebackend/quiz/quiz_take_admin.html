@@ -451,7 +451,11 @@ carries +4 marks each for correct answer and –1 mark for each wrong answer.</l
                         <div class="col-md-12 text-center">
                             <h4> Thank you, Submitted Successfully.</h4>
                             <h3>{{ website_name }} wishes you all the best </h3>
-                            <h4><a href="{{URL_ROOT}}/exam/manage/user_data/{{paper.user.id}}/{{paper.question_paper.id}}">See Your Result</a></h4>
+                            
+                            {% if participant.quiz.view_answerpaper %}
+                            <h4><a href="{% url 'quiz:answerpaper-detail' pk=participant.answerpaper.id %}">See Your Result</a></h4>
+                            {% endif %}
+                                
                            </div>
                     </div>
                 </div>

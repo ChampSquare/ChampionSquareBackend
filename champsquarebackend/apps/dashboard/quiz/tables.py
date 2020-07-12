@@ -22,6 +22,10 @@ class QuizTable(DashboardTable):
         verbose_name=_('Category'),
         orderable=False, accessor=('category'))
 
+    total_marks = Column(
+        verbose_name=_('Marks'),
+        orderable=False, accessor=('total_marks'))
+
     questions = TemplateColumn(
         verbose_name=_('Questions'),
         template_name='champsquarebackend/dashboard/quiz/quiz_row_questions.html',
@@ -37,7 +41,7 @@ class QuizTable(DashboardTable):
     class Meta(DashboardTable.Meta):
         model = Quiz
         fields = ()
-        sequence = ('counter', 'name', 'questions', 'category', 'actions')
+        sequence = ('counter', 'name', 'questions', 'total_marks', 'category', 'actions')
 
     def render_counter(self):
         self.row_counter = getattr(self, 'row_counter', itertools.count(start=1))

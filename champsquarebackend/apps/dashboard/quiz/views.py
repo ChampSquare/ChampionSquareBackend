@@ -468,16 +468,18 @@ class QuestionPaperCreateUpdateView(UpdateView):
         if action == "add-questions":
             question_ids = self.request.POST.getlist('questions', None)
             questions_to_add = Question.objects.filter(id__in=question_ids)
-            if self.object.questionpaper:
-                self.object.questionpaper.questions.add(*questions_to_add)
+            questionpaper = self.object.questionpaper
+            if questionpaper:
+                questionpaper.questions.add(*questions_to_add)
+                self.object.set_marks(questionpaper.calculate_marks())
                 
             else:
                 questionpaper = QuestionPaper.objects.create()
                 questionpaper.questions.add(*questions_to_add)
                 self.object.questionpaper = questionpaper
+                self.object.set_marks(questionpaper.calculate_marks())
             
             
-            self.object.save()
             messages.success(self.request, _('Successfully added chosen questions'))
             return HttpResponseRedirect(reverse('dashboard:quiz-questionpaper-update', kwargs={'pk': self.object.id}))
             
