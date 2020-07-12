@@ -22,6 +22,7 @@ class SaveVideoRecordView(DetailView):
                                    type=video_record_type,
                                    record_id=record_id, file_name=file_name)
         video_record.save()
+        video_record.create_record_file()
         date = {
             'success': True
         }
