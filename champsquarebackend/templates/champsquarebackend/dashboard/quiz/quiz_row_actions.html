@@ -19,6 +19,11 @@
                 {% endif %}> {% trans "Take Quiz" %}</a>
             </li>
             <li>
+                <a {% if record.has_questions %}
+                    href="{% url 'quiz:quiz-take-monitoring' pk=record.id %}"
+                {% endif %}> {% trans "Take Quiz with video monitoring" %}</a>
+            </li>
+            <li>
                 <a href="#">{% trans "Delete" %}</a>
             </li>
         </ul>

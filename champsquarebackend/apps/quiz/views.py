@@ -42,6 +42,12 @@ class QuizView(ListView):
         ctx['participant'] = self.get_participant()
         return ctx
 
+class QuizWithVideoMonitoringView(QuizView):
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['video_monitoring'] = True
+        return ctx
+
 
 # Legacy code
 # todo: remove these and find better way to add answers

@@ -81,24 +81,19 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    # "champsquarebackend.legacy.Uscholar.apps.UscholarConfig",
-    # "champsquarebackend.legacy.Unicorn",
-    # "champsquarebackend.legacy.JeeMain",
     "champsquarebackend.config.OnlineTestPlatform",
     "champsquarebackend.apps.user.apps.UserConfig",
     "champsquarebackend.apps.question.apps.QuestionConfig",
-    # "champsquarebackend.apps.home.apps.HomeConfig",
     "champsquarebackend.apps.quiz.apps.QuizConfig",
     "champsquarebackend.apps.participate.apps.ParticipateConfig",
     "champsquarebackend.apps.communication.apps.CommunicationConfig",
+    "champsquarebackend.apps.monitoring.apps.MonitoringConfig",
     "champsquarebackend.apps.dashboard.apps.DashboardConfig",
     'champsquarebackend.apps.dashboard.users.apps.UsersDashboardConfig',
     'champsquarebackend.apps.dashboard.pages.apps.PagesDashboardConfig',
     'champsquarebackend.apps.dashboard.quiz.apps.QuizDashboardConfig',
     'champsquarebackend.apps.dashboard.questions.apps.QuestionsDashboardConfig',
     'champsquarebackend.apps.dashboard.communications.apps.CommunicationsDashboardConfig',
-
-    # Your stuff: custom apps go here
 ]
 
 # Apps that were required for old version to work

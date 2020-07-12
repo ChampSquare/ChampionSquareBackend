@@ -17,6 +17,7 @@
     <script type="text/javascript" src="{% static 'champsquarebackend/quiz/jee/js/jquery.caret.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'champsquarebackend/quiz/jee/js/virtual_keyboard.js' %}"></script>
 
+    {% if video_monitoring %}
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/6.4.0/adapter.min.js" ></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.7.2/jquery.min.js" ></script> -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.min.js" ></script>
@@ -24,14 +25,15 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.1.0/bootbox.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>
-    <!-- <script type="text/javascript" src="{% static 'champsquarebackend/webcam/js/janus.js' %}"></script>
-    <script type="text/javascript" src="{% static 'champsquarebackend/webcam/js/videoroom.js' %}"></script> -->
-    <script src="{% static 'champsquarebackend/quiz/jee/js/exam_script.js' %}"></script>
-
+    <script type="text/javascript" src="{% static 'champsquarebackend/webcam/js/janus.js' %}"></script>
+    <script type="text/javascript" src="{% static 'champsquarebackend/webcam/js/videoroom.js' %}"></script>
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cerulean/bootstrap.min.css" type="text/css"/> -->
     <link rel="stylesheet" href="{% static 'champsquarebackend/webcam/css/demo.css' %}" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.css"/>
+    {% endif %}
+    <script src="{% static 'champsquarebackend/quiz/jee/js/exam_script.js' %}"></script>
+
 
     <style>
      .modal {
@@ -131,7 +133,7 @@
 
 
 
-<input type="hidden" id="hdfTestDuration" value="{% if participant.answerpaper.is_trial %} 180 {% else %} {{paper.time_left}}{%endif%}">
+<input type="hidden" id="hdfTestDuration" {% if participant.answerpaper.is_trial %}value="180"{% else %} value="{{paper.time_left}}{%endif%}">
 
     <input type="hidden" id="paperId" value="{{ participant.answerpaper.id }}">
         <input type="hidden" id="attemptId" value="{{ paper.attempt_number }}">
@@ -157,37 +159,39 @@
 </div>
 
 <div id="content">
-   <div class="container hide" id="permissions">
-       <div class="row">
-           <div id="webcamview">
-               <h4><strong><u>Give Webcam Permission:</u></strong></h4>
-                <div class="col-md-6" style="padding-top: 50px;">
-                    <uL>
-                        <li>Give permission to use microphone and camera when asked</li>
-                        <li>Make sure your face appears in adjacent box</li>
-                        <li>Click next when you are done!</li>
-                    </uL>
-                </div>
-                <div class="col-md-4 hide pull-right" id="videos">
-                    <div class="panel panel-default">
-                        <div class="panel-body" id="videolocal"></div>
-                    </div>
-                </div>
-            </div>
 
-            <div id="screenshareview" class="hide">
-                <h4><strong><u>Give Screenshare Permission:</u></strong></h4>
-                <div class="col-md-6" style="padding-top: 50px;">
-                    <uL>
-                        <li>Give permission to share entire screen when asked</li>
-                        <li>Click next when you are done!</li>
-                    </uL>
-                </div>
-            </div>
-        </div>
-   </div>
+{% if video_monitoring %}
+<div class="container" id="permissions">
+    <div class="row">
+        <div id="webcamview">
+            <h4><strong><u>Give Webcam Permission:</u></strong></h4>
+             <div class="col-md-6" style="padding-top: 50px;">
+                 <uL>
+                     <li>Give permission to use microphone and camera when asked</li>
+                     <li>Make sure your face appears in adjacent box</li>
+                     <li>Click next when you are done!</li>
+                 </uL>
+             </div>
+             <div class="col-md-4 hide pull-right" id="videos">
+                 <div class="panel panel-default">
+                     <div class="panel-body" id="videolocal"></div>
+                 </div>
+             </div>
+         </div>
 
-        <div class="col-md-12 exam-instruction" id="instructionpage" >
+         <div id="screenshareview" class="hide">
+             <h4><strong><u>Give Screenshare Permission:</u></strong></h4>
+             <div class="col-md-6" style="padding-top: 50px;">
+                 <uL>
+                     <li>Give permission to share entire screen when asked</li>
+                     <li>Click next when you are done!</li>
+                 </uL>
+             </div>
+         </div>
+     </div>
+</div>
+{% endif %}
+        <div class="col-md-12 exam-instruction {% if video_monitoring %} hide {% endif %}" id="instructionpage" >
                     <div class="panel panel-default">
                         <div class="panel-body">
                             <div class="col-md-12" id="en">

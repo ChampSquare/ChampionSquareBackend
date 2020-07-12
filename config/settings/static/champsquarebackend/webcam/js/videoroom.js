@@ -62,7 +62,7 @@ $(document).ready(function() {
 									if(on) {
 										// Darken screen and show hint
 										$.blockUI({
-											message: '<div><img src="/static/webcam/img/up_arrow.png"/></div>',
+											message: '<div><img src="/static/champsquarebackend/webcam/img/up_arrow.png"/></div>',
 											css: {
 												border: 'none',
 												padding: '15px',
@@ -214,7 +214,7 @@ function publishOwnFeed(useAudio) {
 				sfutest.send({"message": publish, "jsep": jsep});
 
 				$.ajax({
-        url: '/jee_main/ajax/save_video_record/',
+        url: '/monitoring/ajax/save_video_record/',
         data: {
             'paper_id': $('#paperId').val(),
             'video_record_type': 'webcam',
@@ -335,7 +335,7 @@ function startScreenSharing() {
 															screentest.send({"message": publish, "jsep": jsep});
 
 															$.ajax({
-        url: '/jee_main/ajax/save_video_record/',
+        url: '/monitoring/ajax/save_video_record/',
         data: {
             'paper_id': $('#paperId').val(),
             'video_record_type': 'screen',

@@ -16,6 +16,7 @@ class QuizConfig(AppConfig):
 
     def ready(self):
         self.quiz_take = get_class('quiz.views', 'QuizView')
+        self.quiz_take_monitoring = get_class('quiz.views', 'QuizWithVideoMonitoringView')
         self.save_answer = get_class('quiz.views', 'SaveAnswer')
         self.save_unanswered = get_class('quiz.views', 'SaveUnanswered')
         self.clear_answer = get_class('quiz.views', 'ClearAnswer')
@@ -24,6 +25,7 @@ class QuizConfig(AppConfig):
     def get_urls(self):
         urls = [
             path('quiz-take/<int:pk>', self.quiz_take.as_view(), name='quiz-take'),
+            path('quiz-take-video/<int:pk>', self.quiz_take_monitoring.as_view(), name='quiz-take-monitoring'),
             path('answerpaper/<int:pk>', self.answerpaper_detail.as_view(), name='answerpaper-detail'),
             
             # todo : create a better and secure way to submit answers

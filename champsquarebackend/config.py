@@ -14,7 +14,8 @@ class OnlineTestPlatform(AppConfig):
         self.user_app = apps.get_app_config('user')
         self.question_app = apps.get_app_config('question')
         self.quiz_app = apps.get_app_config('quiz')
-        # self.dashboard_app = apps.get_app_config('dashboard')
+        self.participant_app = apps.get_app_config('participate')
+        self.monitoring_app = apps.get_app_config('monitoring')
         self.communication_app = apps.get_app_config('communication')
 
         self.password_reset_form = get_class('user.forms', 'PasswordResetForm')
@@ -29,15 +30,12 @@ class OnlineTestPlatform(AppConfig):
         from champsquarebackend.views.decorators import login_forbidden
 
         urls = [
-            # path('', RedirectView.as_view(url=settings.HOMEPAGE_URL), name='home'),
-            # path('quiz/', self.quiz_app.urls),
             path('user/', self.user_app.urls),
             path('dashboard/', self.dashboard_app.urls),
             path('question/', self.question_app.urls),
             path('quiz/', self.quiz_app.urls),
-
-            # path('dashboard/', self.dashboard_app.urls),
-
+            path('participant/', self.participant_app.urls),
+            path('monitoring/', self.monitoring_app.urls),
             # Password reset - as we're using Django's default view functions,
             # we can't namespace these urls as that prevents
             # the reverse function from working.
