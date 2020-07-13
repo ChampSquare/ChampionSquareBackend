@@ -1,4 +1,3 @@
-import os
 import uuid
 
 from django.db import models
@@ -43,7 +42,7 @@ class AbstractVideoRecord(ModelWithMetadata, TimestampedModel):
     def create_record_file(self):
         file_name = self.record_id+"_"+self.type+".nfo"
 
-        video_rec_dir = os.path.join(settings.MEDIA_ROOT, file_name)
+        video_rec_dir = str(settings.ROOT_DIR)+ settings.SETTINGS_VIDEO_RECORD_FOLDER_NAME
         # todo : check whether dir exists or not
         # create first if it doesn't exist
         with open(video_rec_dir+file_name, 'w') as f:
