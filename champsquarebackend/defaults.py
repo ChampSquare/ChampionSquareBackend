@@ -84,6 +84,16 @@ SETTINGS_DASHBOARD_NAVIGATION = [
         ]
     },
     {
+        'label': _('Monitoring'),
+        'icon': 'icon-bullhorn',
+        'children': [
+            {
+                'label': _('Video Room'),
+                'url_name': 'dashboard:video-room',
+            }
+        ]
+    },
+    {
         'label': _('Users'),
         'icon': 'icon-group',
         'children': [

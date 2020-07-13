@@ -93,6 +93,7 @@ LOCAL_APPS = [
     'champsquarebackend.apps.dashboard.pages.apps.PagesDashboardConfig',
     'champsquarebackend.apps.dashboard.quiz.apps.QuizDashboardConfig',
     'champsquarebackend.apps.dashboard.questions.apps.QuestionsDashboardConfig',
+    'champsquarebackend.apps.dashboard.monitoring.apps.MonitoringDashboardConfig',
     'champsquarebackend.apps.dashboard.communications.apps.CommunicationsDashboardConfig',
 ]
 

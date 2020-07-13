@@ -148,6 +148,7 @@ $(document).ready(function() {
 									$('#screencapture').empty();
 									$("#screencapture").parent().unblock();
 									$('#room').hide();
+									$('#no-video').show();
 								}
 							});
 					},
@@ -228,6 +229,8 @@ function newRemoteFeed(id, display) {
 						Janus.log("Successfully attached to feed " + id + " (" + display + ") in room " + msg["room"]);
 						$('#screenmenu').hide();
 						$('#room').removeClass('hide').show();
+						$('#no-video').hide();
+
 					} else {
 						// What has just happened?
 					}

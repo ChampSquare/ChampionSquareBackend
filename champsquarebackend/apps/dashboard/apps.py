@@ -26,6 +26,8 @@ class DashboardConfig(AppDashboardConfig):
         self.comms_app = apps.get_app_config('communications_dashboard')
         self.questions_app = apps.get_app_config('questions_dashboard')
         self.quiz_app = apps.get_app_config('quiz_dashboard')
+        self.monitoring_app = apps.get_app_config('monitoring_dashboard')
+
 
         
     def get_urls(self):
@@ -39,6 +41,8 @@ class DashboardConfig(AppDashboardConfig):
             path('comms/', include(self.comms_app.urls[0])),
             path('questions/', include(self.questions_app.urls[0])),
             path('quiz/', include(self.quiz_app.urls[0])),
+            path('monitoring/', include(self.monitoring_app.urls[0])),
+
 
             
             path('login/',
