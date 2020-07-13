@@ -94,6 +94,16 @@ SETTINGS_DASHBOARD_NAVIGATION = [
         ]
     },
     {
+        'label': _('Records'),
+        'icon': 'icon-bar-chart',
+        'children': [
+            {
+                'label': _('Videos'),
+                'url_name': 'dashboard:videos',
+            }
+        ]
+    },
+    {
         'label': _('Users'),
         'icon': 'icon-group',
         'children': [

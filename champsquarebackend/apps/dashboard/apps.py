@@ -27,6 +27,7 @@ class DashboardConfig(AppDashboardConfig):
         self.questions_app = apps.get_app_config('questions_dashboard')
         self.quiz_app = apps.get_app_config('quiz_dashboard')
         self.monitoring_app = apps.get_app_config('monitoring_dashboard')
+        self.records_app = apps.get_app_config('records_dashboard')
 
 
         
@@ -42,8 +43,7 @@ class DashboardConfig(AppDashboardConfig):
             path('questions/', include(self.questions_app.urls[0])),
             path('quiz/', include(self.quiz_app.urls[0])),
             path('monitoring/', include(self.monitoring_app.urls[0])),
-
-
+            path('records/', include(self.records_app.urls[0])),
             
             path('login/',
                 auth_views.LoginView.as_view(template_name='champsquarebackend/dashboard/login.html',
