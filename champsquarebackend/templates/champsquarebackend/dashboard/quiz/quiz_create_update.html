@@ -39,8 +39,7 @@
 
                         {% block tabs %}
                         <li><a href="#quiz-details" data-toggle="tab">{% trans 'Add Quiz Details' %}</a></li>
-                        <li><a href="#quiz-questionpaper" data-toggle="tab">{% trans 'Add Questions' %}</a></li>
-
+                        
                         {% endblock tabs %}
                     </ul>
                 </div>
@@ -110,9 +109,7 @@
                     {% trans "Save" %}
                 </button>
             </div>
-            {% if quiz %}
-                <a class="btn btn-success btn-lg" href="{{ quiz.get_absolute_url }}">{% trans "View on site" %}</a>
-            {% endif %}
+            
         </div>
     </div>
    {% endblock fixed_actions_group %}
