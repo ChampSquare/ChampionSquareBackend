@@ -58,7 +58,7 @@ class AbstractParticipate(TimestampedModel, ModelWithMetadata):
     class Meta:
         abstract = True
         app_label = 'participate'
-        ordering = ['-start_time']
+        ordering = ['-created_at']
         verbose_name = _('Participate')
         verbose_name_plural = _('Participates')
 
@@ -132,10 +132,6 @@ class AbstractParticipate(TimestampedModel, ModelWithMetadata):
         """ Set start time, do this after user finishes reading instruction"""
         self.start_time = time
         self.set_status('answering')
-
-
-
-        
 
 
 

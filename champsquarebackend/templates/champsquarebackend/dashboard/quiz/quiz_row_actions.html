@@ -11,7 +11,10 @@
                 <a href="{% url 'dashboard:quiz-update' pk=record.id %}{% querystring %}">{% trans "Edit" %}</a>
             </li>
             <li>
-                <a href="{% url 'dashboard:quiz-questionpaper-update' pk=record.id %}">{% trans "Update QuestionPaper" %}</a>
+                <a href="{% url 'dashboard:quiz-questionpaper-update' pk=record.id %}">{% trans "QuestionPaper" %}</a>
+            </li>
+            <li>
+                <a href="{% url 'dashboard:participate-list' pk=record.id %}">{% trans "Participants" %}</a>
             </li>
             <li>
                 <a {% if record.has_questions %}
@@ -23,9 +26,7 @@
                     href="{% url 'quiz:quiz-take-monitoring' pk=record.id %}"
                 {% endif %}> {% trans "Take Quiz with video monitoring" %}</a>
             </li>
-            <li>
-                <a href="#">{% trans "Delete" %}</a>
-            </li>
+        
         </ul>
     </div>
 </div>

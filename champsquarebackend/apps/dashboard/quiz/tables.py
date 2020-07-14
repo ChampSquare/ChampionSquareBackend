@@ -1,4 +1,3 @@
-import itertools
 from django.utils.translation import gettext_lazy as _
 
 from django_tables2 import TemplateColumn, A, Column
@@ -7,13 +6,9 @@ from champsquarebackend.core.loading import get_model, get_class
 
 DashboardTable = get_class('dashboard.tables', 'DashboardTable')
 Quiz = get_model('quiz', 'quiz')
+Participate = get_model('participate', 'participate')
 
 class QuizTable(DashboardTable):
-    counter = Column(
-        verbose_name=_("Sr."),
-        empty_values=(),
-        orderable=False
-    )
     name = Column(
         verbose_name=_('Name'),
         orderable=False, accessor=('name'))
@@ -42,7 +37,3 @@ class QuizTable(DashboardTable):
         model = Quiz
         fields = ()
         sequence = ('counter', 'name', 'questions', 'total_marks', 'category', 'actions')
-
-    def render_counter(self):
-        self.row_counter = getattr(self, 'row_counter', itertools.count(start=1))
-        return next(self.row_counter)
