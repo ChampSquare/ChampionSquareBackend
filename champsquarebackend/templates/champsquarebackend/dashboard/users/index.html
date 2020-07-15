@@ -6,7 +6,7 @@
 {% block body_class %}{{ block.super }} users{% endblock %}
 
 {% block title %}
-    {% trans "Customers" %} | {{ block.super }}
+    {% trans "Users" %} | {{ block.super }}
 {% endblock %}
 
 {% block header %}
@@ -45,7 +45,7 @@
         {% else %}
             <table class="table table-striped table-bordered table-hover">
                 <caption>{{ queryset_description }}</caption>
-                <tr><td>{% trans "No customers found." %}</td></tr>
+                <tr><td>{% trans "No Users found." %}</td></tr>
             </table>
         {% endif %}
     {% endblock %}
