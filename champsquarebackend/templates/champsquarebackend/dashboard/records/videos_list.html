@@ -1,0 +1,56 @@
+{% extends 'champsquarebackend/dashboard/layout.html' %}
+{% load i18n %}
+{% load render_table from django_tables2 %}
+
+{% block body_class %} {{ block.super }} videos {% endblock %}
+
+{% block title %}
+{% trans "Video List" %} | {{ block.super }}
+{% endblock title %}
+
+{% block breadcrumbs %}
+    <ul class="breadcrumb">
+        <li>
+            <a href="{% url 'dashboard:index' %}">{% trans "Dashboard" %}</a>
+        </li>
+        <li class="active">{% trans "Videos" %}</li>
+    </ul>
+{% endblock %}
+
+{% block header %}
+    <div class="page-header">
+        <h1>{% trans "videos" %}</h1>
+    </div>
+{% endblock header %}
+
+{% block dashboard_content %}
+
+    {% if videos %}
+   
+        {% block video_list %}
+            <form method="post">
+                {% csrf_token %}
+                {% render_table videos %}
+            </form>
+            <div class="modal fade" id="product-image-modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title"></h4>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img class="img-responsive center-block">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endblock video_list %}
+    {% else %}
+        <p>{% trans "No video found" %}</p>
+    {% endif %}
+{% endblock dashboard_content %}
+
+{% block onbodyload %}
+    {{ block.super }}
+{% endblock onbodyload %}

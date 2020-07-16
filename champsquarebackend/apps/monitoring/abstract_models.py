@@ -1,3 +1,4 @@
+import os
 import uuid
 
 from django.db import models
@@ -35,14 +36,21 @@ class AbstractVideoRecord(ModelWithMetadata, TimestampedModel):
         app_label = 'monitoring'
         verbose_name = _('Video Record')
         verbose_name_plural = _('Video Records')
+        ordering = ['-created_at']
 
     def __str__(self):
         return "{0}, type: {1}".format(self.name, self.type)
 
-    def create_record_file(self):
-        file_name = self.record_id+"_"+self.type+".nfo"
+    def get_info_file_name(self):
+        return self.record_id+"_"+self.type+".nfo"
 
-        video_rec_dir = str(settings.ROOT_DIR)+ settings.SETTINGS_VIDEO_RECORD_FOLDER_NAME
+    def get_video_dir(self):
+        return str(settings.ROOT_DIR)+ settings.SETTINGS_VIDEO_RECORD_FOLDER_NAME
+
+    def create_record_file(self):
+        file_name = self.get_info_file_name()
+
+        video_rec_dir = self.get_video_dir()
         # todo : check whether dir exists or not
         # create first if it doesn't exist
         with open(video_rec_dir+file_name, 'w') as f:
@@ -53,3 +61,26 @@ class AbstractVideoRecord(ModelWithMetadata, TimestampedModel):
             else:
                 video_file.write("[{0}]\n name = {1}-{3}\ndate = {2}\n video = {0}_{3}-video.mjr"
                                  .format(self.record_id, self.name, self.created_at, self.type))
+
+
+    def delete_raw_files(self):
+        # get video directory
+        video_dir = self.get_video_dir()
+        # each video has corresponding info file
+        info_file = self.get_info_file_name()
+        # get the video file name
+        video_file = "{0}_{1}-video.mjr".format(self.record_id, self.type)
+        # delete info file
+        self._delete_file(video_dir+info_file)
+        #delete video file
+        self._delete_file(video_dir+video_file)
+
+        if self.type == 'webcam':
+            # if type is webcam, there should be an audio file as well
+            audio_file = "{0}_{1}-audio.mjr".format(self.file_name, self.type)
+            self._delete_file(video_file+audio_file)
+
+    def _delete_file(self, filename):
+        #first check for file existence
+        if os.path.isfile(filename):
+            os.remove(filename)

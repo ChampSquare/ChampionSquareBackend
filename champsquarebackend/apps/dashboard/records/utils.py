@@ -2,13 +2,15 @@ from subprocess import Popen, PIPE, STDOUT
 
 from django.conf import settings
 
-def post_process_video(file_name):
+def post_process_video(file_name, video_type=None):
+    # folder where video files are stored
     video_rec_dir = str(settings.ROOT_DIR)+ settings.SETTINGS_VIDEO_RECORD_FOLDER_NAME
     
     command = ["bash",
-               "champsquarebackend/apps/dashboard/scripts/video_post_process.sh",
+               "champsquarebackend/scripts/video_post_process.sh",
                video_rec_dir+file_name,
-               ]
+               video_type
+               ]    
     try:
         process = Popen(command, stdout=PIPE, stderr=STDOUT)
         output = process.stdout.read()

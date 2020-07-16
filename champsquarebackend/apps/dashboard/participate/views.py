@@ -39,4 +39,4 @@ class ParticipateListView(SingleTableView):
             Build the queryset for this list
         """
         queryset = Participate.objects.filter(quiz=self.kwargs.get('pk'))
-        return queryset 
+        return queryset
