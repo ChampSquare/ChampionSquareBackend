@@ -101,10 +101,6 @@ SETTINGS_DASHBOARD_NAVIGATION = [
         'children': [
             {
                 'label': _('Videos'),
-                'url_name': 'dashboard:videos',
-            },
-            {
-                'label': _('Video List'),
                 'url_name': 'dashboard:video-list',
             }
         ]
