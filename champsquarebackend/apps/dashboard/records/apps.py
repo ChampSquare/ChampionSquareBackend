@@ -22,8 +22,6 @@ class RecordsDashboardConfig(AppDashboardConfig):
             path('videos', TemplateView.as_view(template_name="champsquarebackend/dashboard/records/videos.html"), name='videos'),
             path('video-list', self.video_list.as_view(), name='video-list'),
             path('video/<int:pk>/delete', self.video_delete_view.as_view(), name='video-delete'),
-
-            #ajax
-            path('ajax/post-process-video', self.video_post_process_view.as_view(), name='video-post-process'),
+            path('video/<int:pk>/post-process', self.video_post_process_view.as_view(), name='video-post-process'),
         ]
         return self.post_process_urls(urls)

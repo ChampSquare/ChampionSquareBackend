@@ -4,6 +4,7 @@ from django.views.generic import DeleteView, DetailView
 from django.contrib import messages
 from django.urls import reverse
 from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404
 
 from django_tables2 import SingleTableMixin, SingleTableView
 
@@ -76,15 +77,13 @@ class VideoDeleteView(DeleteView):
 
 class ProcessVideoView(DetailView):
     def get(self, request, *args, **kwargs):
-        video_id = request.GET.get('video_id')
-        video_record = VideoRecord.objects.get(id=video_id)
+        video_record = get_object_or_404(VideoRecord, id=self.kwargs['pk'])
         response = post_process_video(video_record)
         if response:
             video_record.is_processed = response
             video_record.file_name = video_record.create_processed_video_file_name()
             video_record.save()
-        data = {
-            'success': response
-        }
-
-        return JsonResponse(data)
+            messages.info(self.request, _('Successfully converted video'))
+        else:
+            messages.error(self.request, _('Failed to convert the video'))
+        return HttpResponseRedirect(reverse('dashboard:video-list'))

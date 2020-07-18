@@ -34,5 +34,8 @@ if [ ! -f $output_file ]; then
     echo "Failed"
     exit 1
 fi
+# delete input files
+rm $audio_file
+rm $video_file
 echo "Done !"
 exit 0
