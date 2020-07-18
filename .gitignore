@@ -10,6 +10,7 @@ __pycache__/
 
 # ignore video recording folder
 video_recordings/
+champsquarebackend/media/videos/
 
 # Distribution / packaging
 .Python

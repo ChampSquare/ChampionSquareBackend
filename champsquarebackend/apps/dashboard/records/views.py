@@ -1,15 +1,16 @@
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
-from django.views.generic import DeleteView
+from django.views.generic import DeleteView, DetailView
 from django.contrib import messages
 from django.urls import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 
 from django_tables2 import SingleTableMixin, SingleTableView
 
 
 from champsquarebackend.core.loading import get_model, get_class
 from champsquarebackend.views.generic import BulkEditMixin
+from champsquarebackend.apps.dashboard.records.utils import post_process_video
 
 VideoRecord = get_model('monitoring', 'videorecord')
 VideoRecordTable = get_class('dashboard.records.tables', 'VideoRecordTable')
@@ -71,3 +72,19 @@ class VideoDeleteView(DeleteView):
     def get_success_url(self):
         messages.info(self.request, _('Successfully deleted video'))
         return reverse('dashboard:video-list')
+
+
+class ProcessVideoView(DetailView):
+    def get(self, request, *args, **kwargs):
+        video_id = request.GET.get('video_id')
+        video_record = VideoRecord.objects.get(id=video_id)
+        response = post_process_video(video_record)
+        if response:
+            video_record.is_processed = response
+            video_record.file_name = video_record.create_processed_video_file_name()
+            video_record.save()
+        data = {
+            'success': response
+        }
+
+        return JsonResponse(data)

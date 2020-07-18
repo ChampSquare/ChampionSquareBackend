@@ -16,7 +16,7 @@ class SaveVideoRecordView(DetailView):
         record_id = request.GET.get('record_id', None)
         answer_paper = AnswerPaper.objects.get(id=answer_paper_id)
         name = answer_paper.participant.user.email
-        file_name = record_id
+        file_name = VideoRecord.create_mjr_video_file_name(record_id, video_record_type)
 
         video_record = VideoRecord(participant=answer_paper.participant, name=name,
                                    type=video_record_type,

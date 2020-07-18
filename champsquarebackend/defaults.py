@@ -3,6 +3,8 @@ from collections import OrderedDict
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
+
+
 SETTINGS_WEBSITE_NAME = 'BrowseITSolutions'
 SETTINGS_WEBSITE_TAGLINE = ''
 SETTINGS_HOMEPAGE = '/'
@@ -141,4 +143,8 @@ SETTINGS_SAVE_SENT_EMAILS_TO_DB = True
 
 HOMEPAGE_URL = '/'
 
+# janus settings
 SETTINGS_VIDEO_RECORD_FOLDER_NAME = '/video_recordings/'
+SETTINGS_JANUS_POST_PROCESS_FUNCTION_PATH = '~/janus10/bin/janus-pp-rec'
+SETTINGS_JANUS_POST_PROCESS_SCRIPT = 'champsquarebackend/scripts/janus_post_process.sh'
+SETTINGS_AUDIO_VIDEO_MERGE_SCRIPT = 'champsquarebackend/scripts/merge_audio_video.sh'

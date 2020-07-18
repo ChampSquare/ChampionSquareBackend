@@ -54,3 +54,27 @@
 {% block onbodyload %}
     {{ block.super }}
 {% endblock onbodyload %}
+
+{% block extrascripts %}
+  {{block.super}}
+  <script>
+  $('#convert_video').click(function () {
+      var video_id = $(this).val();
+
+      $.ajax({
+        url: "{% url 'dashboard:video-post-process' %}",
+        data: {
+          'video_id': video_id
+        },
+        dataType: 'json',
+        success: function (data) {
+          if (data.success) {
+            alert("Video converted successfully, reload page to see changes!");
+          } else {
+            alert("Failed to convert video");
+          }
+        }
+      });
+  })
+</script>
+{% endblock extrascripts %}

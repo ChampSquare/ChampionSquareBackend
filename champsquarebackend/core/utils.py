@@ -3,6 +3,8 @@ import re
 import datetime
 import logging
 import socket
+from subprocess import Popen, PIPE, STDOUT
+
 
 
 from django.conf import settings
@@ -177,3 +179,23 @@ def is_ip_address_valid(ip_address):
         return True
     except socket.error:
         return False
+
+def run_bash_script(command):
+    """ runs a bash script using python subprocess module
+        command is list of arguments
+    """
+    if command is None:
+        return {"status": "Failed", "output":"Please specify list of commands"}
+    try:
+        process = Popen(command, stdout=PIPE, stderr=STDOUT)
+        output = process.stdout.read()
+        exitstatus = process.poll()
+        # todo - do a better error catching
+        if (exitstatus == 0):
+            #print(str(output))
+            # todo - log the event
+            return {"status": "Success", "output":str(output)}
+        
+        return {"status": "Failed", "output":str(output)}
+    except Exception as e:
+        return {"status": "Failed", "output":str(e)}

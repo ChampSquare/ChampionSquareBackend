@@ -13,6 +13,17 @@
             <li>
                 <a href="{% url 'quiz:answerpaper-detail' pk=record.participant.answerpaper.id %}">{% trans "AnswerPaper" %}</a>
             </li>
+            <li id="convert_video" value="{{ record.id }}" 
+            style="cursor: pointer; 
+            display: block;
+            padding: 3px 20px;
+            clear: both;
+            font-weight: normal;
+            line-height: 1.42857143;
+            color: #333333;
+            white-space: nowrap;">
+                {% trans "Process Video" %}
+            </li>
             <li>
                 <a href="{% url 'dashboard:video-delete' pk=record.id %}">{% trans "Delete" %}</a>
             </li>
