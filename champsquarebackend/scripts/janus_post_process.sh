@@ -14,7 +14,7 @@ output_file="$2"
 # check video file exists or not
 # quit if doesn't
 if [ ! -f $input_file ]; then
-    echo "Input file not found!"
+    echo "Input file: $input_file not found!"
     exit 1
 fi
 

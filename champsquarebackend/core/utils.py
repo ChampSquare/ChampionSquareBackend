@@ -191,8 +191,8 @@ def run_bash_script(command):
         output = process.stdout.read()
         exitstatus = process.poll()
         # todo - do a better error catching
+        print(str(output))
         if (exitstatus == 0):
-            print(str(output))
             # todo - log the event
             return {"status": "Success", "output":str(output)}
         

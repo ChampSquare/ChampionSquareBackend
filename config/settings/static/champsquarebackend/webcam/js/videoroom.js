@@ -210,7 +210,7 @@ function publishOwnFeed(useAudio) {
 			success: function(jsep) {
 				Janus.debug("Got publisher SDP!");
 				Janus.debug(jsep);
-				var publish = { "request": "configure", "audio": useAudio, "video": true, "filename": myid.toString()+"_webcam" };
+				var publish = { "request": "configure", "audio": useAudio, "video": true, "filename": myid.toString()+"-webcam" };
 				sfutest.send({"message": publish, "jsep": jsep});
 
 				$.ajax({
@@ -331,7 +331,7 @@ function startScreenSharing() {
 														success: function(jsep) {
 															Janus.debug("Got publisher SDP!");
 															Janus.debug(jsep);
-															var publish = { "request": "configure", "audio": true, "video": true, "filename": myid.toString()+"_screen" };
+															var publish = { "request": "configure", "audio": true, "video": true, "filename": myid.toString()+"-screen" };
 															screentest.send({"message": publish, "jsep": jsep});
 
 															$.ajax({
