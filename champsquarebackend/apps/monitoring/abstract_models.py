@@ -68,6 +68,9 @@ class AbstractVideoRecord(ModelWithMetadata, TimestampedModel):
     def create_processed_video_file_name(self):
         return '{0}.webm'.format(self.get_file_syntax())
 
+    def get_processed_video_file_path(self):
+        return settings.VIDEO_URL + self.create_processed_video_file_name()
+
     def create_processed_audio_file_name(self):
         return '{0}.opus'.format(self.get_file_syntax())
 

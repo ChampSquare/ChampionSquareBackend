@@ -1,7 +1,7 @@
 import json
 
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import FormView, UpdateView
+from django.views.generic import FormView, UpdateView, DetailView
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.contrib import messages
@@ -24,6 +24,7 @@ CategoryForm, QuizMetaForm, QuestionPaperForm, QuizRestrictionsForm \
 Category = get_model('quiz', 'category')
 Quiz = get_model('quiz', 'quiz')
 QuestionPaper = get_model('quiz', 'questionpaper')
+AnswerPaper = get_model('quiz', 'answerpaper')
 QuizForm = get_class('dashboard.quiz.forms', 'QuizForm')
 QuizTable = get_class('dashboard.quiz.tables', 'QuizTable')
 Question = get_model('question', 'question')
@@ -508,4 +509,11 @@ class QuestionPaperCreateUpdateView(UpdateView):
         return reverse('dashboard:quiz-list')
 
 
-    
+class AnswerPaperDetailView(DetailView):
+    """ View to show answerpaper """
+    model = AnswerPaper
+    context_object_name = 'answerpaper'
+    template_name = 'champsquarebackend/dashboard/quiz/answerpaper_detail.html'
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(AnswerPaper, id=self.kwargs['pk'])  

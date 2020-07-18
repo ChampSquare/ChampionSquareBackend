@@ -103,5 +103,17 @@ class AnswerPaperDetail(DetailView):
     context_object_name = 'answerpaper'
     template_name = 'champsquarebackend/quiz/answerpaper.html'
 
-    def get_object(self, queryset=None):
-        return get_object_or_404(AnswerPaper, id=self.kwargs['pk'])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["webcam_video_path"] = self.get_participant() \
+                                            .get_webcam_video() \
+                                            .get_processed_video_file_path()
+        context["screen_video_path"] = self.get_participant() \
+                                        .get_screen_video() \
+                                            .get_processed_video_file_path()
+        return context
+    
+    def get_participant(self):
+        return self.object.participant
+        

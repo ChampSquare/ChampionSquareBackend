@@ -2,6 +2,7 @@ import logging
 import itertools
 
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from django.core.signing import BadSignature, Signer
 from django.utils.crypto import constant_time_compare
@@ -133,6 +134,12 @@ class AbstractParticipate(TimestampedModel, ModelWithMetadata):
         self.start_time = time
         self.set_status('answering')
 
+    def get_webcam_video(self):
+        if self.videos is not None:
+            return self.videos.filter(Q(type="webcam") & Q(is_processed=True)).first()
+        return None
 
-
-    
+    def get_screen_video(self):
+        if self.videos is not None:
+            return self.videos.filter(Q(type="screen") & Q(is_processed=True)).first()
+        return None

@@ -11,7 +11,7 @@
                 <a href="{% url 'dashboard:videos' %}">{% trans "Detail" %}</a>
             </li>
             <li>
-                <a href="{% url 'quiz:answerpaper-detail' pk=record.participant.answerpaper.id %}">{% trans "AnswerPaper" %}</a>
+                <a href="{% url 'dashboard:quiz-answerpaper-detail' pk=record.participant.answerpaper.id %}">{% trans "AnswerPaper" %}</a>
             </li>
             <li>
                 <a href="{% url 'dashboard:video-post-process' pk=record.id %}">{% trans "Process Video" %}</a>

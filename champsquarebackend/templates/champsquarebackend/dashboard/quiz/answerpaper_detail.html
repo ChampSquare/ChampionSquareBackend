@@ -1,0 +1,262 @@
+{% extends 'champsquarebackend/dashboard/layout.html' %}
+{% load i18n %}
+
+{% block body_class %}{{ block.super }} catalogue{% endblock %}
+
+{% block title %}
+    {% trans "Answerpaper Detail" %} | {{ block.super }}
+{% endblock %}
+
+
+
+{% block breadcrumbs %}
+    <ul class="breadcrumb">
+        <li>
+            <a href="{% url 'dashboard:index' %}">{% trans "Dashboard" %}</a>
+        </li>
+        <li class="active">{% trans "Answerpaper" %}</li>
+    </ul>
+{% endblock %}
+
+{% block headertext %}Result of Quiz: {{ answerpaper.quiz.name }}{% endblock %}
+
+{% block dashboard_content %}
+    <div class="row">
+        {% block answerpaper_general_info %}
+            <div class="col-md-8">
+                <div class="table-header">
+                    <h2>{% trans "General" %}</h2>
+                </div>
+                <table class="table table-bordered">
+                    <tr>
+                        <th>{% trans "Name" %}</th>
+                        <td>{{ answerpaper.participant.full_name|default:"-" }}</td>
+                    </tr>
+                    
+                    <tr>
+                        <th>{% trans "Full Marks of Paper" %}</th>
+                        <td>
+                            {{ answerpaper.quiz.total_marks }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Marks Obtained" %}</th>
+                        <td>{{ answerpaper.get_total_marks }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Total questions" %}</th>
+                        <td>{{ answerpaper.quiz.questionpaper.get_questions_num }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Right Answers" %}</th>
+                        <td>{{ answerpaper.get_correct_answers_num }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Wrong Answers" %}</th>
+                        <td>{{ answerpaper.get_wrong_answers_num }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Not Answered/Skipped" %}</th>
+                        <td>{{ answerpaper.get_unanswered_num }}</td>
+                    </tr>
+                    
+                    {% if answerpaper.get_not_visited_num and answerpaper.get_not_visited_num > 0 %}
+                    <tr>
+                        <th>{% trans "Not Visited/" %}</th>
+                        <td>{{ answerpaper.get_not_visited_num }}</td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+        {% endblock %}
+        {% block answerpaper_video %}
+        <div class="col-md-4 pull-right">
+            {% block video_tab_nav %}
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#webcam" data-toggle="tab">{% trans "Webcam Video" %}</a></li>
+                    <li><a href="#screen" data-toggle="tab">{% trans "Screen Video" %}</a></li>
+                </ul>
+            {% endblock video_tab_nav %}
+            <div class="tab-content">
+                {% block webcam_video %}
+                    <div id="webcam" class="tab-pane active">
+                        <div id="vidBox">
+                            <div id="videCont">
+                            <video id="v1" controls style="width: 420px;">
+                                <source src="{{ answerpaper.participant.get_webcam_video.get_processed_video_file_path }}" type="video/mp4">
+                            </video>
+                            </div>
+                        </div>
+                    </div>
+                {% endblock webcam_video %}
+                {% block screen_video %}
+                    <div id="screen" class="tab-pane">
+                        <div id="vidBox">
+                            <div id="videCont">
+                            <video id="v1" controls style="width: 420px;">
+                                <source src="{{ answerpaper.participant.get_screen_video.get_processed_video_file_path }}" type="video/mp4">
+                            </video>
+                            </div>
+                        </div>
+                    </div>
+                {% endblock screen_video %}
+            </div>
+        </div>
+        {% endblock answerpaper_video %}
+    </div>
+    <div class="row">
+        {% block answerppaer_additional_info %}
+            <div class="tabbable dashboard col-md-12">
+                {% block tab_nav %}
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#right-answers" data-toggle="tab">{% trans "Right Answered" %}</a></li>
+                        <li><a href="#wrong-answers" data-toggle="tab">{% trans "Wrong Answers" %}</a></li>
+                        <li><a href="#not-answered" data-toggle="tab">{% trans "Not Answered/ Skipped" %}</a></li>
+                        <li><a href="#not-visited" data-toggle="tab">{% trans "Not Answered/ Not-Visited" %}</a></li>
+
+                    </ul>
+                {% endblock %}
+
+                <div class="tab-content">
+                    {% block right-answers %}
+                        <div id="right-answers" class="tab-pane active">
+                            <table class="table table-striped table-bordered table-hover">
+                                <caption>{% trans "Right Answers" %}</caption>
+                                {% with answers=answerpaper.get_correct_answered_list %}
+                                    {% if answers %}
+                                        <tr>
+                                            <th>Sr</th>
+                                            <th>{% trans "Question" %}</th>
+                                            <th>{% trans "Right Answer" %}</th>
+                                            <th>{% trans "Submitted Answer" %}</th>
+                                            <th>{% trans "Marks" %}</th>
+                                            
+                                            
+                                        </tr>
+                                        {% for answer in answers %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ answer.question.description|safe }}</a></td>
+                                                <td>{{ answer.question.right_answer }}</td>
+                                                <td>{{ answer.answer }}</td>
+                                                <td>{{ answer.points }}</td>
+                                               
+                                            </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr><td>{% trans "No Right Answers Found" %}</td></tr>
+                                    {% endif %}
+                                {% endwith %}
+                            </table>
+
+                        </div>
+                    {% endblock %}
+
+                    
+
+                    {% block wrong-answers %}
+                        <div id="wrong-answers" class="tab-pane">
+                            <table class="table table-striped table-bordered table-hover">
+                                <caption>{% trans "Wrong Answers" %}</caption>
+                                {% with answers=answerpaper.get_wrong_answered_list %}
+                                    {% if answers %}
+                                        <tr>
+                                            <th>Sr</th>
+                                            <th>{% trans "Question" %}</th>
+                                            <th>{% trans "Right Answer" %}</th>
+                                            <th>{% trans "Submitted Answer" %}</th>
+                                            <th>{% trans "Marks" %}</th>
+                                            
+                                            
+                                        </tr>
+                                        {% for answer in answers %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ answer.question.description|safe }}</a></td>
+                                                <td>{{ answer.question.right_answer }}</td>
+                                                <td>{{ answer.answer }}</td>
+                                                <td>{{ answer.points }}</td>
+                                               
+                                            </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr><td>{% trans "No Wrong Answers Found" %}</td></tr>
+                                    {% endif %}
+                                {% endwith %}
+                            </table>
+
+                        </div>
+                    {% endblock %}
+
+                    {% block not-answered %}
+                        <div id="not-answered" class="tab-pane">
+                            <table class="table table-striped table-bordered table-hover">
+                                <caption>{% trans "Not Answered " %}</caption>
+                                {% with answers=answerpaper.get_unanswered_list %}
+                                    {% if answers %}
+                                        <tr>
+                                            <th>Sr</th>
+                                            <th>{% trans "Question" %}</th>
+                                            <th>{% trans "Right Answer" %}</th>
+                                            <th>{% trans "Submitted Answer" %}</th>
+                                            <th>{% trans "Marks" %}</th>
+                                            
+                                            
+                                        </tr>
+                                        {% for answer in answers %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ answer.question.description|safe }}</a></td>
+                                                <td>{{ answer.question.right_answer }}</td>
+                                                <td>{{ answer.answer }}</td>
+                                                <td>{{ answer.points }}</td>
+                                               
+                                            </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr><td>{% trans "No  Unanswered/Skipped Questions  Found" %}</td></tr>
+                                    {% endif %}
+                                {% endwith %}
+                            </table>
+
+                        </div>
+                    {% endblock %}
+
+                    {% block not-visited %}
+                        <div id="not-visited" class="tab-pane">
+                            <table class="table table-striped table-bordered table-hover">
+                                <caption>{% trans "Unanswered/Not Visited " %}</caption>
+                                {% with questions=answerpaper.get_not_visited_list %}
+                                    {% if questions %}
+                                        <tr>
+                                            <th>Sr</th>
+                                            <th>{% trans "Question" %}</th>
+                                            <th>{% trans "Right Answer" %}</th>
+                                            <th>{% trans "Submitted Answer" %}</th>
+                                            <th>{% trans "Marks" %}</th>
+                                            
+                                            
+                                        </tr>
+                                        {% for question in questions %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ question.description|safe }}</a></td>
+                                                <td>{{ question.right_answer }}</td>
+                                                <td>NA</td>
+                                                <td>0</td>
+                                               
+                                            </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr><td>{% trans "No Right Answers Found" %}</td></tr>
+                                    {% endif %}
+                                {% endwith %}
+                            </table>
+
+                        </div>
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+{% endblock dashboard_content %}
