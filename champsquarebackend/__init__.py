@@ -1,6 +1,11 @@
+from __future__ import absolute_import
+from .celery import app as celery_app
+
 # Use 'alpha', 'beta', 'rc' or 'final' as the 4th element to indicate release type.
 VERSION = (0, 0, 1, 'alpha')
 
+# This will make sure the app is always imported when
+# Django starts so that shared_task will use this app.
 
 def get_short_version():
     return '%s.%s' % (VERSION[0], VERSION[1])

@@ -47,12 +47,6 @@ DATABASES = {
     }
 
 
-# EMAIL
-# ------------------------------------------------------------------------------
-# https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
-EMAIL_BACKEND = env(
-    "DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
-)
 
 # django-debug-toolbar
 # ------------------------------------------------------------------------------
@@ -74,6 +68,14 @@ INTERNAL_IPS = ["127.0.0.1", "10.0.2.2"]
 INSTALLED_APPS += ["django_extensions"]  # noqa F405
 # Celery
 # ------------------------------------------------------------------------------
+# CELERY STUFF
+BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = "Asia/Kolkata"
+
 
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-eager-propagates
 CELERY_TASK_EAGER_PROPAGATES = True

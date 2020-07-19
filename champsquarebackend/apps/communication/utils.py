@@ -41,6 +41,7 @@ class Dispatcher(object):
         """
         dispatched_messages = {}
         if messages['subject'] and (messages['body'] or messages['html']):
+            print("message")
             dispatched_messages['email'] = self.send_user_email_messages(user, messages, attachments)
         if messages['sms']:
             dispatched_messages['sms'] = self.send_text_message(user, messages['sms'])
@@ -89,7 +90,7 @@ class Dispatcher(object):
         
         return email
 
-    def send_email_messages(self, recipient_email, messages, 
+    def send_email_messages(self, recipient_email, messages,
                             from_email=None, attachments=None):
         """
         Send email to recipients, HTML attachment optional
@@ -125,6 +126,7 @@ class Dispatcher(object):
         else:
             email.send()
 
+        print(email)
         return email
 
     def send_text_message(self, user, event_type):

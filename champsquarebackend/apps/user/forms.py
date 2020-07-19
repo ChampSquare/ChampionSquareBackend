@@ -16,11 +16,12 @@ try:
 except ImportError:
     from django.utils.http import is_safe_url as url_has_allowed_host_and_scheme
 
-from champsquarebackend.core.loading import get_profile_class, get_class
+from champsquarebackend.core.loading import get_profile_class, get_class, get_model
 from champsquarebackend.apps.user.utils import get_password_reset_url, normalise_email
 from champsquarebackend.core.compat import url_has_allowed_host_and_scheme, get_user_model
 
-UserDispatcher = get_class('user.utils', 'UserDispatcher')
+Dispatcher = get_class('communication.utils', 'Dispatcher')
+CommunicationEventType = get_model('communication', 'communicationeventtype')
 User = get_user_model()
 
 
@@ -66,25 +67,39 @@ class PasswordResetForm(auth_forms.PasswordResetForm):
     """
         This form takes takes the same structure as its parent from :py:mod:`django.contrib.auth`
     """
+    communication_type_code = "PASSWORD_RESET"
 
-    def save(self, domain_override=None, request=None, **kwargs):
+    def save(self, domain_override=None, use_https=False, request=None, **kwargs):
         """
             Generates a one-use only link for resetting password and sends to the user
         """
         site = get_current_site(request)
         if domain_override is not None:
             site.domain = site.name = domain_override
-        for user in self.get_users(self.cleaned_data['email']):
-            self.send_password_reset_email(site, user)
+        email = self.cleaned_data['email']
+        active_users = User.objects.filter(
+            email__iexact=email, is_active=True)
+        for user in active_users:
+            reset_url = self.get_reset_url(site, request, user, use_https)
+            print(reset_url)
+            ctx = {
+                'user': user,
+                'site': site,
+                'reset_url': reset_url}
+            messages = CommunicationEventType.objects.get_and_render(
+                code=self.communication_type_code, context=ctx)
+            print(messages)
+            Dispatcher().dispatch_user_messages(user, messages)
+        
+    def get_reset_url(self, site, request, user, use_https):
+        # the request argument isn't used currently, but implementors might
+        # need it to determine the correct subdomain
+        reset_url = "%s://%s%s" % (
+            'https' if use_https else 'http',
+            site.domain,
+            get_password_reset_url(user))
 
-    def send_password_reset_email(self, site, user):
-        extra_context = {
-            'user': user,
-            'site': site,
-            'reset_url': get_password_reset_url(user),
-        }
-
-        UserDispatcher().send_password_reset_email_for_user(user, extra_context)
+        return reset_url
 
 
 class EmailAuthenticationForm(AuthenticationForm):

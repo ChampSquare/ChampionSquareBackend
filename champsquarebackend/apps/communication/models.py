@@ -92,10 +92,10 @@ class CommunicationEventType(TimestampedModel):
     objects = CommunicationTypeManager()
 
     # File templates
-    email_subject_template_file = 'communication/emails/commtype_%s_subject.txt'
-    email_body_template_file = 'communication/emails/commtype_%s_body.txt'
-    email_body_html_template_file = 'communication/emails/commtype_%s_body.html'
-    sms_template_file = 'communication/sms/commtype_%s_body.txt'
+    email_subject_template_file = 'champsquarebackend/communication/emails/commtype_%s_subject.txt'
+    email_body_template_file = 'champsquarebackend/communication/emails/commtype_%s_body.txt'
+    email_body_html_template_file = 'champsquarebackend/communication/emails/commtype_%s_body.html'
+    sms_template_file = 'champsquarebackend/communication/sms/commtype_%s_body.txt'
 
     class Meta:
         app_label = 'communication'
@@ -124,8 +124,10 @@ class CommunicationEventType(TimestampedModel):
             else:
                 # Model field is empty - look for a file template
                 template_name = getattr(self, "%s_file" % attr_name) % code
+                print("template_name : "+ template_name)
                 try:
                     templates[name] = get_template(template_name)
+                    print("Exist")
                 except TemplateDoesNotExist:
                     templates[name] = None
 
@@ -148,7 +150,7 @@ class CommunicationEventType(TimestampedModel):
     def __str__(self):
         return self.name
 
-    def is_order_related(self):
+    def is_quiz_related(self):
         return self.category == self.QUIZ_RELATED
 
     def is_user_related(self):

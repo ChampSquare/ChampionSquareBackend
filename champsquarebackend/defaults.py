@@ -34,7 +34,7 @@ SETTINGS_ACCOUNTS_REDIRECT_URL = 'user:profile-view'
 
 # Registration
 SETTINGS_SEND_REGISTRATION_EMAIL = True
-SETTINGS_FROM_EMAIL = 'email@championsquare.in'
+SETTINGS_FROM_EMAIL = 'ujjawalkotafactory@gmail.com'
 
 # Slug handling
 SETTINGS_SLUG_FUNCTION = 'champsquarebackend.core.utils.default_slugifier'
