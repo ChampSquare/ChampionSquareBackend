@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from .celery import app as celery_app
+from .celery_task import app as celery_app
 
 # Use 'alpha', 'beta', 'rc' or 'final' as the 4th element to indicate release type.
 VERSION = (0, 0, 1, 'alpha')
