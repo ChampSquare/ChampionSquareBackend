@@ -1,33 +1,38 @@
 import json
 
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import FormView, UpdateView, DetailView
+from django.views.generic import  UpdateView, DetailView
 from django.conf import settings
-from django.template.loader import render_to_string
 from django.contrib import messages
 from django.urls import reverse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect
 from django.http import HttpResponseRedirect
-from django.core import serializers
-from django.core.serializers.json import DjangoJSONEncoder
-
+from django.views.generic.edit import FormMixin
+from django.db.models import Q
 
 from django_tables2 import SingleTableMixin, SingleTableView
 
-
 from champsquarebackend.core.loading import get_classes, get_model, get_class
+from champsquarebackend.core.compat import get_user_model
 from champsquarebackend.views.generic import BulkEditMixin
+from champsquarebackend.apps.user.utils import normalise_email
 
-CategoryForm, QuizMetaForm, QuestionPaperForm, QuizRestrictionsForm \
-    = get_classes('dashboard.quiz.forms', ['CategoryForm', 'QuizMetaForm',
-                  'QuestionPaperForm', 'QuizRestrictionsForm'])
+User = get_user_model()
 Category = get_model('quiz', 'category')
 Quiz = get_model('quiz', 'quiz')
 QuestionPaper = get_model('quiz', 'questionpaper')
-AnswerPaper = get_model('quiz', 'answerpaper')
-QuizForm = get_class('dashboard.quiz.forms', 'QuizForm')
-QuizTable = get_class('dashboard.quiz.tables', 'QuizTable')
 Question = get_model('question', 'question')
+AnswerPaper = get_model('quiz', 'answerpaper')
+Participant = get_model('participate', 'participate')
+
+CategoryForm, QuizForm, QuestionPaperForm \
+    = get_classes('dashboard.quiz.forms', ['CategoryForm', 'QuizForm', 'QuestionPaperForm'])
+UserSearchForm = get_class('dashboard.users.forms', 'UserSearchForm')
+
+QuizTable, UserTable, ParticipantTable = get_classes('dashboard.quiz.tables',
+                                                     ('QuizTable', 'UserTable', 'ParticipantTable'))
+
+
 
 # Create your views here.
 
@@ -167,252 +172,6 @@ class QuizCreateUpdateView(UpdateView):
 
         return reverse('dashboard:quiz-list')
 
-class QuizWizardStepView(FormView):
-    wizard_name = 'quiz_wizard'
-    form_class = None
-    step_name = None
-    update = False
-    url_name = None
-
-    # Keep a reference to previous view class to allow checks to be made on
-    # whether prior steps have been completed
-    previous_view = None
-
-    def dispatch(self, request, *args, **kwargs):
-        if self.update:
-            self.quiz = get_object_or_404(Quiz, id=kwargs['pk'])
-        if not self.is_previous_step_complete(request):
-            messages.warning(
-                request, _("%s step not complete") % (
-                    self.previous_view.step_name.title(),))
-            return HttpResponseRedirect(self.get_back_url())
-        return super().dispatch(request, *args, **kwargs)
-
-    def is_previous_step_complete(self, request):
-        if not self.previous_view:
-            return True
-        return self.previous_view.is_valid(self, request)
-
-    def _key(self, step_name=None, is_object=False):
-        key = step_name if step_name else self.step_name
-        if self.update:
-            key += str(self.quiz.id)
-        if is_object:
-            key += '_obj'
-        return key
-
-    def _store_form_kwargs(self, form):
-        session_data = self.request.session.setdefault(self.wizard_name, {})
-
-        # Adjust kwargs to avoid trying to save the category instance
-        form_data = form.cleaned_data.copy()
-        category = form_data.get('category', None)
-        users = form_data.get('users', None)
-        users_list = []
-        questions = form_data.get('questions', None)
-        if category is not None:
-            form_data['category'] = category.id
-        question_list = []
-        if questions is not None:
-            for question in questions:
-                question_list.append(question.first().id)
-            form_data['questions'] = question_list
-        
-        form_kwargs = {'data': form_data}
-        json_data = json.dumps(form_kwargs, cls=DjangoJSONEncoder)
-
-        session_data[self._key()] = json_data
-        self.request.session.save()
-
-    def _fetch_form_kwargs(self, step_name=None):
-        if not step_name:
-            step_name = self.step_name
-        session_data = self.request.session.setdefault(self.wizard_name, {})
-        json_data = session_data.get(self._key(step_name), None)
-        if json_data:
-            return json.loads(json_data)
-
-        return {}
-
-    def _store_object(self, form):
-        session_data = self.request.session.setdefault(self.wizard_name, {})
-
-        # We don't store the object instance as that is not JSON serialisable.
-        # Instead, we save an alternative form
-        instance = form.save(commit=True)
-        json_qs = serializers.serialize('json', [instance])
-
-        session_data[self._key(is_object=True)] = json_qs
-        self.request.session.save()
-
-    def _fetch_object(self, step_name, request=None):
-        if request is None:
-            request = self.request
-        session_data = request.session.setdefault(self.wizard_name, {})
-        json_qs = session_data.get(self._key(step_name, is_object=True), None)
-        if json_qs:
-            # Recreate model instance from passed data
-            deserialised_obj = list(serializers.deserialize('json', json_qs))
-            return deserialised_obj[0].object
-
-    def _fetch_session_quiz(self):
-        """
-        Return the quiz instance loaded with the data stored in the
-        session.  When updating an quiz, the updated fields are used with the
-        existing quiz data.
-        """
-        quiz = self._fetch_object('metadata')
-        if quiz is None and self.update:
-            quiz = self.quiz
-        return quiz
-
-    def _flush_session(self):
-        self.request.session[self.wizard_name] = {}
-        self.request.session.save()
-
-    def get_form_kwargs(self, *args, **kwargs):
-        form_kwargs = {}
-        if self.update:
-            form_kwargs['instance'] = self.get_instance()
-        session_kwargs = self._fetch_form_kwargs()
-        form_kwargs.update(session_kwargs)
-        parent_kwargs = super().get_form_kwargs(
-            *args, **kwargs)
-        form_kwargs.update(parent_kwargs)
-        return form_kwargs
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        if self.update:
-            ctx['quiz'] = self.quiz
-        ctx['session_quiz'] = self._fetch_session_quiz()
-        ctx['title'] = self.get_title()
-        return ctx
-
-    def get_back_url(self):
-        if not self.previous_view:
-            return None
-        if self.update:
-            return reverse(self.previous_view.url_name,
-                           kwargs={'pk': self.kwargs['pk']})
-        return reverse(self.previous_view.url_name)
-
-    def get_title(self):
-        return self.step_name.title()
-
-    def form_valid(self, form):
-        self._store_form_kwargs(form)
-        self._store_object(form)
-
-        if self.update and 'save' in form.data:
-            # Save changes to this quiz when updating and pressed save button
-            return self.save_quiz(self.quiz)
-        else:
-            # Proceed to next page
-            return super().form_valid(form)
-
-    def save_quiz(self, quiz):
-        # We update the quiz with the name/description from step 1
-        session_quiz = self._fetch_session_quiz()
-        quiz.name = session_quiz.name
-        quiz.description = session_quiz.description
-
-        # Save the related models, then save the quiz.
-        # Note than you can save already on the first page of the wizard,
-        # so le'ts check if the benefit and condition exist
-        question_paper = self._fetch_object('question_paper')
-        if question_paper:
-            question_paper.save()
-            quiz.question_paper = question_paper
-
-        quiz.save()
-
-        self._flush_session()
-
-        if self.update:
-            msg = _("quiz '%s' updated") % quiz.name
-        else:
-            msg = _("quiz '%s' created!") % quiz.name
-        messages.success(self.request, msg)
-        return HttpResponseRedirect(reverse(
-            'dashboard:quiz-list'))
-
-        # return HttpResponseRedirect(reverse(
-        #     'dashboard:quiz-list', kwargs={'pk': quiz.pk}))
-
-    def get_success_url(self):
-        if self.update:
-            return reverse(self.success_url_name,
-                           kwargs={'pk': self.kwargs['pk']})
-        return reverse(self.success_url_name)
-
-    @classmethod
-    def is_valid(cls, current_view, request):
-        if current_view.update:
-            return True
-        return current_view._fetch_object(cls.step_name, request) is not None
-
-
-class QuizMetaDataCreateUpdateView(QuizWizardStepView):
-    step_name = 'metadata'
-    form_class = QuizMetaForm
-    template_name = 'champsquarebackend/dashboard/quiz/quiz_metadata_form.html'
-    url_name = 'dashboard:quiz-metadata'
-    success_url_name = 'dashboard:quiz-questionpaper'
-
-    def get_instance(self):
-        return self.quiz
-
-    def get_title(self):
-        return _("Quiz Detail")
-
-class QuizQuestionPaperCreateUpdateView(QuizWizardStepView, BulkEditMixin):
-    step_name = 'questionpaper'
-    actions = ('add_selected_questions')
-    form_class = QuestionPaperForm
-    context_object_name = 'questions'
-    template_name = 'champsquarebackend/dashboard/quiz/quiz_questionpaper_form.html'
-    previous_view = QuizMetaDataCreateUpdateView
-    url_name = 'dashboard:quiz-questionpaper'
-    success_url = 'dashboard:quiz-restrictions'
-
-    def get_instance(self):
-        return self.quiz.questionpaper
-
-    def get_queryset(self):
-        return Question.objects.all()
-
-    def get_title(self):
-        return _("Question Paper")
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['questions'] = Question.objects.all()
-        return ctx
-
-    def add_selected_questions(self, request, questions):
-        questionpaper = self.get_instance()
-        questionpaper.questions.add(*questions)
-        num_questions = len(questions)
-        messages.success(request, _("Added %d questions to questionpaper" % num_questions))
-
-
-class QuizRestrictionsCreateUpdateView(QuizWizardStepView):
-    step_name = 'restrictions'
-    form_class = QuizRestrictionsForm
-    template_name = 'champsquarebackend/dashboard/quiz/quiz_restrictions_form.html'
-    previous_view = QuizQuestionPaperCreateUpdateView
-    url_name = 'dashboard:quiz-restrictions'
-
-    def form_valid(self, form):
-        quiz = form.save(commit=False)
-        return self.save_quiz(quiz)
-
-    def get_instance(self):
-        return self.quiz
-
-    def get_title(self):
-        return _("Restrictions")
 
 class QuestionPaperCreateUpdateView(UpdateView):
     """
@@ -516,4 +275,161 @@ class AnswerPaperDetailView(DetailView):
     template_name = 'champsquarebackend/dashboard/quiz/answerpaper_detail.html'
 
     def get_object(self, queryset=None):
-        return get_object_or_404(AnswerPaper, id=self.kwargs['pk'])  
+        return get_object_or_404(AnswerPaper, id=self.kwargs['pk'])
+
+
+class AddUserView(BulkEditMixin, FormMixin, SingleTableView):
+    template_name = 'champsquarebackend/dashboard/quiz/add_user.html'
+    model = User
+    actions = ('add_to_test',)
+    form_class = UserSearchForm
+    table_class = UserTable
+    context_table_name = 'users'
+    desc_template = _('%(main_filter)s %(email_filter)s %(name_filter)s')
+    description = ''
+
+    def dispatch(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        self.form = self.get_form(form_class)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        """
+        Only bind search form if it was submitted.
+        """
+        kwargs = super().get_form_kwargs()
+
+        if 'search' in self.request.GET:
+            kwargs.update({
+                'data': self.request.GET,
+            })
+
+        return kwargs
+
+    def get_queryset(self):
+        queryset = self.model.objects.exclude(
+            id__in=self._get_quiz().users.values_list('id', flat=True))
+        
+        return self.apply_search(queryset)
+
+    def apply_search(self, queryset):
+        # Set initial queryset description, used for template context
+        self.desc_ctx = {
+            'main_filter': _('All Users (excludes quiz users)'),
+            'email_filter': '',
+            'name_filter': '',
+        }
+        if self.form.is_valid():
+            return self.apply_search_filters(queryset, self.form.cleaned_data)
+        else:
+            return queryset
+
+    def apply_search_filters(self, queryset, data):
+        """
+        Function is split out to allow customisation with little boilerplate.
+        """
+        if data['email']:
+            email = normalise_email(data['email'])
+            queryset = queryset.filter(email__istartswith=email)
+            self.desc_ctx['email_filter'] \
+                = _(" with email matching '%s'") % email
+        if data['name']:
+            # If the value is two words, then assume they are first name and
+            # last name
+            parts = data['name'].split()
+            # always true filter
+            condition = Q()
+            for part in parts:
+                condition &= Q(first_name__icontains=part) \
+                    | Q(last_name__icontains=part)
+            queryset = queryset.filter(condition).distinct()
+            self.desc_ctx['name_filter'] \
+                = _(" with name matching '%s'") % data['name']
+
+        return queryset
+
+    def get_table(self, **kwargs):
+        table = super().get_table(**kwargs)
+        table.caption = self.desc_template % self.desc_ctx
+        return table
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form
+        context['quiz_id'] = self.kwargs['pk']
+        return context
+
+    def _get_quiz(self):
+        if not hasattr(self, '_quiz'):
+            self._quiz = Quiz.objects.get(pk=self.kwargs['pk'])
+        return self._quiz
+
+
+    def add_to_test(self, request, users):
+        quiz = self._get_quiz()
+        quiz.users.add(*users)
+        messages.info(self.request, _("Successfully added users to quiz"))
+        return redirect(reverse('dashboard:quiz-add-user', kwargs={'pk': self._get_quiz().id}))
+
+class QuizParticipantView(AddUserView):
+    template_name = 'champsquarebackend/dashboard/quiz/participants.html'
+    model = Participant
+    actions = ('remove_from_test', 'send_test_link',)
+    form_class = UserSearchForm
+    table_class = ParticipantTable
+    context_table_name = 'participants'
+    desc_template = _('%(main_filter)s %(email_filter)s %(name_filter)s')
+    description = ''
+
+    def get_queryset(self):
+        queryset = self._get_quiz().participants.all()
+        
+        return self.apply_search(queryset)
+
+    def apply_search(self, queryset):
+        # Set initial queryset description, used for template context
+        self.desc_ctx = {
+            'main_filter': _('All Participants'),
+            'email_filter': '',
+            'name_filter': '',
+        }
+        if self.form.is_valid():
+            return self.apply_search_filters(queryset, self.form.cleaned_data)
+        else:
+            return queryset
+
+    def apply_search_filters(self, queryset, data):
+        """
+        Function is split out to allow customisation with little boilerplate.
+        """
+        if data['email']:
+            email = normalise_email(data['email'])
+            queryset = queryset.filter(user__email__istartswith=email)
+            self.desc_ctx['email_filter'] \
+                = _(" with email matching '%s'") % email
+        if data['name']:
+            # If the value is two words, then assume they are first name and
+            # last name
+            parts = data['name'].split()
+            # always true filter
+            condition = Q()
+            for part in parts:
+                condition &= Q(user__first_name__icontains=part) \
+                    | Q(user__last_name__icontains=part)
+            queryset = queryset.filter(condition).distinct()
+            self.desc_ctx['name_filter'] \
+                = _(" with name matching '%s'") % data['name']
+
+        return queryset
+
+    def remove_from_test(self, request, participates):
+        # always delete via this way as it checks whether object exist or not first
+        participant_to_delete = Participant.objects \
+            .filter(id__in=list(map(lambda participant: participant.id, participates)))
+        participant_to_delete.delete()
+        messages.info(self.request, _("Successfully removed participant from list"))
+        return redirect(reverse('dashboard:quiz-participant-list', kwargs={'pk': self._get_quiz().id}))
+
+    def send_test_link(self, request, participates):
+        messages.info(self.request, _("Method hasn't be implemented"))
+        return redirect(reverse('dashboard:quiz-participant-list', kwargs={'pk': self._get_quiz().id}))

@@ -16,38 +16,21 @@ class QuizDashboardConfig(AppDashboardConfig):
         self.quiz_list_view = get_class('dashboard.quiz.views', 'QuizListView')
         self.quiz_create_update_view = get_class('dashboard.quiz.views', 'QuizCreateUpdateView')
         self.category_create_update_view = get_class('dashboard.quiz.views', 'CategoryCreateUpdateView')
-        self.quiz_metadata_create_update_view = get_class('dashboard.quiz.views', 'QuizMetaDataCreateUpdateView')
-        self.quiz_questionpaper_create_update_view = get_class('dashboard.quiz.views', 'QuizQuestionPaperCreateUpdateView')
-        self.quiz_restrictions_create_update_view = get_class('dashboard.quiz.views', 'QuizRestrictionsCreateUpdateView')
         self.questionpaper_create_update_view = get_class('dashboard.quiz.views', 'QuestionPaperCreateUpdateView')
         self.answer_paper_detail_view = get_class('dashboard.quiz.views', 'AnswerPaperDetailView')
+        self.add_user_view = get_class('dashboard.quiz.views', 'AddUserView')
+        self.quiz_participant_view = get_class('dashboard.quiz.views', 'QuizParticipantView')
 
     def get_urls(self):
         urls = [
             path('', self.quiz_list_view.as_view(), name='quiz-list'),
-            path('quiz/create/', self.quiz_create_update_view.as_view(), name='quiz-create'),
-            path('quiz/<int:pk>/update/', self.quiz_create_update_view.as_view(), name='quiz-update'),
-            path('quiz/category/create/', self.category_create_update_view.as_view(), name='quiz-category-create'),
-            path('quiz/category/<int:pk>/update/', self.category_create_update_view.as_view(), name='quiz-category-update'),
-            path('questionpaper-create/<int:pk>/', self.questionpaper_create_update_view.as_view(), name='quiz-questionpaper-update'),
-            path('quiz/answerpaper/<int:pk>/', self.answer_paper_detail_view.as_view(), name='quiz-answerpaper-detail'),
-            #creation
-            path('new/name-and-description/', self.quiz_metadata_create_update_view.as_view(),
-                name='quiz-metadata'),
-            path('new/questionpaper/', self.quiz_questionpaper_create_update_view.as_view(),
-                name='quiz-questionpaper'),
-            path('new/restrictions/', self.quiz_restrictions_create_update_view.as_view(),
-                name='quiz-restrictions'),
-
-            # Update
-            path('<int:pk>/name-and-description/',
-                self.quiz_metadata_create_update_view.as_view(update=True),
-                name='quiz-metadata'),
-            path('<int:pk>/questionpaper/',
-                self.quiz_questionpaper_create_update_view.as_view(update=True),
-                name='quiz-questionpaper'),
-            path('<int:pk>/restrictions/',
-                self.quiz_restrictions_create_update_view.as_view(update=True),
-                name='quiz-restrictions'),
+            path('create/', self.quiz_create_update_view.as_view(), name='quiz-create'),
+            path('<int:pk>/', self.quiz_create_update_view.as_view(), name='quiz-update'),
+            path('category/new/', self.category_create_update_view.as_view(), name='quiz-category-create'),
+            path('category/<int:pk>/', self.category_create_update_view.as_view(), name='quiz-category-update'),
+            path('questionpaper/<int:pk>/', self.questionpaper_create_update_view.as_view(), name='quiz-questionpaper-update'),
+            path('answerpaper/<int:pk>/', self.answer_paper_detail_view.as_view(), name='quiz-answerpaper-detail'),
+            path('<int:pk>/users/add/', self.add_user_view.as_view(), name='quiz-add-user'),
+            path('<int:pk>/participants/', self.quiz_participant_view.as_view(), name='quiz-participant-list')
         ]
         return self.post_process_urls(urls)

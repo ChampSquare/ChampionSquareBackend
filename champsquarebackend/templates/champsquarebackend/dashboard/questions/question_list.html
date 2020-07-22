@@ -48,7 +48,7 @@
             </div>
         {% endblock question_list %}
     {% else %}
-        <p>{% trans "No question found" %}</p> <a href="{% url 'dashboard:question-create' %}">Add New Question</a>
+        <h3>{% trans "No question found" %}</h3> <a href="{% url 'dashboard:question-create' %}">Add New Question</a>
     {% endif %}
 {% endblock dashboard_content %}
 

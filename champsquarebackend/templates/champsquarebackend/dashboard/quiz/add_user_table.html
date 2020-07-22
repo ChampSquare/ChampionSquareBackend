@@ -1,0 +1,17 @@
+{% extends 'champsquarebackend/dashboard/table.html' %}
+{% load i18n %}
+
+{% block table.caption %}
+  {{ block.super }}
+  <div class="pull-right">
+      <div class="form-inline">
+          <i class="icon-refresh"></i> {% trans "Bulk Actions" %}
+          <label for="inlineCheckboxes">{% trans "With selected users:" %}</label>
+          <label>
+              <input type="radio" name="action" value="add_to_test" /> {% trans "Add To Test" %}
+          </label>
+          
+          <input type="submit" value="{% trans "Go!" %}" class="btn btn-primary" />
+      </div>
+  </div>
+{% endblock %}

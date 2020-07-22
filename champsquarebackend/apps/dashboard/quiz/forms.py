@@ -27,6 +27,18 @@ class QuizForm(forms.ModelForm):
     """
         Form to add quiz
     """
+    start_date_time = forms.DateTimeField(
+        widget=widgets.DateTimePickerInput(),
+        label=_("Start date"), required=False)
+
+    end_date_time = forms.DateTimeField(
+        widget=widgets.DateTimePickerInput(),
+        label=_("End date"), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        today = datetime.date.today()
+        self.fields['start_date_time'].initial = today
 
     class Meta:
         model = Quiz
@@ -34,6 +46,15 @@ class QuizForm(forms.ModelForm):
                   'start_date_time', 'end_date_time', 'duration',
                   'is_published', 'is_public', 'multiple_attempts_allowed',
                   'view_answerpaper']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start = cleaned_data['start_date_time']
+        end = cleaned_data['end_date_time']
+        if start and end and end < start:
+            raise forms.ValidationError(_(
+                "The end date must be after the start date"))
+        return cleaned_data
 
 class QuizMetaForm(forms.ModelForm):
 

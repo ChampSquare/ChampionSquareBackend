@@ -14,9 +14,11 @@ class ParticipateDashboardConfig(AppDashboardConfig):
 
     def ready(self):
         self.participate_list_view = get_class('dashboard.participate.views', 'ParticipateListView')
+        self.participate_user_create_view = get_class('dashboard.participate.views', 'QuizParticipantCreateView')
 
     def get_urls(self):
         urls = [
+            path('<int:quiz_pk>/new/participant/', self.participate_user_create_view.as_view(), name='quiz-participant-create'),
             path('participate-list/<int:pk>', self.participate_list_view.as_view(), name='participate-list'),
         ]
         return self.post_process_urls(urls)

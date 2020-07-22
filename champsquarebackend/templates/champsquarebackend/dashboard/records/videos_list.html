@@ -25,7 +25,7 @@
 
 {% block dashboard_content %}
 
-    {% if videos %}
+    {% if videos|length > 0 %}
    
         {% block video_list %}
             <form method="post">
@@ -49,7 +49,7 @@
             
         {% endblock video_list %}
     {% else %}
-        <p>{% trans "No video found" %}</p>
+        <h3>{% trans "No video found" %}</h3>
     {% endif %}
 {% endblock dashboard_content %}
 

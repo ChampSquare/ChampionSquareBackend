@@ -14,29 +14,34 @@ class ParticipateTable(DashboardTable):
         orderable=False, accessor=('full_name')
     )
 
-    status = Column(
-        verbose_name=_('Status'),
-        orderable=True, accessor=('status')
+    attempt = Column(
+        verbose_name=_('Attempted?'),
+        orderable=True, accessor=('has_taken_quiz')
     )
 
     start_time = Column(
         verbose_name=_('Start Time'),
-        orderable=True, accessor=('created_at')
+        orderable=False, accessor=('get_start_time')
     )
 
-    marks = TemplateColumn(
-        verbose_name=_('Marks Obtained'),
-        template_name='champsquarebackend/dashboard/participate/participate_row_marks.html',
-        orderable=False)
+    end_time = Column(
+        verbose_name=_('End Time'),
+        orderable=False, accessor=('get_end_time')
+    )
 
-    actions = TemplateColumn(
-        verbose_name=_('Actions'),
-        template_name='champsquarebackend/dashboard/participate/participate_row_actions.html',
-        orderable=False)
+    # marks = TemplateColumn(
+    #     verbose_name=_('Marks Obtained'),
+    #     template_name='champsquarebackend/dashboard/participate/participate_row_marks.html',
+    #     orderable=False)
+
+    # actions = TemplateColumn(
+    #     verbose_name=_('Actions'),
+    #     template_name='champsquarebackend/dashboard/participate/participate_row_actions.html',
+    #     orderable=False)
 
     icon = "group"
 
     class Meta(DashboardTable.Meta):
         model = Participate
         fields = ()
-        sequence = ('counter', 'name', 'status', 'marks', 'start_time', 'actions')
+        # sequence = ('counter', 'name', 'status', 'marks', 'start_time', 'actions')

@@ -1,5 +1,5 @@
 import logging
-import itertools
+import uuid
 
 from django.db import models
 from django.db.models import Q
@@ -23,7 +23,7 @@ class AbstractParticipate(TimestampedModel, ModelWithMetadata):
         This model mocks the event of user taking an exam 
     """
     number = models.UUIDField(
-        _("Participation number"), db_index=True, unique=True)
+        _("Participation number"), default=uuid.uuid4, db_index=True, unique=True)
     # this tracks the site from which test participation happened
     site = models.ForeignKey(
         'sites.Site', verbose_name=_("Site"), null=True,
@@ -37,24 +37,15 @@ class AbstractParticipate(TimestampedModel, ModelWithMetadata):
         User, blank=True, null=True,
         verbose_name=_("User"), on_delete=models.SET_NULL)
 
-    # the time when paper was started by user
+    # the time after which paper can be started
     start_time = models.DateTimeField(_('Start time of paper'), blank=True, null=True)
 
-    # the time when paper was submitted by user
+    # the time after which paper can't be started
     end_time = models.DateTimeField(_('End time of paper'), blank=True, null=True)
 
     # user's ip address from which the exam was started
     # this will be set at start time
     user_ip = models.GenericIPAddressField(_('IP address of user'), blank=True, null=True)
-
-    test_status_options = {
-        'In-progress': ('created', 'on_permission_page' 'on_instruction', 'answering',),
-        'Paused': ('Paused by Admin', 'Network Issue'),
-        'Cancelled': ('Blocked by Admin', 'User Left'),
-        'Completed': ('Submitted by User', 'Autosubmitted')
-    }
-    status = models.CharField(
-        _('Status of Test'), max_length=32, blank=True)
 
     class Meta:
         abstract = True
@@ -65,42 +56,6 @@ class AbstractParticipate(TimestampedModel, ModelWithMetadata):
 
     def __str__(self):
         return "#%s" %(self.number)
-    
-
-    @classmethod
-    def all_statuses_attr(cls):
-        """
-            Return all possible statuses for a participation
-        """
-        return list(cls.test_status_options.keys())
-
-    def available_statues(self):
-        """
-            Return all possible statuses that this participation can move to
-        """
-        return list(itertools.chain(*list(self.test_status_options.values())))
-
-    def set_status(self, new_status):
-        """
-        Set a new status for this participation
-
-        If the requested status is not valid, then ``InvalidParticipationStatus`` is
-        raised
-        """
-        if new_status == self.status:
-            return
-        
-        old_status = self.status
-        if new_status not in self.available_statues:
-            raise exceptions.InvalidOrderStatus(
-                _("'%(new_status)s' is not a valid status for order %(number)s"
-                  " (current status: '%(status)s')")
-                % {'new_status': new_status,
-                   'number': self.number,
-                   'status': self.status})
-
-        self.status = new_status
-        self.save()
 
     def verification_hash(self):
         signer = Signer(salt='champsquarebackend.apps.participate.Participate')
@@ -132,7 +87,6 @@ class AbstractParticipate(TimestampedModel, ModelWithMetadata):
     def set_start_time(self, time):
         """ Set start time, do this after user finishes reading instruction"""
         self.start_time = time
-        self.set_status('answering')
 
     def get_webcam_video(self):
         if self.videos is not None:
@@ -143,3 +97,22 @@ class AbstractParticipate(TimestampedModel, ModelWithMetadata):
         if self.videos is not None:
             return self.videos.filter(Q(type="screen") & Q(is_processed=True)).first()
         return None
+
+    @property
+    def has_taken_quiz(self):
+        """checks whether user has taken test or not"""
+        return hasattr(self, 'answerpapers') and \
+             self.answerpapers is not None and \
+                 self.answerpapers.count() > 0
+
+    @property
+    def get_start_time(self):
+        if self.start_time is not None:
+            return self.start_time
+        return self.created_at
+
+    @property
+    def get_end_time(self):
+        if self.end_time is not None:
+            return self.end_time
+        return self.quiz.end_date_time
