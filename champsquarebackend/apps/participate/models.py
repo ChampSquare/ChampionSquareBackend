@@ -6,8 +6,8 @@ from champsquarebackend.core.loading import is_model_registered
 
 __all__ = []
 
-if not is_model_registered('participate', 'Participate'):
-    class Participate(AbstractParticipate):
+if not is_model_registered('participate', 'Participant'):
+    class Participant(AbstractParticipant):
         pass
 
-    __all__.append('Participate')
+    __all__.append('Participant')

@@ -1,10 +1,10 @@
 import json
 
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import  UpdateView, DetailView
+from django.views.generic import  UpdateView, DetailView, FormView
 from django.conf import settings
 from django.contrib import messages
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.shortcuts import get_object_or_404, redirect
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import FormMixin
@@ -15,7 +15,6 @@ from django_tables2 import SingleTableMixin, SingleTableView
 from champsquarebackend.core.loading import get_classes, get_model, get_class
 from champsquarebackend.core.compat import get_user_model
 from champsquarebackend.views.generic import BulkEditMixin
-from champsquarebackend.apps.user.utils import normalise_email
 
 User = get_user_model()
 Category = get_model('quiz', 'category')
@@ -23,14 +22,14 @@ Quiz = get_model('quiz', 'quiz')
 QuestionPaper = get_model('quiz', 'questionpaper')
 Question = get_model('question', 'question')
 AnswerPaper = get_model('quiz', 'answerpaper')
-Participant = get_model('participate', 'participate')
+Participant = get_model('participate', 'participant')
 
-CategoryForm, QuizForm, QuestionPaperForm \
-    = get_classes('dashboard.quiz.forms', ['CategoryForm', 'QuizForm', 'QuestionPaperForm'])
-UserSearchForm = get_class('dashboard.users.forms', 'UserSearchForm')
+QuizCreateSessionMixin = get_class('dashboard.quiz.mixins', 'QuizCreateSessionMixin')
 
-QuizTable, UserTable, ParticipantTable = get_classes('dashboard.quiz.tables',
-                                                     ('QuizTable', 'UserTable', 'ParticipantTable'))
+CategoryForm, QuizForm, QuizMetaForm, QuestionPaperForm \
+    = get_classes('dashboard.quiz.forms', ['CategoryForm', 'QuizForm', 'QuizMetaForm', 'QuestionPaperForm'])
+
+QuizTable = get_class('dashboard.quiz.tables','QuizTable')
 
 
 
@@ -278,158 +277,12 @@ class AnswerPaperDetailView(DetailView):
         return get_object_or_404(AnswerPaper, id=self.kwargs['pk'])
 
 
-class AddUserView(BulkEditMixin, FormMixin, SingleTableView):
-    template_name = 'champsquarebackend/dashboard/quiz/add_user.html'
-    model = User
-    actions = ('add_to_test',)
-    form_class = UserSearchForm
-    table_class = UserTable
-    context_table_name = 'users'
-    desc_template = _('%(main_filter)s %(email_filter)s %(name_filter)s')
-    description = ''
-
-    def dispatch(self, request, *args, **kwargs):
-        form_class = self.get_form_class()
-        self.form = self.get_form(form_class)
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_form_kwargs(self):
-        """
-        Only bind search form if it was submitted.
-        """
-        kwargs = super().get_form_kwargs()
-
-        if 'search' in self.request.GET:
-            kwargs.update({
-                'data': self.request.GET,
-            })
-
-        return kwargs
-
-    def get_queryset(self):
-        queryset = self.model.objects.exclude(
-            id__in=self._get_quiz().users.values_list('id', flat=True))
-        
-        return self.apply_search(queryset)
-
-    def apply_search(self, queryset):
-        # Set initial queryset description, used for template context
-        self.desc_ctx = {
-            'main_filter': _('All Users (excludes quiz users)'),
-            'email_filter': '',
-            'name_filter': '',
-        }
-        if self.form.is_valid():
-            return self.apply_search_filters(queryset, self.form.cleaned_data)
-        else:
-            return queryset
-
-    def apply_search_filters(self, queryset, data):
-        """
-        Function is split out to allow customisation with little boilerplate.
-        """
-        if data['email']:
-            email = normalise_email(data['email'])
-            queryset = queryset.filter(email__istartswith=email)
-            self.desc_ctx['email_filter'] \
-                = _(" with email matching '%s'") % email
-        if data['name']:
-            # If the value is two words, then assume they are first name and
-            # last name
-            parts = data['name'].split()
-            # always true filter
-            condition = Q()
-            for part in parts:
-                condition &= Q(first_name__icontains=part) \
-                    | Q(last_name__icontains=part)
-            queryset = queryset.filter(condition).distinct()
-            self.desc_ctx['name_filter'] \
-                = _(" with name matching '%s'") % data['name']
-
-        return queryset
-
-    def get_table(self, **kwargs):
-        table = super().get_table(**kwargs)
-        table.caption = self.desc_template % self.desc_ctx
-        return table
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = self.form
-        context['quiz_id'] = self.kwargs['pk']
-        return context
-
-    def _get_quiz(self):
-        if not hasattr(self, '_quiz'):
-            self._quiz = Quiz.objects.get(pk=self.kwargs['pk'])
-        return self._quiz
+class QuizMetaCreateView(QuizCreateSessionMixin, FormView):
+    template_name = 'champsquarebackend/dashboard/quiz/quiz_meta_create.html'
+    form_class = QuizMetaForm
+    success_url = reverse_lazy('dashboard:quiz-list')
+    pre_conditions = ['check_category_exists']
+    skip_conditions = []
 
 
-    def add_to_test(self, request, users):
-        quiz = self._get_quiz()
-        quiz.users.add(*users)
-        messages.info(self.request, _("Successfully added users to quiz"))
-        return redirect(reverse('dashboard:quiz-add-user', kwargs={'pk': self._get_quiz().id}))
 
-class QuizParticipantView(AddUserView):
-    template_name = 'champsquarebackend/dashboard/quiz/participants.html'
-    model = Participant
-    actions = ('remove_from_test', 'send_test_link',)
-    form_class = UserSearchForm
-    table_class = ParticipantTable
-    context_table_name = 'participants'
-    desc_template = _('%(main_filter)s %(email_filter)s %(name_filter)s')
-    description = ''
-
-    def get_queryset(self):
-        queryset = self._get_quiz().participants.all()
-        
-        return self.apply_search(queryset)
-
-    def apply_search(self, queryset):
-        # Set initial queryset description, used for template context
-        self.desc_ctx = {
-            'main_filter': _('All Participants'),
-            'email_filter': '',
-            'name_filter': '',
-        }
-        if self.form.is_valid():
-            return self.apply_search_filters(queryset, self.form.cleaned_data)
-        else:
-            return queryset
-
-    def apply_search_filters(self, queryset, data):
-        """
-        Function is split out to allow customisation with little boilerplate.
-        """
-        if data['email']:
-            email = normalise_email(data['email'])
-            queryset = queryset.filter(user__email__istartswith=email)
-            self.desc_ctx['email_filter'] \
-                = _(" with email matching '%s'") % email
-        if data['name']:
-            # If the value is two words, then assume they are first name and
-            # last name
-            parts = data['name'].split()
-            # always true filter
-            condition = Q()
-            for part in parts:
-                condition &= Q(user__first_name__icontains=part) \
-                    | Q(user__last_name__icontains=part)
-            queryset = queryset.filter(condition).distinct()
-            self.desc_ctx['name_filter'] \
-                = _(" with name matching '%s'") % data['name']
-
-        return queryset
-
-    def remove_from_test(self, request, participates):
-        # always delete via this way as it checks whether object exist or not first
-        participant_to_delete = Participant.objects \
-            .filter(id__in=list(map(lambda participant: participant.id, participates)))
-        participant_to_delete.delete()
-        messages.info(self.request, _("Successfully removed participant from list"))
-        return redirect(reverse('dashboard:quiz-participant-list', kwargs={'pk': self._get_quiz().id}))
-
-    def send_test_link(self, request, participates):
-        messages.info(self.request, _("Method hasn't be implemented"))
-        return redirect(reverse('dashboard:quiz-participant-list', kwargs={'pk': self._get_quiz().id}))

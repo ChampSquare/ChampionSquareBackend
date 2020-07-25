@@ -1,0 +1,72 @@
+{% extends 'champsquarebackend/dashboard/layout.html' %}
+{% load i18n %}
+
+{% block body_class %}{{ block.super }} participant{% endblock %}
+
+{% block title %}{{ participant.user.email }} | {{ block.super }}{% endblock %}
+
+{% block breadcrumbs %}
+    <ul class="breadcrumb">
+        <li>
+            <a href="{% url 'dashboard:index' %}">{% trans "Dashboard" %}</a>
+        </li>
+        <li>
+            <a href="{% url 'dashboard:quiz-list' %}">{% trans "Quizzes" %}</a>
+        </li>
+        <li>
+            <a href="{% url 'dashboard:participant-list' %}">{% trans "Participants" %}</a>
+        </li>
+        <li class="active">{{ participant.full_name }}</li>
+    </ul>
+{% endblock %}
+
+{% block headertext %}{{ participant.full_name }}{% endblock %}
+
+{% block dashboard_content %}
+    <div class="row">
+        {% block user_general_info %}
+            <div class="col-md-12">
+                <div class="table-header">
+                    <h2>{% trans "General" %}</h2>
+                </div>
+                <table class="table table-bordered">
+                    <tr>
+                        <th>{% trans "Name" %}</th>
+                        <td>{{ participant.user.get_full_name|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Email" %}</th>
+                        <td>{{ participant.user.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Active" %}?</th>
+                        <td>
+                            {{ participant.is_active|yesno:_("Yes,No") }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Start Time" %}?</th>
+                        <td>{{ participant.start_date_time }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Duration" %}?</th>
+                        <td>{{ participant.duration }}</td>
+                    </tr>
+                    
+                   
+                    {% if participant.user.email %}
+                        <tr>
+                            <th>{% trans "Actions" %}</th>
+                            <td>
+                                <form id="password_reset_form" action="{% url 'dashboard:user-password-reset' pk=user.id %}" method="post" class="form-horizontal">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary btn-lg" data-loading-text="{% trans 'Sending...' %}">{% trans 'Send Quiz Link' %}</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </table>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock dashboard_content %}

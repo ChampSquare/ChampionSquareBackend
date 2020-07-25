@@ -61,19 +61,7 @@ class AbstractQuiz(TimestampedModel, ModelWithMetadata):
     name = models.CharField(_('name'), max_length=128, help_text="Name of quiz")
     # will create url to access the quiz
     slug = AutoSlugField(_('slug'), max_length=128, unique=True,
-                         populate_from='name')
-
-    start_date_time = models.DateTimeField(_("Start date-time of quiz"),
-                                           default=timezone.now,
-                                           help_text="Date-time from which this quiz will be active")
-
-    # if set, quiz can't be started after that
-    end_date_time = models.DateTimeField(_("End date-time of quiz"),
-                                         null=True, blank=True,
-                                         help_text="Date-time after which this quiz will be deactivated automatically")                               
-    # this is always in minutes
-    duration = models.PositiveIntegerField(_("Duration of quiz"), default=60,
-                                            help_text="Duration of quiz in minutes")
+                         populate_from='name')                              
 
     # total marks of quiz, this will be auto filled based on
     # individual marks of questions appeared in exam, will not appear
@@ -87,28 +75,53 @@ class AbstractQuiz(TimestampedModel, ModelWithMetadata):
     instructions = RichTextUploadingField(verbose_name=_('instructions of quiz'), blank=True, null=True,
                                                 help_text="Instructions to show users before they take exam")
 
-    # admin must publish the quiz for others to access after creating it
-    # can be unpublished once it is complete
-    is_published = models.BooleanField(_("Publish"), default=False,
-                                       help_text="Publish the quiz, won't be accessible if you don't publish it")
-
     # Public test will appear in Quiz Catalogue and can be taken by anyone
     # who has access to it
     is_public = models.BooleanField(_("Public"), default=False,
                                 help_text="Public quizzes will appear in quiz catalogue and can be taken by users registered on site")
 
+
+    users = models.ManyToManyField(User, blank=True, related_name='participants',
+                                   verbose_name=_('Users'), through='participate.Participant')
+
+    # local value will be preferred, the value must be after global value
+    start_date_time = models.DateTimeField(_("Start date-time of quiz"),
+                                           default=timezone.now,
+                                           help_text="Date-time from which this quiz will be active")
+
+    # if set, quiz can't be started after that
+    # local value will be preferred, the value must be before global value
+    end_date_time = models.DateTimeField(_("End date-time of quiz"),
+                        null=True, blank=True,
+                        help_text=_("Date-time after which this quiz will be deactivated automatically"))
+    # this is always in minutes
+    # local value will be preferred
+    duration = models.PositiveIntegerField(_("Duration of quiz"), default=60,
+                    help_text="Duration of quiz in minutes")
+
+    # admin must activate the quiz for others to access after creating it
+    # can be deactivated once it is complete
+    # global value will be preferred when False otherwise local value
+    is_published = models.BooleanField(_("Is Published?"), default=False,
+                    help_text="Publish the quiz, won't be accessible if you don't publish it")
+
     # is multiple attempts allowed?
     # default is false,
     # true -> user can take same quiz again and again even after submitting
-    multiple_attempts_allowed = models.BooleanField(default=False,
-                                                    help_text='Is user allowed to attempt same quiz multiple time?')
+    multiple_attempts_allowed = models.BooleanField(_('Multiple Attempts Allowed?'),default=False,
+                                    help_text=_('Is user allowed to attempt same quiz multiple time?'))
 
     # is user allowed to view his answerpaper report after submitting quiz
-    view_answerpaper = models.BooleanField(default=False,
-                                           help_text='Is user allowed to view his test report after he submits the test!')
+    view_answerpaper = models.BooleanField(_('Can see answer-paper?'), default=False,
+                        help_text=_('Is user allowed to view his test report after he submits the test!'))
 
-    users = models.ManyToManyField(User, blank=True, related_name='participants',
-                                   verbose_name=_('Users'), through='participate.Participate')
+    # ip restriction, won't be able to resume exam if ip address changes
+    ip_restriction = models.BooleanField(_('IP Restricted?'), default=False,
+                        help_text=_('User will be only able to resume test from same ip if turned on!'))
+    
+    # allows to set an interval after which user won't be able to resume test
+    resume_interval = models.PositiveIntegerField(_('Resume Interval'), default=15,
+                        help_text=_('The time interval after which user will not be able to resume test'))
 
     class Meta:
         abstract = True
@@ -243,7 +256,7 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
     quiz = models.ForeignKey('quiz.Quiz',
                              on_delete=models.PROTECT,
                              related_name='answerpapers')
-    participants = models.ForeignKey('participate.Participate',
+    participant = models.ForeignKey('participate.Participant',
                                      on_delete=models.PROTECT,
                                      null=True, blank=True, db_index=True,
                                      related_name='answerpapers')
@@ -428,7 +441,7 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
 
     @property
     def participant(self):
-        return self.quiz.participants.filter(number=self.participant_number).first()
+        return self.participant
 
 
 

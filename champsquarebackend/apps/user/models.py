@@ -89,7 +89,3 @@ class User(auth_models.AbstractBaseUser, auth_models.PermissionsMixin):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-
-    
-
-    

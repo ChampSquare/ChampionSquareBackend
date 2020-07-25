@@ -14,7 +14,7 @@ from champsquarebackend.models.models import TimestampedModel, ModelWithMetadata
 
 
 class AbstractVideoRecord(ModelWithMetadata, TimestampedModel):
-    participant = models.ForeignKey('participate.Participate',
+    participant = models.ForeignKey('participate.Participant',
                                        related_name='videos',
                                        on_delete=models.PROTECT,
                                        verbose_name=_('Participant'))

@@ -25,7 +25,7 @@
 
 {% block dashboard_content %}
 
-    {% if videos|length > 0 %}
+    {% if videos.data %}
    
         {% block video_list %}
             <form method="post">

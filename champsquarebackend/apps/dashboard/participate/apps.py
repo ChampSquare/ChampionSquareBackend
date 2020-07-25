@@ -13,12 +13,16 @@ class ParticipateDashboardConfig(AppDashboardConfig):
     default_permissions = ['is_staff', ]
 
     def ready(self):
-        self.participate_list_view = get_class('dashboard.participate.views', 'ParticipateListView')
-        self.participate_user_create_view = get_class('dashboard.participate.views', 'QuizParticipantCreateView')
+        self.participant_list_view = get_class('dashboard.participate.views', 'ParticipantListView')
+        self.participant_create_view = get_class('dashboard.participate.views', 'QuizParticipantCreateView')
+        self.quiz_participant_list_view = get_class('dashboard.participate.views', 'QuizParticipantListView')
+        self.participant_detail_view = get_class('dashboard.participate.views', 'ParticipantDetailView')
 
     def get_urls(self):
         urls = [
-            path('<int:quiz_pk>/new/participant/', self.participate_user_create_view.as_view(), name='quiz-participant-create'),
-            path('participate-list/<int:pk>', self.participate_list_view.as_view(), name='participate-list'),
+            path('<int:pk>/new/participant/', self.participant_create_view.as_view(), name='quiz-participant-create'),
+            path('participant-list/<int:pk>', self.participant_list_view.as_view(), name='participant-list'),
+            path('quiz/<int:pk>/list/', self.quiz_participant_list_view.as_view(), name='quiz-participant-list'),
+            path('<int:pk>', self.participant_detail_view.as_view(), name='participant-detail')
         ]
         return self.post_process_urls(urls)

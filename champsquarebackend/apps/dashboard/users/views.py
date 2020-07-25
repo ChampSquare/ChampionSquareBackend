@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import Q
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
@@ -13,14 +13,17 @@ from django_tables2 import SingleTableView
 from champsquarebackend.core.compat import get_user_model
 from champsquarebackend.core.loading import get_class, get_classes, get_model
 from champsquarebackend.views.generic import BulkEditMixin
+from champsquarebackend.apps.user.utils import normalise_email
+
 
 UserSearchForm = get_class('dashboard.users.forms', 'UserSearchForm')
 PasswordResetForm = get_class('user.forms', 'PasswordResetForm')
-UserTable = get_class('dashboard.users.tables', 'UserTable')
+UserTable, AddUserTable = get_classes('dashboard.users.tables', ['UserTable', 'AddUserTable'])
 User = get_user_model()
+Quiz = get_model('quiz', 'quiz')
 
 
-class IndexView(BulkEditMixin, FormMixin, SingleTableView):
+class UserListView(BulkEditMixin, FormMixin, SingleTableView):
     template_name = 'champsquarebackend/dashboard/users/index.html'
     model = User
     actions = ('make_active', 'make_inactive', )
@@ -72,7 +75,7 @@ class IndexView(BulkEditMixin, FormMixin, SingleTableView):
         Function is split out to allow customisation with little boilerplate.
         """
         if data['email']:
-            email = data['email']
+            email = normalise_email(data['email'])
             queryset = queryset.filter(email__istartswith=email)
             self.desc_ctx['email_filter'] \
                 = _(" with email matching '%s'") % email
@@ -115,6 +118,38 @@ class IndexView(BulkEditMixin, FormMixin, SingleTableView):
         messages.info(self.request, _("Users' status successfully changed"))
         return redirect('dashboard:users-index')
 
+
+class AddUserToQuizView(UserListView):
+    template_name = 'champsquarebackend/dashboard/users/add_user.html'
+    model = User
+    table_class = AddUserTable
+    actions = ('add_to_test',)
+    
+
+    def get_queryset(self):
+        # only fetch users which are not included in the quiz users list
+        queryset = self.model.objects.exclude(
+            id__in=self._get_quiz().users.values_list('id', flat=True))
+        
+        return self.apply_search(queryset)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form
+        context['quiz_id'] = self.kwargs['pk']
+        return context
+
+    def _get_quiz(self):
+        if not hasattr(self, '_quiz'):
+            self._quiz = get_object_or_404(Quiz, pk=self.kwargs['pk'])
+        return self._quiz
+
+
+    def add_to_test(self, request, users):
+        quiz = self._get_quiz()
+        quiz.users.add(*users)
+        messages.info(self.request, _("Successfully added users to quiz"))
+        return redirect(reverse('dashboard:quiz-add-user', kwargs={'pk': self._get_quiz().id}))
 
 class UserDetailView(DetailView):
     template_name = 'champsquarebackend/dashboard/users/detail.html'

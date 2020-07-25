@@ -26,3 +26,19 @@ class UserTable(DashboardTable):
 
     class Meta(DashboardTable.Meta):
         template_name = 'champsquarebackend/dashboard/users/table.html'
+
+class AddUserTable(DashboardTable):
+    check = TemplateColumn(
+        template_name='champsquarebackend/dashboard/users/user_row_checkbox.html',
+        verbose_name=' ', orderable=False)
+    email = LinkColumn('dashboard:user-detail', args=[A('id')],
+                       accessor='email')
+    name = Column(accessor='get_full_name',
+                  order_by=('last_name', 'first_name'))
+    active = Column(accessor='is_active')
+    date_registered = Column(accessor='date_joined')
+
+    icon = "group"
+
+    class Meta(DashboardTable.Meta):
+        template_name = 'champsquarebackend/dashboard/users/add_user_table.html'

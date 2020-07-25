@@ -18,8 +18,7 @@ class QuizDashboardConfig(AppDashboardConfig):
         self.category_create_update_view = get_class('dashboard.quiz.views', 'CategoryCreateUpdateView')
         self.questionpaper_create_update_view = get_class('dashboard.quiz.views', 'QuestionPaperCreateUpdateView')
         self.answer_paper_detail_view = get_class('dashboard.quiz.views', 'AnswerPaperDetailView')
-        self.add_user_view = get_class('dashboard.quiz.views', 'AddUserView')
-        self.quiz_participant_view = get_class('dashboard.quiz.views', 'QuizParticipantView')
+        self.quiz_meta_create_view = get_class('dashboard.quiz.views', 'QuizMetaCreateView')
 
     def get_urls(self):
         urls = [
@@ -30,7 +29,6 @@ class QuizDashboardConfig(AppDashboardConfig):
             path('category/<int:pk>/', self.category_create_update_view.as_view(), name='quiz-category-update'),
             path('questionpaper/<int:pk>/', self.questionpaper_create_update_view.as_view(), name='quiz-questionpaper-update'),
             path('answerpaper/<int:pk>/', self.answer_paper_detail_view.as_view(), name='quiz-answerpaper-detail'),
-            path('<int:pk>/users/add/', self.add_user_view.as_view(), name='quiz-add-user'),
-            path('<int:pk>/participants/', self.quiz_participant_view.as_view(), name='quiz-participant-list')
+            path('new/meta/', self.quiz_meta_create_view.as_view(), name='quiz-meta-create'),
         ]
         return self.post_process_urls(urls)

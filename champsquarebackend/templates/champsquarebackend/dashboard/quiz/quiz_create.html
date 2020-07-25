@@ -1,0 +1,33 @@
+{% extends "champsquarebackend/dashboard/quiz/layout.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}
+    {% trans "Quiz Create" %} | {{ block.super }}
+{% endblock %}
+
+{% block checkout_nav %}
+    {% include 'champsquarebackend/dashboard/quiz/nav.html' %}
+{% endblock %}
+
+{% block dashboard_content %}
+
+    {% if error %}
+        <div class="alert alert-danger">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    {% block quiz_meta %}
+    {% endblock quiz_meta %}
+
+    {% block questionpaper %}
+    {% endblock questionpaper %}
+
+    {% block quiz_settings %}
+    {% endblock quiz_settings %}
+
+    {% block add_participants %}
+    {% endblock add_participants %}
+
+{% endblock dashboard_content %}

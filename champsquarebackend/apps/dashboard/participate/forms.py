@@ -3,7 +3,7 @@ from django import forms
 from champsquarebackend.core.compat import existing_user_fields, get_user_model
 from champsquarebackend.core.loading import get_class, get_model
 
-Participate = get_model('participate', 'participate')
+Participant = get_model('participate', 'participant')
 EmailUserCreationForm = get_class('user.forms', 'EmailUserCreationForm')
 
 User = get_user_model()
@@ -15,7 +15,7 @@ class NewUserForm(EmailUserCreationForm):
         super().__init__(host=None, *args, **kwargs)
 
     def save(self):
-        user = super().save()  
+        user = super().save()
         self.quiz.users.add(user)
         return user
 

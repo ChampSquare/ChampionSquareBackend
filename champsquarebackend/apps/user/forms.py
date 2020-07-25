@@ -81,14 +81,12 @@ class PasswordResetForm(auth_forms.PasswordResetForm):
             email__iexact=email, is_active=True)
         for user in active_users:
             reset_url = self.get_reset_url(site, request, user, use_https)
-            print(reset_url)
             ctx = {
                 'user': user,
                 'site': site,
                 'reset_url': reset_url}
             messages = CommunicationEventType.objects.get_and_render(
                 code=self.communication_type_code, context=ctx)
-            print(messages)
             Dispatcher().dispatch_user_messages(user, messages)
         
     def get_reset_url(self, site, request, user, use_https):

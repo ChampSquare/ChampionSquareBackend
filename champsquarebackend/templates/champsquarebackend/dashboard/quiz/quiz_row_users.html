@@ -1,8 +1,8 @@
 {% load django_tables2 %}
 
-{% if record.users %}
-  <a href="{% url 'dashboard:quiz-questionpaper-update' pk=record.id %}">{{ record.users.count }}</a>
+{% if record.users.count == 0 %}
+  <a href="{% url 'dashboard:quiz-add-user' pk=record.id %}">Add Participants</a>
   {% else %}
-  <a href="{% url 'dashboard:quiz-questionpaper-update' pk=record.id %}">Add Users</a>
+  <a href="{% url 'dashboard:quiz-participant-list' pk=record.id %}">{{ record.users.count }}</a>
 {% endif %}
     

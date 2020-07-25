@@ -18,7 +18,7 @@ User = get_user_model()
 
 
 class AbstractResult(ModelWithMetadata):
-    participant = models.OneToOneField('participate.Participate',
+    participant = models.OneToOneField('participate.Participant',
                                        related_name='result',
                                        on_delete=models.PROTECT,
                                        verbose_name=_('Participant'))

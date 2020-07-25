@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import path
 from django.utils.translation import gettext_lazy as _
 
 from champsquarebackend.core.application import AppDashboardConfig
@@ -13,18 +13,22 @@ class UsersDashboardConfig(AppDashboardConfig):
     default_permissions = ['is_staff', ]
 
     def ready(self):
-        self.index_view = get_class('dashboard.users.views', 'IndexView')
+        self.user_list_view= get_class('dashboard.users.views', 'UserListView')
         self.user_detail_view = get_class('dashboard.users.views', 'UserDetailView')
         self.password_reset_view = get_class('dashboard.users.views',
                                              'PasswordResetView')
+        self.add_user_view = get_class('dashboard.users.views', 'AddUserToQuizView')
+        
         
     def get_urls(self):
         urls = [
-            url(r'^$', self.index_view.as_view(), name='users-index'),
-            url(r'^(?P<pk>-?\d+)/$',
+            path('', self.user_list_view.as_view(), name='users-index'),
+            path('<int:pk>/',
                 self.user_detail_view.as_view(), name='user-detail'),
-            url(r'^(?P<pk>-?\d+)/password-reset/$',
+            path('<int:pk>/password-reset/',
                 self.password_reset_view.as_view(),
                 name='user-password-reset'),
+            path('quiz/<int:pk>/add/', self.add_user_view.as_view(), name='quiz-add-user'),
+            
         ]
         return self.post_process_urls(urls)

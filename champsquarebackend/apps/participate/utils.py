@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from champsquarebackend.core.loading import get_model
 from champsquarebackend.core.utils import get_ip_address, is_ip_address_valid
 
-Participate = get_model('participate', 'Participate')
+Participant = get_model('participate', 'Participant')
 AnswerPaper = get_model('quiz', 'AnswerPaper')
 
 class ParticipantNumberCreator(object):
@@ -48,9 +48,9 @@ class ParticipantCreator(object):
         if 'site' not in participant_data:
             participant_data['site'] = Site._default_manager.get_current(request)
 
-        participate = Participate(**participant_data)
-        participate.save()
-        return participate
+        participant = Participant(**participant_data)
+        participant.save()
+        return participant
 
     def create_answerpaper_model(self, quiz, is_trial=False):
         answerpaper = AnswerPaper.objects.create(quiz=quiz, is_trial=is_trial)

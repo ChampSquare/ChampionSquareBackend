@@ -9,7 +9,7 @@ from champsquarebackend.core.loading import get_class
 class ParticipateConfig(AppConfig):
     label = 'participate'
     name = 'champsquarebackend.apps.participate'
-    verbose_name = _('Question')
+    verbose_name = _('Participate')
 
     namespace = 'participate'
 
