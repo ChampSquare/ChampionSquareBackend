@@ -8,8 +8,12 @@
         </button>
         <ul class="dropdown-menu pull-right">
             <li>
-                <a href="{% url 'dashboard:quiz-answerpaper-detail' pk=record.answerpaper.id %}{% querystring %}">{% trans "Details" %}</a>
+                <a href="{% url 'dashboard:participant-detail' pk=record.id %}{% querystring %}">{% trans "Details" %}</a>
             </li>
+            <li>
+                <a href="{% url 'dashboard:quiz-participant-update' pk=record.id quiz_pk=record.quiz.id %}{% querystring %}">{% trans "Edit" %}</a>
+            </li>
+            
         </ul>
     </div>
 </div>

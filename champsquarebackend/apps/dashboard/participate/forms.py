@@ -1,25 +1,27 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
+from django.contrib.admin import widgets                                       
+
 
 from champsquarebackend.core.compat import existing_user_fields, get_user_model
 from champsquarebackend.core.loading import get_class, get_model
 
 Participant = get_model('participate', 'participant')
-EmailUserCreationForm = get_class('user.forms', 'EmailUserCreationForm')
 
 User = get_user_model()
 
-class NewUserForm(EmailUserCreationForm):
+class ParticipantForm(forms.ModelForm):
+    # start_date_time = forms.DateTimeField(
+    #     widget=widgets.DateTimePickerInput(),
+    #     label=_("start Date"), required=True)
 
-    def __init__(self, quiz, *args, **kwargs):
-        self.quiz = quiz
-        super().__init__(host=None, *args, **kwargs)
+    # end_date_time = forms.DateTimeField(
+    #     widget=widgets.DateTimePickerInput(),
+    #     label=_("End Date"), required=False)
 
-    def save(self):
-        user = super().save()
-        self.quiz.users.add(user)
-        return user
 
     class Meta:
-        model = User
-        fields = existing_user_fields(
-            ['first_name', 'last_name', 'email', 'is_staff']) + ['password1', 'password2']
+        model = Participant
+        fields = ['duration', 'start_date_time', 'end_date_time',
+                   'is_active', 'multiple_attempts_allowed',
+                  'view_answerpaper', 'ip_restriction', 'resume_interval']

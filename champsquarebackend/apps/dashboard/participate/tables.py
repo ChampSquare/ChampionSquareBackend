@@ -13,9 +13,10 @@ class ParticipantTable(DashboardTable):
         template_name='champsquarebackend/dashboard/participate/participant_row_checkbox.html',
         verbose_name=' ', orderable=False)
     
-    name = Column(
+    name = TemplateColumn(
         verbose_name=_('Name'),
-        orderable=False, accessor=('full_name')
+        template_name='champsquarebackend/dashboard/participate/participant_row_user.html',
+        orderable=False
     )
 
     attempt = Column(
@@ -32,6 +33,11 @@ class ParticipantTable(DashboardTable):
         verbose_name=_('End Time'),
         orderable=False, accessor=('end_date_time')
     )
+
+    actions = TemplateColumn(
+        verbose_name=_('Actions'),
+        template_name='champsquarebackend/dashboard/participate/participant_row_actions.html',
+        orderable=False)
 
     icon = "group"
 

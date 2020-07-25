@@ -18,6 +18,7 @@ class UsersDashboardConfig(AppDashboardConfig):
         self.password_reset_view = get_class('dashboard.users.views',
                                              'PasswordResetView')
         self.add_user_view = get_class('dashboard.users.views', 'AddUserToQuizView')
+        self.user_create_update_view = get_class('dashboard.users.views', 'UserCreateUpdateView')
         
         
     def get_urls(self):
@@ -29,6 +30,8 @@ class UsersDashboardConfig(AppDashboardConfig):
                 self.password_reset_view.as_view(),
                 name='user-password-reset'),
             path('quiz/<int:pk>/add/', self.add_user_view.as_view(), name='quiz-add-user'),
+            path('create/', self.user_create_update_view.as_view(), name='user-create'),
+            path('<int:pk>/update/', self.user_create_update_view.as_view(), name='user-update')
             
         ]
         return self.post_process_urls(urls)

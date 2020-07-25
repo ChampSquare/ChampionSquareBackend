@@ -16,7 +16,7 @@ from champsquarebackend.views.generic import BulkEditMixin
 from champsquarebackend.apps.user.utils import normalise_email
 
 
-UserSearchForm = get_class('dashboard.users.forms', 'UserSearchForm')
+UserSearchForm, UserForm = get_classes('dashboard.users.forms', ['UserSearchForm', 'UserForm'])
 PasswordResetForm = get_class('user.forms', 'PasswordResetForm')
 UserTable, AddUserTable = get_classes('dashboard.users.tables', ['UserTable', 'AddUserTable'])
 User = get_user_model()
@@ -117,6 +117,45 @@ class UserListView(BulkEditMixin, FormMixin, SingleTableView):
                 user.save()
         messages.info(self.request, _("Users' status successfully changed"))
         return redirect('dashboard:users-index')
+
+class UserCreateUpdateView(UpdateView):
+    model = User
+    template_name = 'champsquarebackend/dashboard/users/user_form.html'
+    form_class = UserForm
+    context_object_name = 'user'
+    creating = None
+
+    def get_object(self, queryset=None):
+        """
+            This parts allows generic.UpdateView to handle creating
+            questions as well. The only distinction between an UpdateView
+            and a CreateView is that self.object is None. We emulate this behavior.
+        """
+        self.creating = 'pk' not in self.kwargs
+        if self.creating:
+            return None #success
+        else:
+            user = get_object_or_404(User, pk=self.kwargs['pk'])
+            return user
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['title'] = self.get_page_title()
+        return ctx
+    
+    def get_page_title(self):
+        if self.creating:
+            return _('Create new User')
+        else:
+            return _('Update user %s') % self.object.email
+
+    def get_success_url(self):
+        if self.creating:
+            msg = _("Created user '%s'") % self.object.__str__()
+        else:
+            msg = _("Updated user '%s'") % self.object.__str__()
+        messages.success(self.request, msg)
+        return reverse('dashboard:users-index')
 
 
 class AddUserToQuizView(UserListView):

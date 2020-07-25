@@ -11,7 +11,7 @@
 
 {% block header %}
     <div class="page-header">
-        <a href="{% url 'dashboard:quiz-participant-create' pk=quiz_id %}" class="btn btn-primary btn-lg pull-right"> <i class="icon-plus"></i> {% trans "Create User" %}</i></a>
+        <a href="{% url 'dashboard:quiz-participant-list' pk=quiz_id %}" class="btn btn-primary btn-lg pull-right"> {% trans "Participants" %} <i class="icon-arrow-right"></i></a>
         <h1>{% trans "Users" %}</h1>
     </div>
 {% endblock header %}
@@ -25,9 +25,7 @@
             <a href="{% url 'dashboard:quiz-list' %}">{% trans "Quizzes" %}</a>
         </li>
         <li class="active">{% trans "Add Users" %}</li>
-        <li>
-            <a href="{% url 'dashboard:quiz-participant-list' pk=quiz_id %}">Participants</a>
-        </li>
+        
     </ul>
 {% endblock %}
 

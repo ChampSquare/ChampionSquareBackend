@@ -14,7 +14,7 @@
             <a href="{% url 'dashboard:quiz-list' %}">{% trans "Quizzes" %}</a>
         </li>
         <li>
-            <a href="{% url 'dashboard:participant-list' %}">{% trans "Participants" %}</a>
+            <a href="{% url 'dashboard:quiz-participant-list' pk=participant.quiz.id %}">{% trans "Participants" %}</a>
         </li>
         <li class="active">{{ participant.full_name }}</li>
     </ul>
@@ -40,17 +40,35 @@
                     </tr>
                     <tr>
                         <th>{% trans "Active" %}?</th>
-                        <td>
-                            {{ participant.is_active|yesno:_("Yes,No") }}
-                        </td>
+                        <td>{{ participant.is_active|yesno:_("Yes,No") }}</td>
                     </tr>
                     <tr>
-                        <th>{% trans "Start Time" %}?</th>
+                        <th>{% trans "Start Time" %}</th>
                         <td>{{ participant.start_date_time }}</td>
                     </tr>
                     <tr>
-                        <th>{% trans "Duration" %}?</th>
+                        <th>{% trans "End Time" %}</th>
+                        <td>{{ participant.end_date_time }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Test Duration" %}</th>
                         <td>{{ participant.duration }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Resume Interval" %}</th>
+                        <td>{{ participant.resume_interval }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Multiple Attempt Allowed" %}?</th>
+                        <td>{{ participant.multiple_attempts_allowed|yesno:_("Yes,No") }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Allowed to view answer-paper" %}?</th>
+                        <td>{{ participant.view_answerpaper|yesno:_("Yes,No") }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Ip Restriction Enabled" %}?</th>
+                        <td>{{ participant.ip_restriction|yesno:_("Yes,No") }}</td>
                     </tr>
                     
                    
@@ -58,11 +76,9 @@
                         <tr>
                             <th>{% trans "Actions" %}</th>
                             <td>
-                                <form id="password_reset_form" action="{% url 'dashboard:user-password-reset' pk=user.id %}" method="post" class="form-horizontal">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-primary btn-lg" data-loading-text="{% trans 'Sending...' %}">{% trans 'Send Quiz Link' %}</button>
-                                </form>
-                            </td>
+                             
+                            <a class="btn btn-primary btn-lg" href="{% url 'dashboard:quiz-participant-update' pk=participant.id quiz_pk=participant.quiz.id %}">{% trans 'Edit' %}</a>
+                        </td>
                         </tr>
                     {% endif %}
                 </table>

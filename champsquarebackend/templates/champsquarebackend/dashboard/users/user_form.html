@@ -4,7 +4,7 @@
 {% block body_class %}{{ block.super }} create-page participant{% endblock %}
 
 {% block title %}
-    {{ title }} | {{ quiz.name }} | {% trans "Participants" %} | {{ block.super }}
+    {{ title }} | {{ user.email }} | {% trans "Participants" %} | {{ block.super }}
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -12,18 +12,13 @@
         <li>
             <a href="{% url 'dashboard:index' %}">{% trans "Dashboard" %}</a>
         </li>
-        <li>
-            <a href="{% url 'dashboard:quiz-list' %}">{% trans "Quizzes" %}</a>
-        </li>
+        
         
         <li>
-            <a href="{% url 'dashboard:quiz-add-user' pk=quiz.id %}">Add Participants</a>
+            <a href="{% url 'dashboard:users-index'%}">users</a>
         </li>
         
         <li class="active">{{ title }}</li>
-        <li>
-            <a href="{% url 'dashboard:quiz-participant-list' pk=quiz.id %}">Participants</a>
-        </li>
     </ul>
 {% endblock %}
 
@@ -35,7 +30,7 @@
         {% include 'champsquarebackend/dashboard/partials/form_fields.html' with form=form %}
         <div class="form-actions">
             <button class="btn btn-lg btn-primary" type="submit" data-loading-text="{% trans 'Saving...' %}">{% trans "Save" %}</button>
-            {% trans "or" %} <a href="{% url 'dashboard:quiz-add-user' pk=quiz.pk %}">{% trans "cancel" %}</a>.
+            {% trans "or" %} <a href="{% url 'dashboard:users-index'%}">{% trans "cancel" %}</a>.
         </div>
     </form>
 

@@ -37,6 +37,10 @@ class AddUserTable(DashboardTable):
                   order_by=('last_name', 'first_name'))
     active = Column(accessor='is_active')
     date_registered = Column(accessor='date_joined')
+    actions = TemplateColumn(
+        verbose_name=_('Actions'),
+        template_name='champsquarebackend/dashboard/users/user_row_actions.html',
+        orderable=False)
 
     icon = "group"
 

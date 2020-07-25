@@ -27,13 +27,13 @@ class QuizForm(forms.ModelForm):
     """
         Form to add quiz
     """
-    start_date_time = forms.DateTimeField(
-        widget=widgets.DateTimePickerInput(),
-        label=_("start Date"), required=True)
+    # start_date_time = forms.DateTimeField(
+    #     widget=widgets.DateTimePickerInput(),
+    #     label=_("start Date"), required=True)
 
-    end_date_time = forms.DateTimeField(
-        widget=widgets.DateTimePickerInput(),
-        label=_("End Date"), required=False)
+    # end_date_time = forms.DateTimeField(
+    #     widget=widgets.DateTimePickerInput(),
+    #     label=_("End Date"), required=False)
 
 
     class Meta:

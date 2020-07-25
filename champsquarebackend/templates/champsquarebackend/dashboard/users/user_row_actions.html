@@ -1,2 +1,18 @@
+{% load django_tables2 %}
 {% load i18n %}
-<a href="{% url 'dashboard:user-detail' pk=record.id %}" class="btn btn-info">{% trans "View" %}</a>
+<div class="btn-toolbar">
+    <div class="btn-group">
+        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">
+            {% trans "Actions" %}
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu pull-right">
+            <li>
+                <a href="{% url 'dashboard:user-detail' pk=record.id %}" class="btn btn-info">{% trans "View" %}</a> 
+            </li>
+            <li>
+                <a href="{% url 'dashboard:user-update' pk=record.id %}">{% trans "Edit" %}</a>
+            </li>
+        </ul>
+    </div>
+</div>

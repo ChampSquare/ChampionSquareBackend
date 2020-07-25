@@ -52,8 +52,8 @@ class AbstractParticipant(TimestampedModel, ModelWithMetadata):
     # admin must activate the quiz for others to access after creating it
     # can be deactivated once it is complete
     # global value will be preferred when False otherwise local value
-    is_published = models.BooleanField(_("Is Published?"), default=False,
-                    help_text="Publish the quiz, won't be accessible if you don't publish it")
+    is_active = models.BooleanField(_("Is Published?"), default=True,
+                    help_text="Only active user will be able to take quiz")
 
     # is multiple attempts allowed?
     # default is false,
@@ -85,7 +85,7 @@ class AbstractParticipant(TimestampedModel, ModelWithMetadata):
         verbose_name_plural = _('Participants')
 
     def __str__(self):
-        return "#%s" %(self.number)
+        return "#%s status: " %(self.full_name)
 
     def verification_hash(self):
         signer = Signer(salt='champsquarebackend.apps.participate.Participant')

@@ -275,14 +275,3 @@ class AnswerPaperDetailView(DetailView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(AnswerPaper, id=self.kwargs['pk'])
-
-
-class QuizMetaCreateView(QuizCreateSessionMixin, FormView):
-    template_name = 'champsquarebackend/dashboard/quiz/quiz_meta_create.html'
-    form_class = QuizMetaForm
-    success_url = reverse_lazy('dashboard:quiz-list')
-    pre_conditions = ['check_category_exists']
-    skip_conditions = []
-
-
-

@@ -113,6 +113,10 @@ SETTINGS_DASHBOARD_NAVIGATION = [
                 'label': _('Users List'),
                 'url_name': 'dashboard:users-index',
             },
+            {
+                'label': _('Create User'),
+                'url_name': 'dashboard:user-create',
+            }
         ]
     },
     {

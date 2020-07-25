@@ -3,56 +3,20 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib import messages
-from django.views.generic import CreateView, DetailView
-from django.db.models import Q
-
-
+from django.views.generic import CreateView, DetailView, UpdateView
 
 from django_tables2 import SingleTableView
 
-from champsquarebackend.apps.user.utils import normalise_email
-from champsquarebackend.core.loading import get_model, get_class
+from champsquarebackend.core.loading import get_model, get_class, get_classes
 from champsquarebackend.core.compat import get_user_model
 
 Quiz = get_model('quiz', 'quiz')
 Participant = get_model('participate', 'participant')
 ParticipantTable = get_class('dashboard.participate.tables', 'ParticipantTable')
-NewUserForm = get_class('dashboard.participate.forms', 'NewUserForm')
+ParticipantForm = get_classes('dashboard.participate.forms', ['ParticipantForm'])
 UserListView = get_class('dashboard.users.views', 'UserListView')
 
 User = get_user_model()
-
-
-class ParticipantListView(SingleTableView):
-    """
-        Dashboard view of question list.
-    """
-
-    template_name = 'champsquarebackend/dashboard/participate/participant_list.html'
-    table_class = ParticipantTable
-    context_table_name = 'participants'
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        return ctx
-
-    def get_caption(self):
-        return _('Participants')
-
-    def get_table(self, **kwargs):
-        table = super().get_table(**kwargs)
-        table.caption = self.get_caption()
-        return table
-
-    def get_table_pagination(self, table):
-        return dict(per_page=settings.SETTINGS_DASHBOARD_ITEMS_PER_PAGE)
-
-    def get_queryset(self):
-        """
-            Build the queryset for this list
-        """
-        queryset = get_object_or_404(Participant, quiz=self.kwargs.get('pk'))
-        return queryset
 
 
 class QuizParticipantListView(UserListView):
@@ -106,38 +70,69 @@ class QuizParticipantListView(UserListView):
         return redirect(reverse('dashboard:quiz-participant-list', kwargs={'pk': self._get_quiz().id}))
 
 
-class QuizParticipantCreateView(CreateView):
-    model = User
-    template_name = 'champsquarebackend/dashboard/participate/participant_form.html'
-    form_class = NewUserForm
-
-    def dispatch(self, request, *args, **kwargs):
-        self.quiz = get_object_or_404(
-            Quiz, pk=kwargs.get('pk', None))
-        return super().dispatch(
-            request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['quiz'] = self.quiz
-        ctx['title'] = _('Create user')
-        return ctx
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['quiz'] = self.quiz
-        return kwargs
-
-    def get_success_url(self):
-        name = self.object.get_full_name() or self.object.email
-        messages.success(self.request,
-                         _("User '%s' was created successfully.") % name)
-        return reverse('dashboard:quiz-participant-list', kwargs={'pk': self.kwargs['pk']})
-
-
-
-
 class ParticipantDetailView(DetailView):
     model = Participant
     template_name = 'champsquarebackend/dashboard/participate/detail.html'
     context_object_name = 'participant'
+
+
+class ParticipantCreateUpdateView(UpdateView):
+    """
+        Dashboard view that can be used to create and update
+        Category (similar to questions). It can be used in two different ways,
+        each of them with unique URL pattern:
+        - when creating a new subject.
+        - when editing an existing question, this view is called with
+        subject's primary key.
+    """
+    template_name = 'champsquarebackend/dashboard/participate/participant_create_update.html'
+    model = Participant
+    context_object_name = 'participant'
+    form_class = ParticipantForm
+    creating = None
+
+    def get_object(self, queryset=None):
+        """
+            This parts allows generic.UpdateView to handle creating
+            questions as well. The only distinction between an UpdateView
+            and a CreateView is that self.object is None. We emulate this behavior.
+        """
+        self.creating = 'pk' not in self.kwargs
+        if self.creating:
+            return None #success
+        else:
+            participant = get_object_or_404(Participant,
+                                            pk=self.get_quiz().id)
+            return participant
+
+    def get_quiz(self):
+        if not hasattr(self, '_quiz'):
+            self._quiz = get_object_or_404(Quiz, pk=self.kwargs['quiz_pk'])
+        return self._quiz
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['title'] = self.get_page_title()
+        ctx['quiz_pk'] = self.kwargs['quiz_pk']
+
+        # edit : add context data in here
+
+        return ctx
+
+    def get_page_title(self):
+        if self.creating:
+            return _('Create new Participant')
+        else:
+            return _('Update Participant %s') % self.object.full_name
+
+    def get_success_url(self):
+        """
+            return a success message and redirects to given url
+        """
+        if self.creating:
+            msg = _("Added participant '%s'") % self.object.__str__()
+        else:
+            msg = _("Updated quiz '%s'") % self.object.__str__()
+        messages.success(self.request, msg)
+
+        return reverse('dashboard:quiz-participant-list', kwargs={'pk': self.kwargs['quiz_pk']})
