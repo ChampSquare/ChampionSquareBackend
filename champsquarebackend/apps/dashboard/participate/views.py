@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.views.generic import CreateView, DetailView, UpdateView
 from django.contrib.sites.shortcuts import get_current_site
-
+from django.db.models import ProtectedError
 
 from django_tables2 import SingleTableView
 
@@ -19,7 +19,6 @@ ParticipantForm = get_class('dashboard.participate.forms', 'ParticipantForm')
 UserListView = get_class('dashboard.users.views', 'UserListView')
 
 ParticipantDispatcher = get_class('dashboard.participate.utils', 'ParticipantDispatcher')
-
 
 
 User = get_user_model()
@@ -67,8 +66,11 @@ class QuizParticipantListView(UserListView):
             # .filter(id__in=list(map(lambda participant: participant.id, participants)))
         participant_to_delete = Participant.objects \
             .filter(id__in=[participant.id for participant in participants])
-        participant_to_delete.delete()
-        messages.info(self.request, _("Successfully removed participant from list"))
+        try:
+            participant_to_delete.delete()
+            messages.success(self.request, _("Successfully removed participant from list"))
+        except ProtectedError:
+            messages.error(self.request, _('Can\'t delete protected user'))
         return redirect(reverse('dashboard:quiz-participant-list', kwargs={'pk': self._get_quiz().id}))
 
     def send_test_link(self, request, participants):
