@@ -456,7 +456,7 @@ class AbstractAnswer(ModelWithMetadata):
      An answer submitted by user taking the exam
     """
     question = models.ForeignKey('question.Question', on_delete=models.PROTECT)
-    answerpaper = models.ForeignKey('quiz.AnswerPaper', on_delete=models.PROTECT,
+    answerpaper = models.ForeignKey('quiz.AnswerPaper', on_delete=models.CASCADE,
                                     related_name='answers', verbose_name=_('AnswerPaper'))
     answer = models.CharField(_("Answer"), max_length=128, blank=True)
     is_correct = models.BooleanField(
