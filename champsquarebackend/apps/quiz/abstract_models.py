@@ -439,6 +439,16 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
     def get_not_visited_num(self):
         return self.get_not_visited_list().count()
 
+    def get_webcam_video(self):
+        if self.videos is not None:
+            return self.videos.filter(Q(type="webcam") & Q(is_processed=True)).first()
+        return None
+
+    def get_screen_video(self):
+        if self.videos is not None:
+            return self.videos.filter(Q(type="screen") & Q(is_processed=True)).first()
+        return None
+
 
 
 class AbstractAnswer(ModelWithMetadata):

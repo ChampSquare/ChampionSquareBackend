@@ -121,16 +121,6 @@ class AbstractParticipant(TimestampedModel, ModelWithMetadata):
         """ Set start time, do this after user finishes reading instruction"""
         self.start_time = time
 
-    def get_webcam_video(self):
-        if self.videos is not None:
-            return self.videos.filter(Q(type="webcam") & Q(is_processed=True)).first()
-        return None
-
-    def get_screen_video(self):
-        if self.videos is not None:
-            return self.videos.filter(Q(type="screen") & Q(is_processed=True)).first()
-        return None
-
     @property
     def has_taken_quiz(self):
         """checks whether user has taken test or not"""
