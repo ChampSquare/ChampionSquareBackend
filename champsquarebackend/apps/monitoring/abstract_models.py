@@ -14,10 +14,9 @@ from champsquarebackend.models.models import TimestampedModel, ModelWithMetadata
 
 
 class AbstractVideoRecord(ModelWithMetadata, TimestampedModel):
-    participant = models.ForeignKey('participate.Participant',
-                                       related_name='videos',
-                                       on_delete=models.PROTECT,
-                                       verbose_name=_('Participant'))
+    answerpaper = models.ForeignKey('quiz.Answerpaper', related_name='videos',
+                                            blank=True, null=True,
+                                            on_delete=models.SET_NULL)
     name = models.CharField(max_length=50)
 
     RECORD_TYPE = (
@@ -37,6 +36,10 @@ class AbstractVideoRecord(ModelWithMetadata, TimestampedModel):
         verbose_name = _('Video Record')
         verbose_name_plural = _('Video Records')
         ordering = ['-created_at']
+
+    @property
+    def participant(self):
+        return self.answerpaper.participant
 
     def __str__(self):
         return "{0}, type: {1}".format(self.name, self.type)
