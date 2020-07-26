@@ -20,7 +20,7 @@ from champsquarebackend.core.loading import get_profile_class, get_class, get_mo
 from champsquarebackend.apps.user.utils import get_password_reset_url, normalise_email
 from champsquarebackend.core.compat import url_has_allowed_host_and_scheme, get_user_model
 
-Dispatcher = get_class('communication.utils', 'Dispatcher')
+UserDispatcher = get_class('user.utils', 'UserDispatcher')
 CommunicationEventType = get_model('communication', 'communicationeventtype')
 User = get_user_model()
 
@@ -85,9 +85,7 @@ class PasswordResetForm(auth_forms.PasswordResetForm):
                 'user': user,
                 'site': site,
                 'reset_url': reset_url}
-            messages = CommunicationEventType.objects.get_and_render(
-                code=self.communication_type_code, context=ctx)
-            Dispatcher().dispatch_user_messages(user, messages)
+            UserDispatcher().send_password_reset_email_for_user(user, ctx)
         
     def get_reset_url(self, site, request, user, use_https):
         # the request argument isn't used currently, but implementors might

@@ -1,0 +1,39 @@
+{% extends "champsquarebackend/communication/emails/base.html" %}
+{% load i18n %}
+
+{% block tbody %}
+    <tr>
+        <td class="content-block">
+            {% blocktrans with name=site.name %}You have an online exam scheduled with us at {{ name }}.{% endblocktrans %}
+        </td>
+    </tr>
+
+    <tr>
+        <td class="content-block">
+            {% trans "Exam start date - {{ start_date_time }}" %}
+        </td>
+        <td class="content-block">
+            {% trans "Exam duration - {{ duration }}" %}
+        </td>
+        <td class="content-block">
+            {% trans "Exam start date - {{ start_date_time }}" %}
+        </td>
+
+    </tr>
+    {% if video_monitoring_enabled %}
+        <tr>
+            <td>Note that both you and your activity will be monitored while you take exam
+                through your webcam and scree sharing!
+            </td>
+        </tr>
+    {% endif %}
+
+    <tr>
+        <td class="content-block">
+            You can start this exam by clicking on link
+            <a href="http://{{ site.domain }}{{ quiz_link }}" class="btn-primary">Take Exam</a>
+        </td>
+    </tr>
+
+    
+{% endblock %}

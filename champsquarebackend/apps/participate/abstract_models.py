@@ -73,6 +73,9 @@ class AbstractParticipant(TimestampedModel, ModelWithMetadata):
     resume_interval = models.PositiveIntegerField(_('Resume Interval'), default=15,
                         help_text=_('The time interval after which user will not be able to resume test'))
 
+    video_monitoring_enabled = models.BooleanField(_('Video Monitoring Enabled?'), default=True,
+                        help_text=_('Turn on/off video monitoring which includes webcam and screen recording'))
+
     # user's ip address from which the exam was started
     # this will be set at start time
     user_ip = models.GenericIPAddressField(_('IP address of user'), blank=True, null=True)

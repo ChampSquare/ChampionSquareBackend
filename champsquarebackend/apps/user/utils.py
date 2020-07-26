@@ -9,7 +9,7 @@ Dispatcher = get_class('communication.utils', 'Dispatcher')
 
 class UserDispatcher:
     """
-    Dispatcher to send concrete customer related emails.
+    Dispatcher to send concrete user related emails.
     """
 
     # Event codes
@@ -37,6 +37,8 @@ class UserDispatcher:
         messages = self.dispatcher.get_messages(
             self.EMAIL_CHANGED_EVENT_CODE, extra_context)
         self.dispatcher.dispatch_user_messages(user, messages)
+
+    
 
 def get_password_reset_url(user, token_generator=default_token_generator):
     """

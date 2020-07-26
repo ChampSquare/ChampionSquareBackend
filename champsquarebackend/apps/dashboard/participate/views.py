@@ -4,6 +4,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib import messages
 from django.views.generic import CreateView, DetailView, UpdateView
+from django.contrib.sites.shortcuts import get_current_site
+
 
 from django_tables2 import SingleTableView
 
@@ -15,6 +17,10 @@ Participant = get_model('participate', 'participant')
 ParticipantTable = get_class('dashboard.participate.tables', 'ParticipantTable')
 ParticipantForm = get_class('dashboard.participate.forms', 'ParticipantForm')
 UserListView = get_class('dashboard.users.views', 'UserListView')
+
+ParticipantDispatcher = get_class('dashboard.participate.utils', 'ParticipantDispatcher')
+
+
 
 User = get_user_model()
 
@@ -66,7 +72,20 @@ class QuizParticipantListView(UserListView):
         return redirect(reverse('dashboard:quiz-participant-list', kwargs={'pk': self._get_quiz().id}))
 
     def send_test_link(self, request, participants):
-        messages.info(self.request, _("Method hasn't be implemented"))
+        site = get_current_site(request)
+        response = None
+        for participant in participants:
+            ctx = {
+                'site': site,
+                'start_date_time': participant.start_date_time,
+                'video_monitoring_enabled': participant.video_monitoring_enabled,
+                'duration': participant.duration,
+                'quiz_link': reverse('quiz:quiz-take',
+                                     kwargs={'pk': participant.quiz.pk, 'participant_pk': participant.pk})
+            }
+            response = ParticipantDispatcher().send_quiz_link_email_for_user(participant, ctx)
+
+        messages.info(self.request, _(response))
         return redirect(reverse('dashboard:quiz-participant-list', kwargs={'pk': self._get_quiz().id}))
 
 

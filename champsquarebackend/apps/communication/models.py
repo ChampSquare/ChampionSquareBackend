@@ -124,10 +124,8 @@ class CommunicationEventType(TimestampedModel):
             else:
                 # Model field is empty - look for a file template
                 template_name = getattr(self, "%s_file" % attr_name) % code
-                print("template_name : "+ template_name)
                 try:
                     templates[name] = get_template(template_name)
-                    print("Exist")
                 except TemplateDoesNotExist:
                     templates[name] = None
 
