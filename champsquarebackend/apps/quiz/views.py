@@ -50,13 +50,9 @@ class QuizView(QuizConditionsMixin, ListView):
         ctx['quiz'] = self.get_quiz()
         ctx['participant'] = self.get_participant()
         ctx['answerpaper'] = self.get_answerpaper()
+        ctx['video_monitoring'] = self.get_participant().video_monitoring_enabled
         return ctx
 
-class QuizWithVideoMonitoringView(QuizView):
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['video_monitoring'] = True
-        return ctx
 
 
 # Legacy code
