@@ -15,9 +15,15 @@
             <a href="{% url 'dashboard:index' %}">{% trans "Dashboard" %}</a>
         </li>
         <li>
+            <a href="{% url 'dashboard:quiz-list' %}">{% trans "Quizzes" %}</a>
+        </li>
+        <li>
+            <a href="{% url 'dashboard:quiz-answerpaper-list' pk=answerpaper.quiz.id %}">{% trans "AnswerPapers" %}</a>
+        </li>
+        <li class="active">{{ answerpaper.participant.full_name }}</li>
+        <li>
             <a href="{% url 'dashboard:video-list' %}">{% trans "Videos" %}</a>
         </li>
-        <li class="active">{% trans "Answerpaper" %}</li>
     </ul>
 {% endblock %}
 
@@ -108,7 +114,7 @@
         {% endblock answerpaper_video %}
     </div>
     <div class="row">
-        {% block answerppaer_additional_info %}
+        {% block answerpaper_additional_info %}
             <div class="tabbable dashboard col-md-12">
                 {% block tab_nav %}
                     <ul class="nav nav-tabs">
