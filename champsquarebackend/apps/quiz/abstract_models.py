@@ -256,9 +256,9 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
     quiz = models.ForeignKey('quiz.Quiz',
                              on_delete=models.PROTECT,
                              related_name='answerpapers')
+                             
     participant = models.ForeignKey('participate.Participant',
                                      on_delete=models.PROTECT,
-                                     null=True, blank=True, db_index=True,
                                      related_name='answerpapers')
     
     # is trial, trail quizzes are one which are taken by staff members for debugging
@@ -273,7 +273,7 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
     end_time = models.DateTimeField(_('End time of paper'), blank=True, null=True)
 
     test_status_options = {
-        'In-progress': ('started', 'on_permission_page' 'on_instruction', 'answering',),
+        'In-progress': ('created', 'on_permission_page' 'on_instruction', 'answering',),
         'Paused': ('Paused by Admin', 'Network Issue'),
         'Cancelled': ('Blocked by Admin', 'User Left'),
         'Completed': ('Submitted by User', 'Autosubmitted')
@@ -438,10 +438,6 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
     @property
     def get_not_visited_num(self):
         return self.get_not_visited_list().count()
-
-    @property
-    def participant(self):
-        return self.participant
 
 
 

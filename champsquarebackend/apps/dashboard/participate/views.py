@@ -13,7 +13,7 @@ from champsquarebackend.core.compat import get_user_model
 Quiz = get_model('quiz', 'quiz')
 Participant = get_model('participate', 'participant')
 ParticipantTable = get_class('dashboard.participate.tables', 'ParticipantTable')
-ParticipantForm = get_classes('dashboard.participate.forms', ['ParticipantForm'])
+ParticipantForm = get_class('dashboard.participate.forms', 'ParticipantForm')
 UserListView = get_class('dashboard.users.views', 'UserListView')
 
 User = get_user_model()
@@ -101,8 +101,7 @@ class ParticipantCreateUpdateView(UpdateView):
         if self.creating:
             return None #success
         else:
-            participant = get_object_or_404(Participant,
-                                            pk=self.get_quiz().id)
+            participant = get_object_or_404(Participant, pk=self.kwargs['pk'])
             return participant
 
     def get_quiz(self):
@@ -113,7 +112,7 @@ class ParticipantCreateUpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['title'] = self.get_page_title()
-        ctx['quiz_pk'] = self.kwargs['quiz_pk']
+        ctx['quiz_pk'] = self.get_quiz().id
 
         # edit : add context data in here
 

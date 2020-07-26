@@ -19,16 +19,7 @@
             <li>
                 <a href="{% url 'dashboard:quiz-participant-list' pk=record.id %}">{% trans "Participants" %}</a>
             </li>
-            <li>
-                <a {% if record.has_questions %}
-                    href="{% url 'quiz:quiz-take' pk=record.id %}"
-                {% endif %}> {% trans "Take Quiz" %}</a>
-            </li>
-            <li>
-                <a {% if record.has_questions %}
-                    href="{% url 'quiz:quiz-take-monitoring' pk=record.id %}"
-                {% endif %}> {% trans "Take Quiz with video monitoring" %}</a>
-            </li>
+            
         
         </ul>
     </div>

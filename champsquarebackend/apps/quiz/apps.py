@@ -1,7 +1,7 @@
-from django.urls import path
+from django.urls import path, re_path
 
 from django.utils.translation import gettext_lazy as _
-from django.views import generic
+from django.views.generic import TemplateView
 
 from champsquarebackend.core.application import AppConfig
 from champsquarebackend.core.loading import get_class
@@ -24,9 +24,11 @@ class QuizConfig(AppConfig):
 
     def get_urls(self):
         urls = [
-            path('quiz-take/<int:pk>', self.quiz_take.as_view(), name='quiz-take'),
-            path('quiz-take-video/<int:pk>', self.quiz_take_monitoring.as_view(), name='quiz-take-monitoring'),
+            path('take/<int:pk>/<int:participant_pk>/', self.quiz_take.as_view(), name='quiz-take'),
+            path('take-video/<int:pk>/<str:number>/', self.quiz_take_monitoring.as_view(), name='quiz-take-monitoring'),
             path('answerpaper/<int:pk>', self.answerpaper_detail.as_view(), name='answerpaper-detail'),
+            path('error/', TemplateView.as_view(template_name="champsquarebackend/error.html"), name='error'),
+
             
             # todo : create a better and secure way to submit answers
             path('ajax/save_answer/', self.save_answer.as_view(), name='save_answer'),

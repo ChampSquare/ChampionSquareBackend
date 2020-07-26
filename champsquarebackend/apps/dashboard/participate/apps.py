@@ -21,7 +21,7 @@ class ParticipateDashboardConfig(AppDashboardConfig):
         urls = [
             path('quiz/<int:pk>/list/', self.quiz_participant_list_view.as_view(), name='quiz-participant-list'),
             path('<int:pk>', self.participant_detail_view.as_view(), name='participant-detail'),
-            path('update/<int:pk>/quiz/<int:quiz_pk>/', self.participant_create_update_view.as_view(), name='quiz-participant-update'),
-            path('create/quiz/<int:quiz_pk/', self.participant_create_update_view.as_view(), name='quiz-participant-create')
+            path('<int:pk>/update/quiz/<int:quiz_pk>/', self.participant_create_update_view.as_view(), name='quiz-participant-update'),
+            path('create/quiz/<int:quiz_pk/', self.participant_create_update_view.as_view(), name='quiz-participant-create'),
         ]
         return self.post_process_urls(urls)

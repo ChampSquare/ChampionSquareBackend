@@ -133,9 +133,9 @@
 
 
 
-<input type="hidden" id="hdfTestDuration" {% if participant.answerpaper.is_trial %}value="180"{% else %} value="{{paper.time_left}}{%endif%}">
+<input type="hidden" id="hdfTestDuration" {% if answerpaper.is_trial %}value="180"{% else %} value="{{paper.time_left}}{%endif%}">
 
-    <input type="hidden" id="paperId" value="{{ participant.answerpaper.id }}">
+    <input type="hidden" id="paperId" value="{{ answerpaper.id }}">
         <input type="hidden" id="attemptId" value="{{ paper.attempt_number }}">
 
 <div>
@@ -457,7 +457,7 @@ carries +4 marks each for correct answer and –1 mark for each wrong answer.</l
                             <h3>{{ website_name }} wishes you all the best </h3>
                             
                             {% if participant.quiz.view_answerpaper %}
-                            <h4><a href="{% url 'quiz:answerpaper-detail' pk=participant.answerpaper.id %}">See Your Result</a></h4>
+                            <h4><a href="{% url 'quiz:answerpaper-detail' pk=answerpaper.id %}">See Your Result</a></h4>
                             {% endif %}
                                 
                            </div>

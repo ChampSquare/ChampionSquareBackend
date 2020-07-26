@@ -25,58 +25,43 @@ class ParticipantCreator(object):
     """
     Create a participant by writing out the various models
     """
-    def create_participant_model(self, user, quiz, answerpaper,
-                                 participant_number,
-                                 request, **kwargs):
+    def create_or_update_participant(self, quiz, request,
+                                 participant, **kwargs):
         """ create a participant model"""
-        participant_data = {'number': participant_number,
-                            'quiz': quiz,
-                            'answerpaper': answerpaper,
-                            }
-        if kwargs:
-            participant_data.update(kwargs)
-        if 'user_ip' not in participant_data:
-            user_ip = get_ip_address(request)
-            participant_data['user_ip'] = user_ip
-        # if not is_ip_address_valid(participant_data[user_ip]):
-        #     raise PermissionDenied('The ip address is not valid'
-        #                             'You are not allowed to take the test')
-        if user and user.is_authenticated:
-            participant_data['user_id'] = user.id
-        participant_data['status'] = 'created'
-
-        if 'site' not in participant_data:
-            participant_data['site'] = Site._default_manager.get_current(request)
-
-        participant = Participant(**participant_data)
+        user = request.user
+        participant_data = {}
+        if participant is None:
+            participant_data = {'quiz': quiz,
+                                'user': user,
+                                'is_active': True}
+            participant = Participant(**participant_data)
+            participant.save()
+            
+        participant.user_ip = get_ip_address(request)
+        participant.site = Site._default_manager.get_current(request)
         participant.save()
         return participant
 
-    def create_answerpaper_model(self, quiz, is_trial=False):
-        answerpaper = AnswerPaper.objects.create(quiz=quiz, is_trial=is_trial)
+    def create_answerpaper_model(self, quiz, participant, is_trial=False):
+        answerpaper = AnswerPaper.objects.create(quiz=quiz,
+                                                 participant=participant,
+                                                 is_trial=is_trial,
+                                                 status='created')
         return answerpaper
 
-    def start_quiz(self, quiz, request, user=None, **kwargs):
+    def start_quiz(self, quiz, request, participant, **kwargs):
         if quiz is None or request is None:
             raise ValueError(_('quiz or request can\'t be None'))
 
-        can_be_taken, reason = quiz.can_be_taken(request.user)
-
-        if not can_be_taken:
-            raise ValueError(_('This quiz can\'t be taken, %s' % (reason)))
-
         with transaction.atomic():
-            answerpaper = self.create_answerpaper_model(quiz=quiz,
-                                                        is_trial=user is not None \
-                                                            and user.is_staff)
-            participant_number = answerpaper.participant_number
-            participant = self.create_participant_model(user=user,
-                            quiz=quiz,
-                            answerpaper=answerpaper,
-                            participant_number=participant_number,
-                            request=request)
+            participant = self.create_or_update_participant(quiz=quiz,
+                            request=request, participant=participant, **kwargs)
+            answerpaper = self.create_answerpaper_model(quiz=quiz, participant=participant,
+                                                        is_trial=request.user is not None \
+                                                            and request.user.is_staff)
+            
 
-        return participant
+        return answerpaper
 
 
 
