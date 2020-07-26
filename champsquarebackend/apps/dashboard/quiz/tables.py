@@ -42,3 +42,38 @@ class QuizTable(DashboardTable):
         fields = ()
         sequence = ('counter', 'name', 'questions', 'total_marks', 'users', 'category', 'actions')
 
+
+class AnswerPaperTable(DashboardTable):
+    check = TemplateColumn(
+        template_name='champsquarebackend/dashboard/quiz/answerpaper_row_checkbox.html',
+        verbose_name=' ', orderable=False)
+    
+    name = Column(
+        verbose_name=_('Name'),
+        orderable=False, accessor=('participant.full_name')
+    )
+
+    start_time = Column(
+        verbose_name=_('Start Time'),
+        orderable=True, accessor=('created_at')
+    )
+
+    end_time = Column(
+        verbose_name=_('End Time'),
+        orderable=False, accessor=('end_date_time')
+    )
+    marks = Column(
+        verbose_name=_('Marks Obtained'),
+        orderable=False, accessor=('get_total_marks')
+    )
+
+    actions = TemplateColumn(
+        verbose_name=_('Actions'),
+        template_name='champsquarebackend/dashboard/quiz/answerpaper_row_actions.html',
+        orderable=False)
+
+    icon = "group"
+
+    class Meta(DashboardTable.Meta):
+        template_name = 'champsquarebackend/dashboard/quiz/answerpaper_table.html'
+

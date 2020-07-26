@@ -29,7 +29,7 @@ class QuizView(QuizConditionsMixin, ListView):
 
     def get_participant(self):
         if not hasattr(self, '_participant'):
-            self._participant = get_object_or_404(Participant, id=self.kwargs['participant_pk'])
+            self._participant = get_object_or_404(Participant, id=self.kwargs['participant_pk'], quiz=self.kwargs['pk'])
         return self._participant
 
     def get_answerpaper(self):

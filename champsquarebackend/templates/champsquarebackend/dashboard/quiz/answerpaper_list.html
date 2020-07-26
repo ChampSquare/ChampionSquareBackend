@@ -1,0 +1,59 @@
+{% extends 'champsquarebackend/dashboard/layout.html' %}
+{% load i18n %}
+{% load render_table from django_tables2 %}
+
+{% block body_class %} {{ block.super }} AnswerPapers {% endblock %}
+
+{% block title %}
+{% trans "AnswerPapers List" %} | {{ block.super }}
+{% endblock title %}
+
+{% block breadcrumbs %}
+    <ul class="breadcrumb">
+        <li>
+            <a href="{% url 'dashboard:index' %}">{% trans "Dashboard" %}</a>
+        </li>
+        <li>
+            <a href="{% url 'dashboard:quiz-list' %}">{% trans "Quizzes" %}</a>
+        </li>
+        <li class="active">{% trans "AnswerPapers" %}</li>
+    </ul>
+{% endblock %}
+
+{% block header %}
+    <div class="page-header">
+        <h1>{% trans "AnswerPapers" %}</h1>
+    </div>
+{% endblock header %}
+
+{% block dashboard_content %}
+
+    {% if answerpapers %}
+   
+        {% block answerpapers_list %}
+            <form method="post">
+                {% csrf_token %}
+                {% render_table answerpapers %}
+            </form>
+            <div class="modal fade" id="product-image-modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title"></h4>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img class="img-responsive center-block">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
+    {% else %}
+        <p>{% trans "No AnswerPapers found" %}</p>
+    {% endif %}
+{% endblock dashboard_content %}
+
+{% block onbodyload %}
+    {{ block.super }}
+{% endblock onbodyload %}

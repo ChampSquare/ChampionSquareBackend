@@ -23,13 +23,15 @@ QuestionPaper = get_model('quiz', 'questionpaper')
 Question = get_model('question', 'question')
 AnswerPaper = get_model('quiz', 'answerpaper')
 Participant = get_model('participate', 'participant')
+UserListView = get_class('dashboard.users.views', 'UserListView')
+
 
 QuizCreateSessionMixin = get_class('dashboard.quiz.mixins', 'QuizCreateSessionMixin')
 
 CategoryForm, QuizForm, QuizMetaForm, QuestionPaperForm \
     = get_classes('dashboard.quiz.forms', ['CategoryForm', 'QuizForm', 'QuizMetaForm', 'QuestionPaperForm'])
 
-QuizTable = get_class('dashboard.quiz.tables','QuizTable')
+QuizTable, AnswerPaperTable = get_classes('dashboard.quiz.tables',['QuizTable', 'AnswerPaperTable'])
 
 
 
@@ -275,3 +277,53 @@ class AnswerPaperDetailView(DetailView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(AnswerPaper, id=self.kwargs['pk'])
+
+class AnswerPaperListView(UserListView):
+    template_name = 'champsquarebackend/dashboard/quiz/answerpaper_list.html'
+    model = AnswerPaper
+    actions = ('delete', 'send_result',)
+    table_class = AnswerPaperTable
+    context_table_name = 'answerpapers'
+
+
+    def get_queryset(self):
+        queryset = self._get_quiz().answerpapers.all()
+        
+        return self.apply_search(queryset)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form
+        context['quiz_id'] = self.kwargs['pk']
+        return context
+
+    def apply_search(self, queryset):
+        # Set initial queryset description, used for template context
+        self.desc_ctx = {
+            'main_filter': _('All Participants'),
+            'email_filter': '',
+            'name_filter': '',
+        }
+        if self.form.is_valid():
+            return self.apply_search_filters(queryset, self.form.cleaned_data)
+        else:
+            return queryset
+
+    def _get_quiz(self):
+        if not hasattr(self, '_quiz'):
+            self._quiz = get_object_or_404(Quiz, pk=self.kwargs['pk'])
+        return self._quiz
+
+    def delete(self, request, answerpapers):
+        # always delete via this way as it checks whether object exist or not first
+        # participant_to_delete = Participant.objects \
+            # .filter(id__in=list(map(lambda participant: participant.id, participants)))
+        answerpaper_to_delete = AnswerPaper.objects \
+            .filter(id__in=[answerpaper.id for answerpaper in answerpapers])
+        answerpaper_to_delete.delete()
+        messages.info(self.request, _("Successfully deleted answerpapers"))
+        return redirect(reverse('dashboard:quiz-answerpaper-list', kwargs={'pk': self._get_quiz().id}))
+
+    def send_result(self, request, answerpapers):
+        messages.info(self.request, _("Method hasn't be implemented"))
+        return redirect(reverse('dashboard:quiz-answerpaper-list', kwargs={'pk': self._get_quiz().id}))

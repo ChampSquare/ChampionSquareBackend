@@ -18,6 +18,7 @@ class QuizDashboardConfig(AppDashboardConfig):
         self.category_create_update_view = get_class('dashboard.quiz.views', 'CategoryCreateUpdateView')
         self.questionpaper_create_update_view = get_class('dashboard.quiz.views', 'QuestionPaperCreateUpdateView')
         self.answer_paper_detail_view = get_class('dashboard.quiz.views', 'AnswerPaperDetailView')
+        self.answer_paper_list_view = get_class('dashboard.quiz.views', 'AnswerPaperListView')
         
     def get_urls(self):
         urls = [
@@ -28,5 +29,6 @@ class QuizDashboardConfig(AppDashboardConfig):
             path('category/<int:pk>/', self.category_create_update_view.as_view(), name='quiz-category-update'),
             path('questionpaper/<int:pk>/', self.questionpaper_create_update_view.as_view(), name='quiz-questionpaper-update'),
             path('answerpaper/<int:pk>/', self.answer_paper_detail_view.as_view(), name='quiz-answerpaper-detail'),
+            path('<int:pk>/answerpaper/list/', self.answer_paper_list_view.as_view(), name='quiz-answerpaper-list'),
         ]
         return self.post_process_urls(urls)
