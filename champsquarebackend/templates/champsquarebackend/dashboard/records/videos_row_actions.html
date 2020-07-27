@@ -11,7 +11,7 @@
                 <a href="{% url 'dashboard:quiz-answerpaper-detail' pk=record.answerpaper.id %}">{% trans "Detail" %}</a>
             </li>
             <li>
-                <a href="{% url 'dashboard:video-post-process' pk=record.id %}">{% trans "Process Video" %}</a>
+                <a href='#' onclick="processVideo({{ record.id }})">{% trans "Process Video" %}</a>
             </li>
             <li>
                 <a href="{% url 'dashboard:video-delete' pk=record.id %}">{% trans "Delete" %}</a>

@@ -4,14 +4,16 @@ from django.views.generic import DeleteView, DetailView
 from django.contrib import messages
 from django.urls import reverse
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
+from django.views import View
 
 from django_tables2 import SingleTableMixin, SingleTableView
+from celery import current_app
 
 
 from champsquarebackend.core.loading import get_model, get_class
 from champsquarebackend.views.generic import BulkEditMixin
-from champsquarebackend.apps.dashboard.records.utils import post_process_video
+from champsquarebackend.apps.dashboard.records.tasks import process_video
 
 VideoRecord = get_model('monitoring', 'videorecord')
 VideoRecordTable = get_class('dashboard.records.tables', 'VideoRecordTable')
@@ -75,15 +77,38 @@ class VideoDeleteView(DeleteView):
         return reverse('dashboard:video-list')
 
 
-class ProcessVideoView(DetailView):
+class ProcessVideoView(View):
+
     def get(self, request, *args, **kwargs):
-        video_record = get_object_or_404(VideoRecord, id=self.kwargs['pk'])
-        response = post_process_video(video_record)
-        if response:
-            video_record.is_processed = response
-            video_record.file_name = video_record.create_processed_video_file_name()
-            video_record.save()
-            messages.info(self.request, _('Successfully converted video'))
-        else:
-            messages.error(self.request, _('Failed to convert the video'))
-        return HttpResponseRedirect(reverse('dashboard:video-list'))
+        context = {}
+        task = process_video.delay(video_record_id=self.kwargs['pk'])
+        
+        context['task_id'] = task.id
+        context['task_status'] = task.status
+
+        return JsonResponse(context)
+
+        # return render(self.request, 'champsquarebackend/dashboard/records/video_process.html', context)
+
+
+        # return HttpResponseRedirect(reverse('dashboard:video-list')+'?task_id=%s&task_status=%s' % (task.id, task.status))
+        
+        # if response:
+        #     video_record.is_processed = response
+        #     video_record.file_name = video_record.create_processed_video_file_name()
+        #     video_record.save()
+        #     messages.info(self.request, _('Successfully converted video'))
+        # else:
+        #     messages.error(self.request, _('Failed to convert the video'))
+        # return HttpResponseRedirect(reverse('dashboard:video-list'))
+
+class TaskView(View):
+    def get(self, request, task_id):
+        task = current_app.AsyncResult(task_id)
+        response_data = {'task_status': task.status, 'task_id': task.id}
+
+        if task.status == 'SUCCESS':
+            response_data['results'] = task.get()
+
+        return JsonResponse(response_data)
+

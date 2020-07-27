@@ -1,0 +1,81 @@
+{% extends 'champsquarebackend/dashboard/layout.html' %}
+{% load i18n %}
+{% load static %}
+{% block body_class %}{{ block.super }}Video Records{% endblock %}
+
+{% block title %}
+    {% trans "Video Records" %} | {{ block.super }}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <ul class="breadcrumb">
+        <li>
+            <a href="{% url 'dashboard:index' %}">{% trans "Dashboard" %}</a>
+        </li>
+        <li>
+            <a href="{% url 'dashboard:video-list' %}">{% trans "Videos" %}</a>
+        </li>
+        <li class="active">{% trans "Processing Video" %}</li>
+    </ul>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="container">
+	<div class="row">
+		<div class="col-md-12">
+            <section class="hero is-primary is-fullheight-with-navbar">
+                <div class="hero-body">
+                  <div class="container">
+                    <h1 class="title is-size-1 has-text-centered">Video Processing</h1>
+                    <p class="subtitle has-text-centered" id="progress-title"></p>
+                  </div>
+                </div>
+              </section>
+        </div>
+    </div>
+</div>
+{% endblock dashboard_content %}
+
+{% block extrascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+
+{% if task_id %}
+  <script>
+  var taskUrl = "{% url 'dashboard:process-video-task' task_id=task_id %}";
+  var dots = 1;
+  var progressTitle = document.getElementById('progress-title');
+  updateProgressTitle();
+  var timer = setInterval(function() {
+    updateProgressTitle();
+    axios.get(taskUrl)
+      .then(function(response){
+        var taskStatus = response.data.task_status
+        if (taskStatus === 'SUCCESS') {
+          clearTimer('Successfully processed video');
+        } else if (taskStatus === 'FAILURE') {
+          clearTimer('An error occurred');
+        }
+      })
+      .catch(function(err){
+        console.log('err', err);
+        clearTimer('An error occurred');
+      });
+  }, 800);
+
+  function updateProgressTitle() {
+    dots++;
+    if (dots > 3) {
+      dots = 1;
+    }
+    progressTitle.innerHTML = 'processing videos ';
+    for (var i = 0; i < dots; i++) {
+      progressTitle.innerHTML += '.';
+    }
+  }
+  function clearTimer(message) {
+    clearInterval(timer);
+    progressTitle.innerHTML = message;
+  }
+  </script> 
+  {% endif %}
+{% endblock extrascripts %}

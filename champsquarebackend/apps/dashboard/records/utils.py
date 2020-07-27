@@ -1,6 +1,9 @@
 from django.conf import settings
 
 from champsquarebackend.core.utils import run_bash_script
+from champsquarebackend.core.loading import get_model
+
+VideoRecord = get_model('monitoring', 'VideoRecord')
 
 def janus_post_process_file(input_file, output_file):
     """
@@ -32,7 +35,7 @@ def merge_audio_video(input_video_file, input_audio_file, output_file):
         return True
     return False
 
-def post_process_video(video_record):
+def post_process_video(video_record_id):
     """
         post processes janus mjr file to convert to webm
         
@@ -44,6 +47,9 @@ def post_process_video(video_record):
 
         args: video_record - instance of `champsquarebackend.apps.monitoring.VideoRecord`
     """
+    video_record = VideoRecord.objects.get(id=video_record_id)
+    if video_record is None:
+        return False
     video_type = video_record.type
     video_media_root = settings.VIDEO_ROOT
     input_video_file = video_record.get_video_dir() + video_record.get_mjr_video_file_name()
