@@ -47,13 +47,12 @@ class QuizView(QuizConditionsMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        quiz = self.get_quiz()
         ctx['quiz'] = self.get_quiz()
         ctx['participant'] = self.get_participant()
         ctx['answerpaper'] = self.get_answerpaper()
         ctx['video_monitoring'] = self.get_participant().video_monitoring_enabled
-        if self.request.user.is_staff:
-            ctx['video_monitoring'] = False
+        # if self.request.user.is_staff:
+        #     ctx['video_monitoring'] = False
         return ctx
 
 
