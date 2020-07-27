@@ -2,6 +2,7 @@ from django.views.generic import ListView, DetailView
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.utils import timezone
+from django.views import View
 
 from champsquarebackend.core.loading import get_model, get_class
 
@@ -18,8 +19,8 @@ class QuizView(QuizConditionsMixin, ListView):
     """
     model = Question
     context_object_name = "questions"
-    template_name = 'champsquarebackend/quiz/quiz_take_admin.html'
-    pre_conditions = ['is_participant',]
+    template_name = 'champsquarebackend/quiz/quiz.html'
+    pre_conditions = ['is_participant', 'can_take_new']
     skip_conditions = []
 
     def get_quiz(self):
@@ -29,7 +30,7 @@ class QuizView(QuizConditionsMixin, ListView):
 
     def get_participant(self):
         if not hasattr(self, '_participant'):
-            self._participant = get_object_or_404(Participant, id=self.kwargs['participant_pk'], quiz=self.kwargs['pk'])
+            self._participant = get_object_or_404(Participant, id=self.kwargs['number'], quiz=self.kwargs['pk'])
         return self._participant
 
     def get_answerpaper(self):
@@ -51,6 +52,8 @@ class QuizView(QuizConditionsMixin, ListView):
         ctx['participant'] = self.get_participant()
         ctx['answerpaper'] = self.get_answerpaper()
         ctx['video_monitoring'] = self.get_participant().video_monitoring_enabled
+        if self.request.user.is_staff:
+            ctx['video_monitoring'] = False
         return ctx
 
 
@@ -117,4 +120,19 @@ class AnswerPaperDetail(DetailView):
     
     def get_participant(self):
         return self.object.participant
+
+class SaveAnswerPaperStatusView(View):
+    """
+     save instruction read status
+    """
+    
+    def get(self, request, *args, **kwargs):
+        answer_paper_id = int(request.GET.get('answer_paper_id', None))
+        status = request.GET.get('status', None)
+        paper = AnswerPaper.objects.get(id=answer_paper_id)
+        paper.set_status(status)
+        data = {
+            'success': True
+        }
+        return JsonResponse(data)
         

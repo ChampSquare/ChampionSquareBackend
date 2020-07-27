@@ -110,9 +110,10 @@ function check_instruction() {
                     $('.exam-paper').removeClass('hide').show();
                     
                     return $.ajax({
-                 url: '/quiz/ajax/save_instruction_read/',
+                 url: '/quiz/ajax/save_status',
                 data: {
-                'answer_paper_id': $('#paperId').val()
+                'answer_paper_id': $('#paperId').val(),
+                'status': 'instruction_read'
         },
         dataType: 'json',
         tryCount: 0,
@@ -243,13 +244,10 @@ function CheckResult() {
     });
 
     $.ajax({
-        url: '/quiz/ajax/save_result/',
+        url: '/quiz/ajax/save_status/',
         data: {
             'paper_id': $('#paperId').val(),
-            'num_attempt': TotalAttempted,
-            'num_correct': TotalCorrect,
-            'num_wrong': TotalWrong,
-            'marks_obtained': score
+            'status': 'submitted_by_user'
         },
         dataType: 'json',
         tryCount: 0,

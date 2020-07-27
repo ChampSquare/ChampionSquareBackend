@@ -6,6 +6,8 @@ from django.db.models import Sum, Q
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied
+from django.utils.functional import cached_property
+
 
 # from taggit.managers import TaggableManager
 from ckeditor_uploader.fields import RichTextUploadingField
@@ -142,6 +144,11 @@ class AbstractQuiz(TimestampedModel, ModelWithMetadata):
             mins = (dt.seconds + dt.days * 24 * 3600) / 60.0
         return mins
 
+    @cached_property
+    def get_num_questions(self):
+        return self.questionpaper.questions.count()
+
+
     def set_marks(self, marks):
         self.total_marks = marks
         self.save()
@@ -272,19 +279,26 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
     # the time by when paper must be submitted
     end_time = models.DateTimeField(_('End time of paper'), blank=True, null=True)
 
+    # status values are hardcorded in exam js file and here as well
+    # remember to change those too, if you change it here
+    # 'webcam_permission_granted' and 'screen_sharing_permission_granted'
+    # are hardcoded in monitoring.views 
     test_status_options = {
-        'In-progress': ('created', 'on_permission_page' 'on_instruction', 'answering',),
-        'Paused': ('Paused by Admin', 'Network Issue'),
-        'Cancelled': ('Blocked by Admin', 'User Left'),
-        'Completed': ('Submitted by User', 'Autosubmitted')
+        'in-progress': ('created', 'webcam_permssion_granted',
+                        'screen_sharing_permission_granted',
+                        'instruction_read', 'answering',),
+        'paused': ('paused_by_Admin', 'network_issue'),
+        'cancelled': ('blocked_by_Admin', 'user_left'),
+        'completed': ('submitted_by_user', 'autosubmitted')
     }
     status = models.CharField(
-        _('Status of Test'), max_length=32, blank=True)
+        _('Status of Test'), max_length=128, blank=True)
 
     class Meta:
         abstract = True
         app_label = 'quiz'
         verbose_name = _('AnswerPaper')
+        ordering= ['-created_at']
         verbose_name_plural = _("AnswerPapers")
 
     @classmethod
@@ -293,6 +307,41 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
             Return all possible statuses for a participation
         """
         return list(cls.test_status_options.keys())
+
+    def get_status_attr(self):
+        return [key for (key, value) in self.test_status_options.items()
+                    if self.status in value][0]
+
+    def is_time_up(self):
+        if self.get_time_left() <= 0:
+            return True
+        return False
+
+    def get_time_left(self):
+        """Return the time remaining for the user in minutes."""
+        dt = timezone.now() - self.created_at
+        try:
+            mins = dt.total_seconds() / 60.0
+        except AttributeError:
+            # total_seconds is new in Python 2.7. :(
+            mins = (dt.seconds + dt.days * 24 * 3600) / 60.0
+
+        duration = self.participant.duration
+
+        remain = max(duration - mins, 0)
+        return remain
+
+
+    def is_closed(self):
+        """
+            checks if the answerpaper is in closed state
+            closed state -> status is cancelled or completed
+                             or time is over or answerpaper is submitted
+        """
+        return self.is_time_up() \
+                or self.status in ('cancelled', 'completed') \
+                    or self.is_submitted
+
 
     def available_statues(self):
         """
@@ -311,7 +360,7 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
             return
         
         old_status = self.status
-        if new_status not in self.available_statues:
+        if new_status not in self.available_statues():
             raise exceptions.InvalidStatus(
                 _("'%(new_status)s' is not a valid status for order %(number)s"
                   " (current status: '%(status)s')")
@@ -320,6 +369,10 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
                    'status': self.status})
 
         self.status = new_status
+        if new_status in self.test_status_options.get('completed'):
+            self.is_submitted = True
+            self.end_time = timezone.now()
+        self.append_value_in_metadata(key='status', value=old_status)
         self.save()
     
     @property
@@ -339,6 +392,8 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
         current_question = self.quiz.questionpaper.questions.get(id=question_id)
         user_answer = self.answers.filter(question=question_id).first()
         expected_answer = current_question.get_right_answer
+        if not self.status == 'answering':
+            self.set_status('answering')
 
         if user_answer is None:
             user_answer = self.answers.create(question=current_question,
@@ -381,6 +436,7 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
                 user_answer.set_points(0)
 
             user_answer.save()
+            
 
     def save_unanswered(self, question_id, time_taken=0):
         user_answer = self.answers.filter(question=question_id).first()

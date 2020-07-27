@@ -14,7 +14,7 @@
                 <a href="{% url 'dashboard:quiz-participant-update' pk=record.id quiz_pk=record.quiz.id %}{% querystring %}">{% trans "Edit" %}</a>
             </li>
             <li>
-                <a href="{% url 'quiz:quiz-take' pk=record.quiz.id participant_pk=record.id %}">Take Quiz</a>
+                <a href="{{ record.get_absolute_url }}">Take Quiz</a>
             </li>
             
         </ul>

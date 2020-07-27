@@ -21,7 +21,7 @@ class ModelWithMetadata(models.Model):
             self.metadata = {}
         self.metadata.update(items)
 
-    def append_value(self, key:str, value):
+    def append_value_in_metadata(self, key: str, value):
         # if metadata is None or key not in metadata
         if not self.metadata or key in self.metadata:
             self.store_value_in_metadata({key: list(value)})

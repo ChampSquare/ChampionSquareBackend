@@ -36,13 +36,18 @@ class ParticipantCreator(object):
                                 'is_active': True}
             participant = Participant(**participant_data)
             participant.save()
-            
+
         participant.user_ip = get_ip_address(request)
         participant.site = Site._default_manager.get_current(request)
         participant.save()
         return participant
 
     def create_answerpaper_model(self, quiz, participant, is_trial=False):
+        # answerpapers are ordered by '-created_at', so the first one is the most recent one
+        answerpaper = AnswerPaper.objects.filter(participant=participant.id).first()
+        # todo : check for resume conditions
+        if not answerpaper.is_closed():
+            return answerpaper
         answerpaper = AnswerPaper.objects.create(quiz=quiz,
                                                  participant=participant,
                                                  is_trial=is_trial,
@@ -56,9 +61,9 @@ class ParticipantCreator(object):
         with transaction.atomic():
             participant = self.create_or_update_participant(quiz=quiz,
                             request=request, participant=participant, **kwargs)
-            answerpaper = self.create_answerpaper_model(quiz=quiz, participant=participant,
-                                                        is_trial=request.user is not None \
-                                                            and request.user.is_staff)
+            answerpaper = self.create_answerpaper_model(quiz=quiz, participant=participant)
+                                                        # is_trial=request.user is not None \
+                                                            # and request.user.is_staff)
             
 
         return answerpaper

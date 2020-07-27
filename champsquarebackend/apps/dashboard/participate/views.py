@@ -82,8 +82,7 @@ class QuizParticipantListView(UserListView):
                 'start_date_time': participant.start_date_time,
                 'video_monitoring_enabled': participant.video_monitoring_enabled,
                 'duration': participant.duration,
-                'quiz_link': reverse('quiz:quiz-take',
-                                     kwargs={'pk': participant.quiz.pk, 'participant_pk': participant.pk})
+                'quiz_link': participant.get_absolute_url()
             }
             response = ParticipantDispatcher().send_quiz_link_email_for_user(participant, ctx)
 

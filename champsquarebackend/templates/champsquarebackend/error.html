@@ -7,7 +7,9 @@
 <div class="container-fluid">
     <div class="jumbotron">
         <h1>{% block error_heading %}{% trans 'Sorry!' %}{% endblock %}</h1>
-        {% block error_message %}{% endblock %}
+        {% block error_message %}
+            {% include 'champsquarebackend/dashboard/partials/alert_messages.html' %}
+        {% endblock %}
         <p>
             <a class="btn btn-primary btn-lg" onclick="javascript:history.go(-1);">{% trans 'Return to previous page' %}</a>
             <a class="btn btn-primary btn-lg" href="{{ homepage_url }}">{% trans "Go to homepage" %}</a>

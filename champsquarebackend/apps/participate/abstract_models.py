@@ -7,6 +7,8 @@ from django.utils.translation import gettext_lazy as _
 from django.core.signing import BadSignature, Signer
 from django.utils.crypto import constant_time_compare
 from django.utils.timezone import now
+from django.urls import reverse
+
 
 # from taggit.managers import TaggableManager
 from ckeditor_uploader.fields import RichTextUploadingField
@@ -20,7 +22,7 @@ User = get_user_model()
 
 class AbstractParticipant(TimestampedModel, ModelWithMetadata):
     """
-        This model mocks the event of user taking an exam 
+        This model mocks the event of user taking an exam
     """
     number = models.UUIDField(
         _("Participation number"), default=uuid.uuid4, db_index=True, unique=True)
@@ -89,6 +91,9 @@ class AbstractParticipant(TimestampedModel, ModelWithMetadata):
 
     def __str__(self):
         return "#%s status: " %(self.full_name)
+
+    def get_absolute_url(self):
+        return reverse('quiz:quiz-take', kwargs={'pk': self.quiz.pk, 'number': self.id})
 
     def verification_hash(self):
         signer = Signer(salt='champsquarebackend.apps.participate.Participant')

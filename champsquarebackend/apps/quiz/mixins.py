@@ -58,7 +58,7 @@ class QuizConditionsMixin(object):
         # views.
         # Enforce any pre-conditions for the view.
         self.quiz = get_object_or_404(Quiz, pk=self.kwargs['pk'])
-        self.participant = get_object_or_404(Participant, pk=self.kwargs['participant_pk'])
+        self.participant = get_object_or_404(Participant, id=self.kwargs['number'])
         try:
             self.check_pre_conditions(request)
         except exceptions.FailedPreCondition as e:
@@ -122,4 +122,15 @@ class QuizConditionsMixin(object):
                     "You are not allowed to take this quiz")
             )
 
-    
+    def can_take_new(self, request):
+        """
+            check if participant has already taken the exam
+            and allow/disallow based on whether multiple attempt is
+            enabled or not.
+        """
+        if self.participant.has_taken_quiz and not self.participant.multiple_attempts_allowed:
+            raise exceptions.FailedPreCondition(
+                url=reverse('quiz:error'),
+                message=_(
+                    "You have already taken this test and not allowed to take it again!")
+            )  

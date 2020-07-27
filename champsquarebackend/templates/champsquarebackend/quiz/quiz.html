@@ -133,7 +133,7 @@
 
 
 
-<input type="hidden" id="hdfTestDuration" {% if answerpaper.is_trial %}value="180"{% else %} value="{{paper.time_left}}{%endif%}">
+<input type="hidden" id="hdfTestDuration" {% if answerpaper.is_trial %}value="{{answerpaper.get_time_left}}"{% else %} value="{{answerpaper.get_time_left}}{%endif%}">
 
     <input type="hidden" id="paperId" value="{{ answerpaper.id }}">
         <input type="hidden" id="attemptId" value="{{ paper.attempt_number }}">
@@ -200,11 +200,9 @@
                                 <ol>
                                     <li>
                                         <ul>
-                                            <li>The Online Test consists of 75 questions. The maximum marks are 300</li>
-                                            <li>Total duration of this Online Test is 180 min.</li>
-                                            <li>Section-I contains 20 multiple choice questions which have only one correct answer. Each question
-carries +4 marks each for correct answer and –1 mark for each wrong answer.</li>
-                                            <li>Section-II  contains 5 questions. The answers to each of the questions is a <strong> Numerical Value </strong>, For each question, enter the correct numerical value (If the numerical value has more than two decimal places, truncate/round-off the value to TWO decimal places; e.g. 6.25, 7.00, –0.33, –.30, 30.27, –127.30, if answer is 11.36777..... then both 11.36 and 11.37 will be correct)</li>
+                                            <li>The Online Test consists of {{ quiz.get_num_questions }} questions. The maximum marks are {{ quiz.total_marks }}</li>
+                                            <li>Total duration of this Online Test is {{ participant.duration }} min.</li>
+                                            
                                         </ul>
                                     </li>
                                     <li>The clock will be set at the server. The countdown timer in the top right corner of screen will display the remaining time available for you to complete the examination. When the timer reaches zero, the examination will end by itself. You will not be required to end or submit your examination.</li>
@@ -218,7 +216,7 @@ carries +4 marks each for correct answer and –1 mark for each wrong answer.</l
                                             <li><img src="{% static 'img/Logo5.png' %}"> The question(s) "Answered and Marked for Review" will be considered for evalution.<br><br></li>
                                         </ol>
                                     </li>
-                                    <li>You can click on the "&gt;" arrow which apperes to the left of question palette to collapse the question palette thereby maximizing the question window. To view the question palette again, you can click on "&lt;" which appears on the right side of question window.</li>
+                                    <li>You can click on the "&gt;" arrow which appears to the left of question palette to collapse the question palette thereby maximizing the question window. To view the question palette again, you can click on "&lt;" which appears on the right side of question window.</li>
                                     <li>You can click on <img src="{% static 'img/down.png' %}"> to navigate to the bottom and <img src="{% static 'img/up.png' %}"> to navigate to top of the question are, without scrolling.</li>
                                 </ol>
                                 
