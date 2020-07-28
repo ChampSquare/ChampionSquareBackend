@@ -41,6 +41,10 @@
                         <th>{% trans "Name" %}</th>
                         <td>{{ answerpaper.participant.full_name|default:"-" }}</td>
                     </tr>
+                    <tr>
+                        <th>{% trans "IP Address" %}</th>
+                        <td>{{ answerpaper.participant.user_ip }}</td>
+                    </tr>
                     
                     <tr>
                         <th>{% trans "Full Marks of Paper" %}</th>
