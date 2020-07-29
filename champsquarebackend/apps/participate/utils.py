@@ -9,6 +9,7 @@ from champsquarebackend.core.utils import get_ip_address, is_ip_address_valid
 
 Participant = get_model('participate', 'Participant')
 AnswerPaper = get_model('quiz', 'AnswerPaper')
+Answer = get_model('quiz', 'Answer')
 
 class ParticipantNumberCreator(object):
     """
@@ -46,12 +47,16 @@ class ParticipantCreator(object):
         # answerpapers are ordered by '-created_at', so the first one is the most recent one
         answerpaper = AnswerPaper.objects.filter(participant=participant.id).first()
         # todo : check for resume conditions
-        if not answerpaper.is_closed():
+        if answerpaper is not None and not answerpaper.is_closed:
             return answerpaper
         answerpaper = AnswerPaper.objects.create(quiz=quiz,
                                                  participant=participant,
                                                  is_trial=is_trial,
                                                  status='created')
+        questions = answerpaper.quiz.questionpaper.questions.all()
+        # create empty answers for all questions in questionpaper as well
+        Answer.objects.bulk_create([Answer(question=question, answerpaper=answerpaper)
+                                            for question in questions])
         return answerpaper
 
     def start_quiz(self, quiz, request, participant, **kwargs):

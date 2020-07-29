@@ -131,7 +131,7 @@ class AbstractParticipant(TimestampedModel, ModelWithMetadata):
         """checks whether user has taken test or not"""
         return hasattr(self, 'answerpapers') and \
              self.answerpapers is not None and \
-                 self.answerpapers.count() > 0
+                 self.answerpapers.count() > 1
 
     @property
     def get_start_time(self):

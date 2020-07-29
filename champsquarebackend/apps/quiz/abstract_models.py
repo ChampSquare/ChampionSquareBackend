@@ -317,6 +317,12 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
             return True
         return False
 
+    def is_new(self):
+        """
+            checks whether this answerpaper is newly created or old one
+        """
+        return self.status == 'created'
+
     def get_time_left(self):
         """Return the time remaining for the user in minutes."""
         dt = timezone.now() - self.created_at
@@ -332,6 +338,7 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
         return remain
 
 
+    @property
     def is_closed(self):
         """
             checks if the answerpaper is in closed state
@@ -400,48 +407,46 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
                                               answer=answer_key,
                                               status=status,
                                               time_taken=time_taken)
-            user_answer.save()
-            self.answers.add(user_answer)
 
         else:
             user_answer.set_answer(answer_key)
             user_answer.set_status(status)
             user_answer.set_time_taken(time_taken)
-            if status == "answered" or status == "answered_marked":
-                if current_question.question_type == "integer":
-                    try:
-                        expected_answer = float(expected_answer)
-                        answer_key = float(answer_key)
+        
+        # validate_answer
+        if status == "answered" or status == "answered_marked":
+            if current_question.question_type == "integer":
+                try:
+                    expected_answer = float(expected_answer)
+                    answer_key = float(answer_key)
 
-                        if expected_answer == round(answer_key, 2) or expected_answer == self.truncate(answer_key, 2):
-                            user_answer.mark_answer(True)
-                            user_answer.set_points(current_question.points)
-
-                        else:
-                            user_answer.mark_answer(False)
-                            user_answer.set_points(current_question.negative_points)
-                    except (TypeError, ValueError):
-                        user_answer.mark_answer(False)
-                        user_answer.set_points(current_question.negative_points)
-
-                else:
-                    if expected_answer == answer_key:
+                    if expected_answer == round(answer_key, 2) or expected_answer == self.truncate(answer_key, 2):
                         user_answer.mark_answer(True)
                         user_answer.set_points(current_question.points)
+
                     else:
                         user_answer.mark_answer(False)
                         user_answer.set_points(current_question.negative_points)
-            else:
-                user_answer.mark_answer(False)
-                user_answer.set_points(0)
+                except (TypeError, ValueError):
+                    user_answer.mark_answer(False)
+                    user_answer.set_points(current_question.negative_points)
 
-            user_answer.save()
+            else:
+                if expected_answer == answer_key:
+                    user_answer.mark_answer(True)
+                    user_answer.set_points(current_question.points)
+                else:
+                    user_answer.mark_answer(False)
+                    user_answer.set_points(current_question.negative_points)
+        else:
+            user_answer.mark_answer(False)
+            user_answer.set_points(0)
+
+        user_answer.save()
             
 
     def save_unanswered(self, question_id, time_taken=0):
-        user_answer = self.answers.filter(question=question_id).first()
-        if user_answer is None:
-            self.add_answer_key(question_id=question_id,
+        self.add_answer_key(question_id=question_id,
                             time_taken=time_taken,
                             status="unanswered",
                             answer_key="NA")
@@ -476,8 +481,8 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
         return self.answers.filter(Q(status="unanswered") | Q(status="marked"))
 
     def get_not_visited_list(self):
-        return self.quiz.questionpaper.questions.exclude(
-            id__in=self.answers.values_list('question', flat=True))
+        return self.answers.filter(status="unvisited")
+        
 
     @property
     def get_correct_answers_num(self):

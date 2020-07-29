@@ -10,7 +10,6 @@ Question = get_model('question', 'question')
 Quiz = get_model('quiz', 'quiz')
 AnswerPaper = get_model('quiz', 'AnswerPaper')
 Participant = get_model('participate', 'participant')
-ParticipantCreator = get_class('participate.utils', 'ParticipantCreator')
 QuizConditionsMixin = get_class('quiz.mixins', 'QuizConditionsMixin')
 
 class QuizView(QuizConditionsMixin, ListView):
@@ -18,32 +17,13 @@ class QuizView(QuizConditionsMixin, ListView):
         view to take quiz
     """
     model = Question
-    context_object_name = "questions"
+    context_object_name = "answers"
     template_name = 'champsquarebackend/quiz/quiz.html'
     pre_conditions = ['is_participant', 'can_take_new']
     skip_conditions = []
 
-    def get_quiz(self):
-        if not hasattr(self, '_quiz'):
-            self._quiz = get_object_or_404(Quiz, id=self.kwargs['pk'])
-        return self._quiz
-
-    def get_participant(self):
-        if not hasattr(self, '_participant'):
-            self._participant = get_object_or_404(Participant, id=self.kwargs['number'], quiz=self.kwargs['pk'])
-        return self._participant
-
-    def get_answerpaper(self):
-        if not hasattr(self, '_answerpaper'):
-            creator = ParticipantCreator()
-            self._answerpaper = creator.start_quiz(quiz=self.get_quiz(),
-                                                   participant=self.get_participant(),
-                                                   request=self.request)
-        return self._answerpaper
-
-
     def get_queryset(self):
-        return self.get_quiz().questionpaper.get_all_questions()
+        return self.get_answerpaper().answers.all()
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -51,8 +31,8 @@ class QuizView(QuizConditionsMixin, ListView):
         ctx['participant'] = self.get_participant()
         ctx['answerpaper'] = self.get_answerpaper()
         ctx['video_monitoring'] = self.get_participant().video_monitoring_enabled
-        # if self.request.user.is_staff:
-        #     ctx['video_monitoring'] = False
+        if self.request.user.is_staff:
+            ctx['video_monitoring'] = False
         return ctx
 
 

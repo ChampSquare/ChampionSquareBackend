@@ -246,7 +246,7 @@ function CheckResult() {
     $.ajax({
         url: '/quiz/ajax/save_status/',
         data: {
-            'paper_id': $('#paperId').val(),
+            'answer_paper_id': $('#paperId').val(),
             'status': 'submitted_by_user'
         },
         dataType: 'json',

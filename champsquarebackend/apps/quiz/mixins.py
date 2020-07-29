@@ -20,6 +20,8 @@ Category = get_model('quiz', 'category')
 Question = get_model('question', 'question')
 Quiz = get_model('quiz', 'quiz')
 Participant = get_model('participate', 'participant')
+ParticipantCreator = get_class('participate.utils', 'ParticipantCreator')
+
 
 User = get_user_model()
 
@@ -51,14 +53,16 @@ class QuizConditionsMixin(object):
 
     quiz = None
     participant = None
+    answerpaper = None
 
 
     def dispatch(self, request, *args, **kwargs):
         # Assign the quiz create session manager so it's available in all quiz create/update
         # views.
         # Enforce any pre-conditions for the view.
-        self.quiz = get_object_or_404(Quiz, pk=self.kwargs['pk'])
-        self.participant = get_object_or_404(Participant, id=self.kwargs['number'])
+        self.quiz = self.get_quiz()
+        self.participant = self.get_participant()
+        self.answerpaper = self.get_answerpaper()
         try:
             self.check_pre_conditions(request)
         except exceptions.FailedPreCondition as e:
@@ -74,6 +78,24 @@ class QuizConditionsMixin(object):
 
         return super().dispatch(
             request, *args, **kwargs)
+
+    def get_quiz(self):
+        if self.quiz is None:
+            self.quiz = get_object_or_404(Quiz, id=self.kwargs['pk'])
+        return self.quiz
+
+    def get_participant(self):
+        if self.participant is None:
+            self.participant = get_object_or_404(Participant, id=self.kwargs['number'], quiz=self.kwargs['pk'])
+        return self.participant
+
+    def get_answerpaper(self):
+        if self.answerpaper is None:
+            creator = ParticipantCreator()
+            self.answerpaper = creator.start_quiz(quiz=self.get_quiz(),
+                                                   participant=self.get_participant(),
+                                                   request=self.request)
+        return self.answerpaper
 
     def check_pre_conditions(self, request):
         pre_conditions = self.get_pre_conditions(request)
@@ -128,9 +150,12 @@ class QuizConditionsMixin(object):
             and allow/disallow based on whether multiple attempt is
             enabled or not.
         """
-        if self.participant.has_taken_quiz and not self.participant.multiple_attempts_allowed:
+        if self.participant.has_taken_quiz and \
+                not self.participant.multiple_attempts_allowed and \
+                    self.answerpaper.is_new():
+            self.answerpaper.delete()
             raise exceptions.FailedPreCondition(
                 url=reverse('quiz:error'),
                 message=_(
                     "You have already taken this test and not allowed to take it again!")
-            )  
+            )

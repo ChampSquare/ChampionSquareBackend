@@ -23,8 +23,8 @@ class ModelWithMetadata(models.Model):
 
     def append_value_in_metadata(self, key: str, value):
         # if metadata is None or key not in metadata
-        if not self.metadata or key in self.metadata:
-            self.store_value_in_metadata({key: list(value)})
+        if not key in self.metadata:
+            self.store_value_in_metadata({key: [value]})
         # if value is not a list
         elif not isinstance(self.get_value_from_metadata(key), list):
             # create a list with existing and new data
@@ -33,8 +33,6 @@ class ModelWithMetadata(models.Model):
             self.store_value_in_metadata({key: value_list})
         else:
             value_list = self.get_value_from_metadata(key).append(value)
-
-
 
     def clear_metadata(self):
         self.metadata = {}

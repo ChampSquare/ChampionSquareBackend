@@ -191,7 +191,7 @@
      </div>
 </div>
 {% endif %}
-        <div class="col-md-12 exam-instruction {% if video_monitoring %} hide {% endif %}" id="instructionpage" >
+        <div class="col-md-12 exam-instruction {% if video_monitoring or not answerpaper.is_new %} hide {% endif %}" id="instructionpage" >
                     <div class="panel panel-default">
                         <div class="panel-body">
                             <div class="col-md-12" id="en">
@@ -243,33 +243,33 @@
   </div>
 </div>
 
-        <div class="row exam-paper hide" >
+        <div class="row exam-paper {% if answerpaper.is_new %} hide {% endif %}" >
             <div class="col-md-8" id="quest" style="padding: 0">
                 <table style="width: 100%">
                     <tbody><tr>
                         <td>
-                            <div class="panel panel-default">
+                            <div class="panel panel-default well">
                                 <div class="panel-body mb0">
                                     <div class="row">
                                         <div class="col-lg-12">
 
-                                            {% for question in questions %}
+                                            {% for answer in answers %}
 
                                             <div
                                                  {% if forloop.counter > 1 %}
                                                     style="display: none;"
                                                     {% endif %}
                                                  class="tab-content div-question mb0" id="page{{ forloop.counter|stringformat:"02d" }}">
-                                                <input type="hidden" value="{{ question.id }}" class="questionIdpage{{ forloop.counter|stringformat:"02d" }}">
+                                                <input type="hidden" value="{{ answer.question.id }}" class="questionIdpage{{ forloop.counter|stringformat:"02d" }}">
                                                 <input type="hidden" id="time_spent_value" value="{{ answer.time_spent }}">
 
 
-                                                <input type="hidden" value="{{ question.get_right_answer }}" class="hdfCurrectAns">
+                                                
                                                 <div class="question-height">
                                                     <h4 class="question-title"> Question {{ forloop.counter }}:  <img src="{% static 'img/down.png' %}" class="btndown pull-right"><span class="pull-right time-spent"></span> </h4>
-                                                    {{ question.description|safe }} <br>
+                                                    {{ answer.question.description|safe }} <br>
 
-                                                {% if question.question_type == "mcq" %}
+                                                {% if answer.question.question_type == "mcq" %}
                                                     <table class="table table-borderless mb0">
                                                         <tbody>
                                                             <tr>
@@ -285,7 +285,7 @@
                                                     </table>
                                                 {% endif %}
 
-                                                {% if question.type == "integer" %}
+                                                {% if answer.question.type == "integer" %}
                                                     <input type="hidden" value="integer" class="questionTypepage{{ forloop.counter|stringformat:"02d" }}">
 
                                                    <div style="padding-left: 4%;" id="numericKeyBoardDiv">
@@ -373,7 +373,7 @@
                 <div class="panel panel-default ">
                     <div class="panel-body " style="height:320px;overflow-y:scroll;">
                         <ul class="pagination test-questions">
-                            {% for question in questions %}
+                            {% for answer in answers %}
 
                             <li
                                     {% if forloop.counter == 1 %}
@@ -382,13 +382,13 @@
                                     class=""
                                     {% endif %}
                                     data-seq="1"><a
-                                    {% if answer.status == "0" %}
+                                    {% if answer.status == "unvisited" %}
                                         class="test-ques que-not-attempted"
-                                    {% elif answer.status == "2" %}
+                                    {% elif answer.status == "answered" %}
                                     class="test-ques que-save"
-                                    {% elif answer.status == "4" %}
+                                    {% elif answer.status == "answered_marked" %}
                                     class="test-ques que-save-mark"
-                                    {% elif answer.status == "3" %}
+                                    {% elif answer.status == "marked" %}
                                     class="test-ques que-mark"
                                     {% else %}
                                     class="test-ques que-not-answered"
