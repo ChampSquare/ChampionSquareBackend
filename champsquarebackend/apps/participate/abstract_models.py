@@ -64,11 +64,11 @@ class AbstractParticipant(TimestampedModel, ModelWithMetadata):
                                     help_text=_('Is user allowed to attempt same quiz multiple time?'))
 
     # is user allowed to view his answerpaper report after submitting quiz
-    view_answerpaper = models.BooleanField(_('Can see answer-paper?'), default=False,
+    view_answerpaper = models.BooleanField(_('Can see answer-paper?'), default=True,
                         help_text=_('Is user allowed to view his test report after he submits the test!'))
 
     # ip restriction, won't be able to resume exam if ip address changes
-    ip_restriction = models.BooleanField(_('IP Restricted?'), default=False,
+    ip_restriction = models.BooleanField(_('IP Restricted?'), default=True,
                         help_text=_('User will be only able to resume test from same ip if turned on!'))
     
     # allows to set an interval after which user won't be able to resume test
@@ -78,9 +78,7 @@ class AbstractParticipant(TimestampedModel, ModelWithMetadata):
     video_monitoring_enabled = models.BooleanField(_('Video Monitoring Enabled?'), default=True,
                         help_text=_('Turn on/off video monitoring which includes webcam and screen recording'))
 
-    # user's ip address from which the exam was started
-    # this will be set at start time
-    user_ip = models.GenericIPAddressField(_('IP address of user'), blank=True, null=True)
+    
 
     class Meta:
         abstract = True

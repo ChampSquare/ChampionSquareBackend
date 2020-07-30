@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 
 from champsquarebackend.core.loading import get_class, get_model
 from champsquarebackend.core.compat import get_user_model
+from champsquarebackend.core.utils import get_ip_address
 
 from . import exceptions
 
@@ -159,3 +160,36 @@ class QuizConditionsMixin(object):
                 message=_(
                     "You have already taken this test and not allowed to take it again!")
             )
+
+    def check_ip_restriction(self, request):
+        """
+            check for ip restriction when user resumes the test
+        """
+        ip_address = get_ip_address(request)
+        if not self.answerpaper.is_new() and \
+            self.participant.ip_restriction and \
+                self.answerpaper.user_ip != ip_address:
+            raise exceptions.FailedPreCondition(
+                url=reverse('quiz:error'),
+                message=_(
+                    "Ip address changed!\nYou are not allowed to resume test from new ip address %s")
+            )
+
+
+    def can_resume(self, request):
+        """
+            If Internet is broken/disconnected user should be able to resume from 
+            within 15 minutes, if it exceeds time the user will not be able to 
+            resume exam, they have to start from beginning
+        """
+        if not self.answerpaper.is_new() and self.answerpaper.can_resume():
+            # delete the old answerpaper first
+            self.answerpaper.delete()
+            raise exceptions.FailedPreCondition(
+                url=self.participant.get_absolute_url(),
+                message=_(
+                    "You were disconnected for more than %s minutes,"
+                    "you will have to start from beginning" % (self.participant.resume_interval))
+            )
+
+

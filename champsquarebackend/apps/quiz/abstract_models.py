@@ -110,7 +110,7 @@ class AbstractQuiz(TimestampedModel, ModelWithMetadata):
     # is multiple attempts allowed?
     # default is false,
     # true -> user can take same quiz again and again even after submitting
-    multiple_attempts_allowed = models.BooleanField(_('Multiple Attempts Allowed?'),default=False,
+    multiple_attempts_allowed = models.BooleanField(_('Multiple Attempts Allowed?'), default=False,
                                     help_text=_('Is user allowed to attempt same quiz multiple time?'))
 
     # is user allowed to view his answerpaper report after submitting quiz
@@ -118,7 +118,7 @@ class AbstractQuiz(TimestampedModel, ModelWithMetadata):
                         help_text=_('Is user allowed to view his test report after he submits the test!'))
 
     # ip restriction, won't be able to resume exam if ip address changes
-    ip_restriction = models.BooleanField(_('IP Restricted?'), default=False,
+    ip_restriction = models.BooleanField(_('IP Restricted?'), default=True,
                         help_text=_('User will be only able to resume test from same ip if turned on!'))
     
     # allows to set an interval after which user won't be able to resume test
@@ -294,11 +294,16 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
     status = models.CharField(
         _('Status of Test'), max_length=128, blank=True)
 
+    # user's ip address from which the exam was started
+    # this will be set at start time
+    user_ip = models.GenericIPAddressField(_('IP address of user'),
+                                           blank=True, null=True)
+
     class Meta:
         abstract = True
         app_label = 'quiz'
         verbose_name = _('AnswerPaper')
-        ordering= ['-created_at']
+        ordering = ['-created_at']
         verbose_name_plural = _("AnswerPapers")
 
     @classmethod
@@ -316,6 +321,15 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
         if self.get_time_left() <= 0:
             return True
         return False
+
+    def can_resume(self):
+        dt = timezone.now() - self.last_accessed
+        try:
+            mins = dt.total_seconds() / 60.0
+        except AttributeError:
+            # total_seconds is new in Python 2.7. :(
+            mins = (dt.seconds + dt.days * 24 * 3600) / 60.0
+        return mins > self.participant.resume_interval
 
     def is_new(self):
         """
@@ -396,22 +410,14 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
     # code taken from legacy codebase
     # todo: find a better and secure way to do these things
     def add_answer_key(self, question_id, answer_key="NA", status="unanswered", time_taken=0):
-        current_question = self.quiz.questionpaper.questions.get(id=question_id)
-        user_answer = self.answers.filter(question=question_id).first()
-        expected_answer = current_question.get_right_answer
         if not self.status == 'answering':
             self.set_status('answering')
-
-        if user_answer is None:
-            user_answer = self.answers.create(question=current_question,
-                                              answer=answer_key,
-                                              status=status,
-                                              time_taken=time_taken)
-
-        else:
-            user_answer.set_answer(answer_key)
-            user_answer.set_status(status)
-            user_answer.set_time_taken(time_taken)
+        current_question = self.quiz.questionpaper.questions.get(id=question_id)
+        user_answer = self.answers.filter(question=current_question).first()
+        expected_answer = current_question.get_right_answer
+        user_answer.set_answer(answer_key)
+        user_answer.set_status(status)
+        user_answer.set_time_taken(time_taken)
         
         # validate_answer
         if status == "answered" or status == "answered_marked":
@@ -446,7 +452,9 @@ class AbstractAnswerPaper(TimestampedModel, ModelWithMetadata):
             
 
     def save_unanswered(self, question_id, time_taken=0):
-        self.add_answer_key(question_id=question_id,
+        user_answer = self.answers.filter(question_id=question_id).first()
+        if user_answer is None:
+            self.add_answer_key(question_id=question_id,
                             time_taken=time_taken,
                             status="unanswered",
                             answer_key="NA")
@@ -542,6 +550,7 @@ class AbstractAnswer(ModelWithMetadata):
     class Meta:
         abstract = True
         app_label = 'quiz'
+        ordering = ['question']
         verbose_name = _('Answer submitted by user')
         verbose_name_plural = _('Answers submitted by user')
 

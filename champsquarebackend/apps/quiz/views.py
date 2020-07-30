@@ -19,7 +19,7 @@ class QuizView(QuizConditionsMixin, ListView):
     model = Question
     context_object_name = "answers"
     template_name = 'champsquarebackend/quiz/quiz.html'
-    pre_conditions = ['is_participant', 'can_take_new']
+    pre_conditions = ['is_participant', 'can_take_new', 'check_ip_restriction', 'can_resume']
     skip_conditions = []
 
     def get_queryset(self):
@@ -31,8 +31,6 @@ class QuizView(QuizConditionsMixin, ListView):
         ctx['participant'] = self.get_participant()
         ctx['answerpaper'] = self.get_answerpaper()
         ctx['video_monitoring'] = self.get_participant().video_monitoring_enabled
-        if self.request.user.is_staff:
-            ctx['video_monitoring'] = False
         return ctx
 
 
