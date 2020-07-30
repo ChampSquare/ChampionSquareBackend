@@ -1,4 +1,4 @@
 {% load django_tables2 %}
 {% load i18n %}
 
-<a href="{% url 'quiz:answerpaper-detail' pk=record.answerpaper.id %}">{{ record.participant.full_name }}</a>
+{{ record.participant.full_name }}
