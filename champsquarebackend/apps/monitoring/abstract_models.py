@@ -16,7 +16,7 @@ from champsquarebackend.models.models import TimestampedModel, ModelWithMetadata
 class AbstractVideoRecord(ModelWithMetadata, TimestampedModel):
     answerpaper = models.ForeignKey('quiz.Answerpaper', related_name='videos',
                                             blank=True, null=True,
-                                            on_delete=models.SET_NULL)
+                                            on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
 
     RECORD_TYPE = (
