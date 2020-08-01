@@ -2,6 +2,8 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
+from ckeditor.widgets import CKEditorWidget
+
 from champsquarebackend.core.loading import get_model
 from champsquarebackend.core.validators import URLDoesNotExistValidator
 
@@ -35,6 +37,10 @@ class PageUpdateForm(forms.ModelForm):
             ),
         },
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['content'].widget = CKEditorWidget()
 
     def clean_url(self):
         """

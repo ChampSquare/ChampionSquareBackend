@@ -1,5 +1,7 @@
 import logging
 import uuid
+import random
+import string
 
 from django.db import models
 from django.db.models import Q
@@ -40,6 +42,8 @@ class AbstractParticipant(TimestampedModel, ModelWithMetadata):
     start_date_time = models.DateTimeField(_("Start date-time of quiz"),
                                            default=now,
                                            help_text="Date-time from which this quiz will be active")
+
+    otp_code = models.CharField(_('Otp code to access test'), max_length=64, blank=True, null=True, unique=True)
 
     # if set, quiz can't be started after that
     # local value will be preferred, the value must be before global value
@@ -90,8 +94,20 @@ class AbstractParticipant(TimestampedModel, ModelWithMetadata):
     def __str__(self):
         return "#%s status: " %(self.full_name)
 
+    def generate_otp(self):
+        otp = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+        self.otp_code = otp
+        self.save()
+        return otp
+
+    def invalidate_otp(self):
+        self.otp_code = 'xxYY29'
+        self.save()
+
     def get_absolute_url(self):
-        return reverse('quiz:quiz-take', kwargs={'pk': self.quiz.pk, 'number': self.id})
+        # remember to change object lookup field in quiz->mixins->get_participant
+        # if you change field in here
+        return reverse('quiz:quiz-take', kwargs={'pk': self.quiz.pk, 'number': self.number})
 
     def verification_hash(self):
         signer = Signer(salt='champsquarebackend.apps.participate.Participant')

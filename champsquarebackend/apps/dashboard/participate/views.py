@@ -82,6 +82,7 @@ class QuizParticipantListView(UserListView):
                 'start_date_time': participant.start_date_time,
                 'video_monitoring_enabled': participant.video_monitoring_enabled,
                 'duration': participant.duration,
+                'otp_code': participant.generate_otp(),
                 'quiz_link': participant.get_absolute_url()
             }
             response = ParticipantDispatcher().send_quiz_link_email_for_user(participant, ctx)

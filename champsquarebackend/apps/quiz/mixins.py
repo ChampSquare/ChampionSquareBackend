@@ -87,7 +87,7 @@ class QuizConditionsMixin(object):
 
     def get_participant(self):
         if self.participant is None:
-            self.participant = get_object_or_404(Participant, id=self.kwargs['number'], quiz=self.kwargs['pk'])
+            self.participant = get_object_or_404(Participant, number=self.kwargs['number'], quiz=self.kwargs['pk'])
         return self.participant
 
     def get_answerpaper(self):

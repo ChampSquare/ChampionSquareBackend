@@ -144,12 +144,6 @@ class AppConfig(AppConfigMixin, DjangoAppConfig):
 
 class AppDashboardConfig(AppConfig):
     login_url = reverse_lazy('dashboard:login')
-
-
-
-
-
-
         
 
 

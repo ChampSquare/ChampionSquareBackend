@@ -16,17 +16,27 @@
         </td>
 
     </tr>
+    <tr>
+        
+        <td class="content-block">
+            {% trans 'Your OTP code for this test is ' %} {{ otp_code }} 
+        </td>
+
+    </tr>
+
     {% if video_monitoring_enabled %}
         <tr>
-            <td>Note that both you and your activity will be monitored while you take exam
-                through your webcam and screen sharing!
+            <td class="content-block"> 
+               'Note that both you and your activity will be monitored while you take exam
+                through your webcam and screen sharing!'
             </td>
         </tr>
     {% endif %}
 
     <tr>
         <td class="content-block">
-            You can start this exam by clicking on link <br />
+            {% trans 'You can start this exam by clicking on link' %}
+             <br /> <br />
             <a href="http://{{ site.domain }}{{ quiz_link }}" class="btn-primary">Take Exam</a>
         </td>
     </tr>

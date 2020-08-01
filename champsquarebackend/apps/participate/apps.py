@@ -14,10 +14,12 @@ class ParticipateConfig(AppConfig):
     namespace = 'participate'
 
     def ready(self):
-        pass
+        self.otp_login_view = get_class('participate.views', 'OtpAuthView')
 
     def get_urls(self):
-        urls = []
+        urls = [
+            path('otp/login/', self.otp_login_view.as_view(), name='otp-login')
+        ]
 
         return self.post_process_urls(urls)
 

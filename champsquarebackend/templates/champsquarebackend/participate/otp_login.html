@@ -1,0 +1,45 @@
+{% extends "champsquarebackend/dashboard/base.html" %}
+{% load i18n %}
+{% load static %}
+{% load widget_tweaks %}
+{% block styles %}
+    {% if use_less %}
+        <link rel="stylesheet/less" type="text/css" href="{% static "champsquarebackend/less/dashboard.less" %}" />
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{% static "champsquarebackend/css/dashboard_style.css" %}" />
+    {% endif %}
+{% endblock %}
+
+{% block extrastyles %}
+    <style type="text/css">
+    </style>
+{% endblock %}
+{% block body_class %}dashboard-login{% endblock %}
+
+{% block layout %}
+    <div class="panel col-sm-offset-4 col-sm-4">
+        <div class="panel-body">
+        <form method="post" novalidate>
+            <h1>{{ website_name }}</h1>
+            <hr>
+
+            {% if form.errors %}
+            <div class="alert alert-danger">
+            {% trans "Please enter a correct OTP. Note that field may be case-sensitive." %}
+        </div>
+            {% endif %}
+
+            
+            <div class="form-group{% if form.otp.errors %} has-error{% endif %}">
+                {{ form.otp.label_tag }}
+                {% render_field form.otp class="form-control" %}
+            </div>
+
+            <input type="submit" class="btn btn-primary col-sm-4 col-sm-offset-4" value="{% trans "Login" %}">
+            <input type="hidden" name="next" value="{{ next }}">
+            {% csrf_token %}
+        </form>
+    </div>
+    </div>
+{% endblock %}
+{% block onbodyload %}{% endblock %}
