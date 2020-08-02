@@ -70,9 +70,4 @@ def post_process_video(video_record_id):
         if response:
             response = merge_audio_video(output_video_file, output_audio_file, video_media_root+output_file)
     
-    # if response:
-    # delete the raw mjr file
-    #     video_record.delete_raw_files()
-    #     return response
-    
     return response, video_record_id
