@@ -74,4 +74,5 @@ def post_process_video(video_record_id):
     # delete the raw mjr file
     #     video_record.delete_raw_files()
     #     return response
-    return response
+    
+    return response, video_record_id

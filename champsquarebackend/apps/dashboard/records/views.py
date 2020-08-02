@@ -109,6 +109,10 @@ class TaskView(View):
 
         if task.status == 'SUCCESS':
             response_data['results'] = task.get()
-
+            response, video_id = task.get()
+            if response:
+                video_record = VideoRecord.objects.get(id=video_id)
+                video_record.is_processed = True
+                video_record.save()
         return JsonResponse(response_data)
 
