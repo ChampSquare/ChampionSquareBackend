@@ -60,7 +60,7 @@ class AnswerPaperTable(DashboardTable):
 
     end_time = Column(
         verbose_name=_('End Time'),
-        orderable=False, accessor=('end_time')
+        orderable=False, accessor=('last_accessed')
     )
     marks = Column(
         verbose_name=_('Marks Obtained'),
