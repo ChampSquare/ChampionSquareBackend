@@ -95,23 +95,37 @@
                     <div id="webcam" class="tab-pane active">
                         <div id="vidBox">
                             <div id="videCont">
+                {% if answerpaper.get_webcam_video.get_processed_video_file_path %}
+
                             <video id="v1" controls style="width: 420px;">
                                 <source src="{{ answerpaper.get_webcam_video.get_processed_video_file_path }}" type="video/mp4">
                             </video>
+                            {% else %}
+                        <p>The video is not processed, process it first</p>
+                        <a href="{% url 'dashboard:video-list' %}">Go to video-list</a>
+                        {% endif %}
                             </div>
                         </div>
                     </div>
                 {% endblock webcam_video %}
                 {% block screen_video %}
-                    <div id="screen" class="tab-pane">
-                        <div id="vidBox">
-                            <div id="videCont">
-                            <video id="v1" controls style="width: 420px;">
-                                <source src="{{ answerpaper.get_screen_video.get_processed_video_file_path }}" type="video/mp4">
-                            </video>
-                            </div>
+                <div id="screen" class="tab-pane">
+                    <div id="vidBox">
+                        <div id="videCont">
+                {% if answerpaper.get_screen_video.get_processed_video_file_path %}
+                        <video id="v1" controls style="width: 420px;">
+                            <source src="{{ answerpaper.get_screen_video.get_processed_video_file_path }}" type="video/mp4">
+                        </video>
+                        {% else %}
+                        <p>The video is not processed, process it first</p>
+                        <a href="{% url 'dashboard:video-list' %}">Go to video-list</a>
+
+                        {% endif %}
                         </div>
                     </div>
+                </div>
+               
+                    
                 {% endblock screen_video %}
             </div>
         </div>
