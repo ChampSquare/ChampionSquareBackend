@@ -29,11 +29,6 @@ class ParticipantTable(DashboardTable):
         orderable=True, accessor=('start_date_time')
     )
 
-    end_time = Column(
-        verbose_name=_('End Time'),
-        orderable=False, accessor=('end_date_time')
-    )
-
     actions = TemplateColumn(
         verbose_name=_('Actions'),
         template_name='champsquarebackend/dashboard/participate/participant_row_actions.html',
