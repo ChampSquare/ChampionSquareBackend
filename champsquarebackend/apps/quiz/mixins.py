@@ -151,7 +151,7 @@ class QuizConditionsMixin(object):
             and allow/disallow based on whether multiple attempt is
             enabled or not.
         """
-        if self.participant.has_taken_quiz and \
+        if self.participant.has_taken_more_than_one_quiz() and \
                 not self.participant.multiple_attempts_allowed and \
                     self.answerpaper.is_new():
             self.answerpaper.delete()

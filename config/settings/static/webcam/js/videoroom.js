@@ -258,6 +258,40 @@ function publishOwnFeed(useAudio) {
 }
 
 function showScreenRecordPermissionPage() {
+	capture = "screen";
+	if(navigator.mozGetUserMedia) {
+		// Firefox needs a different constraint for screen and window sharing
+		bootbox.dialog({
+			title: "Share whole screen or a window?",
+			message: "Firefox handles screensharing in a different way: are you going to share the whole screen, or would you rather pick a single window/application to share instead?",
+			buttons: {
+				screen: {
+					label: "Share screen",
+					className: "btn-primary",
+					callback: function() {
+						capture = "screen";
+						shareScreen();
+					}
+				},
+				window: {
+					label: "Pick a window",
+					className: "btn-success",
+					callback: function() {
+						capture = "window";
+						shareScreen();
+					}
+				}
+			},
+			onEscape: function() {
+				showScreenRecordPermissionPage();
+			}
+		});
+	} else {
+		shareScreen();
+	}
+}
+
+function shareScreen() {
 	$('#webcamview').addClass('hide');
 	$('#btn_screenrecord_permission').attr('disabled', true).unbind('click');
 	$('#screenshareview').removeClass('hide').show();
