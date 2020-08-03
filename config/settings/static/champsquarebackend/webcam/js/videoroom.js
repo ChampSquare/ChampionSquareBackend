@@ -402,28 +402,7 @@ function startScreenSharing() {
 function preShareScreen() {
 	
 	capture = "screen";
-	if(navigator.mozGetUserMedia) {
-		// Firefox needs a different constraint for screen and window sharing
-		bootbox.dialog({
-			title: "Share whole screen or a window?",
-			message: "Firefox handles screensharing in a different way: are you going to share the whole screen, or would you rather pick a single window/application to share instead?",
-			buttons: {
-				screen: {
-					label: "Share screen",
-					className: "btn-primary",
-					callback: function() {
-						capture = "screen";
-						shareScreen();
-					}
-				}
-			},
-			onEscape: function() {
-				
-			}
-		});
-	} else {
-		shareScreen();
-	}
+	shareScreen()
 }
 
 function shareScreen() {
