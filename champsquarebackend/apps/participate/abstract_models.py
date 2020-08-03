@@ -146,7 +146,7 @@ class AbstractParticipant(TimestampedModel, ModelWithMetadata):
         return hasattr(self, 'answerpapers') and \
              self.answerpapers is not None and \
                  self.answerpapers.count() > 0
-    
+
     def has_taken_more_than_one_quiz(self):
         """checks whether user has taken test or not"""
         return hasattr(self, 'answerpapers') and \
