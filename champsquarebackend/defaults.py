@@ -102,6 +102,10 @@ SETTINGS_DASHBOARD_NAVIGATION = [
             {
                 'label': _('Videos'),
                 'url_name': 'dashboard:video-list',
+            },
+            {
+                'label': _('Raw Videos'),
+                'url_name': 'dashboard:videos',
             }
         ]
     },
