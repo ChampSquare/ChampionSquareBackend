@@ -14,6 +14,9 @@ from champsquarebackend.core.loading import get_class, get_model
 
 RelatedFieldWidgetWrapper = get_class('dashboard.widgets', 'RelatedFieldWidgetWrapper')
 User = get_user_model()
+Quiz = get_model('quiz', 'quiz')
+Question = get_model('question', 'question')
+
 
 
 class IndexView(TemplateView):
@@ -33,80 +36,23 @@ class IndexView(TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        # ctx.update(self.get_stats())
+        ctx.update(self.get_stats())
         return ctx
 
-    
-    # def get_hourly_report(self, orders, hours=24, segments=10):
-    #     """
-    #     Get report of order revenue split up in hourly chunks. A report is
-    #     generated for the last *hours* (default=24) from the current time.
-    #     The report provides ``max_revenue`` of the hourly order revenue sum,
-    #     ``y-range`` as the labelling for the y-axis in a template and
-    #     ``order_total_hourly``, a list of properties for hourly chunks.
-    #     *segments* defines the number of labelling segments used for the y-axis
-    #     when generating the y-axis labels (default=10).
-    #     """
-    #     # Get datetime for 24 hours ago
-    #     time_now = now().replace(minute=0, second=0)
-    #     start_time = time_now - timedelta(hours=hours - 1)
+    def get_quizzes(self):
+        return Quiz.objects.all()
 
-    #     order_total_hourly = []
-    #     for hour in range(0, hours, 2):
-    #         end_time = start_time + timedelta(hours=2)
-    #         hourly_orders = orders.filter(date_placed__gte=start_time,
-    #                                       date_placed__lt=end_time)
-    #         total = hourly_orders.aggregate(
-    #             Sum('total_incl_tax')
-    #         )['total_incl_tax__sum'] or D('0.0')
-    #         order_total_hourly.append({
-    #             'end_time': end_time,
-    #             'total_incl_tax': total
-    #         })
-    #         start_time = end_time
+    def get_questions(self):
+        return Question.objects.all()
 
-    #     max_value = max([x['total_incl_tax'] for x in order_total_hourly])
-    #     divisor = 1
-    #     while divisor < max_value / 50:
-    #         divisor *= 10
-    #     max_value = (max_value / divisor).quantize(D('1'), rounding=ROUND_UP)
-    #     max_value *= divisor
-    #     if max_value:
-    #         segment_size = (max_value) / D('100.0')
-    #         for item in order_total_hourly:
-    #             item['percentage'] = int(item['total_incl_tax'] / segment_size)
-
-    #         y_range = []
-    #         y_axis_steps = max_value / D(str(segments))
-    #         for idx in reversed(range(segments + 1)):
-    #             y_range.append(idx * y_axis_steps)
-    #     else:
-    #         y_range = []
-    #         for item in order_total_hourly:
-    #             item['percentage'] = 0
-
-    #     ctx = {
-    #         'order_total_hourly': order_total_hourly,
-    #         'max_revenue': max_value,
-    #         'y_range': y_range,
-    #     }
-    #     return ctx
-
-    # def get_stats(self):
-    #     datetime_24hrs_ago = now() - timedelta(hours=24)
-    #     customers = User.objects.filter(orders__isnull=False).distinct()
-       
-    #     user = self.request.user
-    #     if not user.is_staff:
-    #         partners_ids = tuple(user.partners.values_list('id', flat=True))
-            
-    #         customers = customers.filter(
-    #             orders__lines__partner_id__in=partners_ids
-    #         ).distinct()
+    def get_stats(self):
+        users = User.objects.all()
            
-    #     stats = {'total_customers': customers.count()}
+        stats = {'total_users': users.count(),
+                 'total_questions': self.get_questions().count(),
+                 'total_quizzes': self.get_quizzes().count()}
         
-    #     return stats
+        return stats
 
 
 class PopUpWindowMixin:
