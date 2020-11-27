@@ -74,6 +74,13 @@
                                     {% endif %}
                                     {% include 'champsquarebackend/dashboard/partials/form_field.html' with field=form.description %}
                                     {% include 'champsquarebackend/dashboard/partials/form_field.html' with field=form.right_answer %}
+
+                                    {{ answer_options_formset.management_form }}
+                                    {% for answer_option_form in answer_options_formset %}
+                                      {% for field in answer_option_form %}
+                                        {% include 'champsquarebackend/dashboard/partials/form_field.html' with field=field %}      
+                                      {% endfor %}
+                                    {% endfor %}
                                     
                                 {% endblock question_details_content %}  
                             </div>

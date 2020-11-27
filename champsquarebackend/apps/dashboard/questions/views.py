@@ -4,6 +4,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.contrib import messages
 from django.urls import reverse
+from django.forms import formset_factory
 
 from django_tables2 import SingleTableMixin, SingleTableView
 
@@ -11,8 +12,9 @@ from django_tables2 import SingleTableMixin, SingleTableView
 from champsquarebackend.core.loading import get_classes, get_model, get_class
 
 
-QuestionForm = get_class('dashboard.questions.forms',
-                         'QuestionForm')
+QuestionForm, AnswerOptionForm = get_classes('dashboard.questions.forms',
+                            ['QuestionForm', 'AnswerOptionForm']
+                         )
 Question = get_model('question', 'question')
 Subject = get_model('question', 'subject')
 QuestionTable = get_class('dashboard.questions.tables',
@@ -77,6 +79,7 @@ class QuestionCreateUpdateView(generic.UpdateView):
     context_object_name = 'question'
 
     form_class = QuestionForm
+    answer_option_form = AnswerOptionForm
 
     def get_object(self, queryset=None):
         """
@@ -101,6 +104,7 @@ class QuestionCreateUpdateView(generic.UpdateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['title'] = self.get_page_title()
+        ctx['answer_options_formset'] = self.get_answer_options_formset()
 
         # edit : add context data in here
 
@@ -111,6 +115,10 @@ class QuestionCreateUpdateView(generic.UpdateView):
             return _('Create new Question')
         else:
             return _('Edit Question')
+
+    def get_answer_options_formset(self, extra=4):
+        # create a formset with four options
+        return formset_factory(self.answer_option_form, extra=extra)
 
     def get_url_with_querystring(self, url):
         url_parts = [url]

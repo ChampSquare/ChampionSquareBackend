@@ -45,11 +45,15 @@ class AbstractTopic(models.Model):
         return '{0} : {1}'.format(self.subject, self.name)
 
 
-class AbstractAnswerOptions(models.Model):
+class AbstractAnswerOption(models.Model):
     """
         Options attached to each questions, depends on type of question
     """
-    option = RichTextUploadingField(_('option field'))
+    question = models.ForeignKey('question.Question', null=False, 
+                                 related_name='answer_options',
+                                 on_delete=models.CASCADE)
+    option = models.CharField(max_length=999, blank=True)
+    image = models.ImageField(_('If option has any images'), blank=True, null=True)
     correct = models.BooleanField(_('Whether this option is correct or not'), default=False)
 
     class Meta:

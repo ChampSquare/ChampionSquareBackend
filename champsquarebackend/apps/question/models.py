@@ -23,3 +23,8 @@ if not is_model_registered('question', 'Question'):
         pass
 
     __all__.append('Question')
+
+if not is_model_registered('question', 'AnswerOption'):
+    class AnswerOption(AbstractAnswerOption):
+        pass
+    __all__.append('AnswerOption')
