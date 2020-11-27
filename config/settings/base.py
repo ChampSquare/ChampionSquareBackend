@@ -101,17 +101,9 @@ LOCAL_APPS = [
 
 # Apps that were required for old version to work
 # will be removed when new version will start working
-LEGACY_SUPPORT_APPS = [
-    # third party
-    "import_export",
-    "easy_thumbnails",
-    "taggit",
-    
-    # local ones
-    
-]
+
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS + LEGACY_SUPPORT_APPS
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS 
 
 # MIGRATIONS
 # ------------------------------------------------------------------------------

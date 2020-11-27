@@ -12,7 +12,7 @@ from django.utils.module_loading import import_string
 from django.utils.text import slugify as django_slugify
 from django.shortcuts import resolve_url, redirect
 from django.utils.timezone import get_current_timezone, is_naive, make_aware
-from babel.dates import format_timedelta as format_td
+# from babel.dates import format_timedelta as format_td
 from django.template.defaultfilters import date as date_filter
 from django.utils.translation import get_language, to_locale
 
@@ -130,15 +130,15 @@ def redirect_to_referrer(request, default):
     """
     return redirect(safe_referrer(request, default))
 
-def format_timedelta(td):
-    """
-    Takes an instance of timedelta and formats it as a readable translated string
-    """
-    return format_td(
-        td,
-        threshold=2,
-        locale=to_locale(get_language() or settings.LANGUAGE_CODE)
-    )
+# def format_timedelta(td):
+#     """
+#     Takes an instance of timedelta and formats it as a readable translated string
+#     """
+#     return format_td(
+#         td,
+#         threshold=2,
+#         locale=to_locale(get_language() or settings.LANGUAGE_CODE)
+#     )
 
 
 def format_datetime(dt, format=None):
