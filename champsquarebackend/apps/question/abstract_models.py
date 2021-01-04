@@ -54,7 +54,7 @@ class AbstractAnswerOption(models.Model):
                                  on_delete=models.CASCADE)
     option = models.CharField(max_length=999, blank=True)
     image = models.ImageField(_('If option has any images'), blank=True, null=True)
-    correct = models.BooleanField(_('Whether this option is correct or not'), default=False)
+    correct = models.BooleanField(_(' '), default=False)
 
     class Meta:
         abstract = True

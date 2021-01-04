@@ -5,6 +5,7 @@ from django.template.loader import render_to_string
 from django.contrib import messages
 from django.urls import reverse
 from django.forms import formset_factory
+from django.db import IntegrityError, transaction
 
 from django_tables2 import SingleTableMixin, SingleTableView
 
@@ -17,6 +18,7 @@ QuestionForm, AnswerOptionForm = get_classes('dashboard.questions.forms',
                          )
 Question = get_model('question', 'question')
 Subject = get_model('question', 'subject')
+AnswerOption = get_model('question', 'AnswerOption')
 QuestionTable = get_class('dashboard.questions.tables',
                           'QuestionTable')
 
@@ -79,7 +81,7 @@ class QuestionCreateUpdateView(generic.UpdateView):
     context_object_name = 'question'
 
     form_class = QuestionForm
-    answer_option_form = AnswerOptionForm
+    answer_option_formset = formset_factory(AnswerOptionForm, extra=4)
 
     def get_object(self, queryset=None):
         """
@@ -95,6 +97,10 @@ class QuestionCreateUpdateView(generic.UpdateView):
             # self.question_type = question.question_type
             return question
 
+    def get_answer_option_formset(self):
+        if self.creating:
+            
+
     def get_queryset(self):
         """
             filter questions that the user doesn't have permission to update
@@ -104,7 +110,7 @@ class QuestionCreateUpdateView(generic.UpdateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['title'] = self.get_page_title()
-        ctx['answer_options_formset'] = self.get_answer_options_formset()
+        ctx['answer_options_formset'] = self.answer_option_formset
 
         # edit : add context data in here
 
@@ -116,15 +122,33 @@ class QuestionCreateUpdateView(generic.UpdateView):
         else:
             return _('Edit Question')
 
-    def get_answer_options_formset(self, extra=4):
-        # create a formset with four options
-        return formset_factory(self.answer_option_form, extra=extra)
-
+    
     def get_url_with_querystring(self, url):
         url_parts = [url]
         if self.request.GET.urlencode():
             url_parts += [self.request.GET.urlencode()]
         return "?".join(url_parts)
+
+    def form_valid(self, form):
+        # save data from answer option formset
+        question = form.save()
+        answer_option_formset = self.answer_option_formset(self.request.POST)
+
+        answer_options = []
+        if answer_option_formset.is_valid():
+            for answer_option in answer_option_formset:
+                option = answer_option.cleaned_data.get('option')
+                correct = answer_option.cleaned_data.get('correct')
+                image = answer_option.cleaned_data.get('image')
+
+                answer_options.append(AnswerOption(question=question, option=option, 
+                                                   image=image, correct=correct))
+        try:
+            with transaction.atomic():
+                AnswerOption.objects.bulk_create(answer_options)
+        except IntegrityError: #If the transaction failed
+            messages.error(self.request, 'There was an error saving answer options')
+        return super().form_valid(form)
 
     def get_success_url(self):
         """

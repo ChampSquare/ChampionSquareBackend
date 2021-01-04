@@ -26,4 +26,4 @@ class AnswerOptionForm(forms.ModelForm):
     """
     class Meta:
         model = AnswerOption
-        fields = ['option', 'image', 'correct']
+        fields = ['correct', 'option', 'image']
