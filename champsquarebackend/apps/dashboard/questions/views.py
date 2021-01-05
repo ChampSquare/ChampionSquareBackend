@@ -97,8 +97,8 @@ class QuestionCreateUpdateView(generic.UpdateView):
             # self.question_type = question.question_type
             return question
 
-    def get_answer_option_formset(self):
-        if self.creating:
+    # def get_answer_option_formset(self):
+    #     if self.creating:
             
 
     def get_queryset(self):
