@@ -43,7 +43,7 @@ class AbstractParticipant(TimestampedModel, ModelWithMetadata):
                                            default=now,
                                            help_text="Date-time from which this quiz will be active")
 
-    otp_code = models.CharField(_('Otp code to access test'), max_length=64, blank=True, null=True, unique=True)
+    otp_code = models.CharField(_('Otp code to access test'), max_length=64, blank=True, null=True)
 
     # if set, quiz can't be started after that
     # local value will be preferred, the value must be before global value
@@ -79,7 +79,7 @@ class AbstractParticipant(TimestampedModel, ModelWithMetadata):
     resume_interval = models.PositiveIntegerField(_('Resume Interval'), default=15,
                         help_text=_('The time interval after which user will not be able to resume test'))
 
-    video_monitoring_enabled = models.BooleanField(_('Video Monitoring Enabled?'), default=True,
+    video_monitoring_enabled = models.BooleanField(_('Video Monitoring Enabled?'), default=False,
                         help_text=_('Turn on/off video monitoring which includes webcam and screen recording'))
 
     
