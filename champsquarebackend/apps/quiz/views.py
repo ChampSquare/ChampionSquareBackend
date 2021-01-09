@@ -19,7 +19,9 @@ class QuizView(QuizConditionsMixin, ListView):
     model = Question
     context_object_name = "answers"
     template_name = 'champsquarebackend/quiz/quiz.html'
-    pre_conditions = ['is_participant', 'can_take_new', 'check_ip_restriction', 'can_resume']
+    # pre_conditions = ['is_participant', 'can_take_new', 'check_ip_restriction', 'can_resume']
+    pre_conditions = ['is_participant', 'check_ip_restriction', 'can_resume']
+
     skip_conditions = []
 
     def get_queryset(self):
