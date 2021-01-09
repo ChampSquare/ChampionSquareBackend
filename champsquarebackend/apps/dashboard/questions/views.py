@@ -129,26 +129,26 @@ class QuestionCreateUpdateView(generic.UpdateView):
             url_parts += [self.request.GET.urlencode()]
         return "?".join(url_parts)
 
-    def form_valid(self, form):
-        # save data from answer option formset
-        question = form.save()
-        answer_option_formset = self.answer_option_formset(self.request.POST)
+    # def form_valid(self, form):
+    #     # save data from answer option formset
+    #     question = form.save()
+    #     answer_option_formset = self.answer_option_formset(self.request.POST)
 
-        answer_options = []
-        if answer_option_formset.is_valid():
-            for answer_option in answer_option_formset:
-                option = answer_option.cleaned_data.get('option')
-                correct = answer_option.cleaned_data.get('correct')
-                image = answer_option.cleaned_data.get('image')
+    #     answer_options = []
+    #     if answer_option_formset.is_valid():
+    #         for answer_option in answer_option_formset:
+    #             option = answer_option.cleaned_data.get('option')
+    #             correct = answer_option.cleaned_data.get('correct')
+    #             image = answer_option.cleaned_data.get('image')
 
-                answer_options.append(AnswerOption(question=question, option=option, 
-                                                   image=image, correct=correct))
-        try:
-            with transaction.atomic():
-                AnswerOption.objects.bulk_create(answer_options)
-        except IntegrityError: #If the transaction failed
-            messages.error(self.request, 'There was an error saving answer options')
-        return super().form_valid(form)
+    #             answer_options.append(AnswerOption(question=question, option=option, 
+    #                                                image=image, correct=correct))
+    #     try:
+    #         with transaction.atomic():
+    #             AnswerOption.objects.bulk_create(answer_options)
+    #     except IntegrityError: #If the transaction failed
+    #         messages.error(self.request, 'There was an error saving answer options')
+    #     return super().form_valid(form)
 
     def get_success_url(self):
         """
