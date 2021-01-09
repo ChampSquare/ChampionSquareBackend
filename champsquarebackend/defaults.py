@@ -5,8 +5,8 @@ from django.utils.translation import gettext_lazy as _
 
 
 
-SETTINGS_WEBSITE_NAME = 'BrowseITSolutions'
-SETTINGS_WEBSITE_TAGLINE = ''
+SETTINGS_WEBSITE_NAME = 'ChampionSquare'
+SETTINGS_WEBSITE_TAGLINE = 'An Online Academy'
 SETTINGS_HOMEPAGE = '/'
 
 # Dynamic class loading
