@@ -20,4 +20,4 @@ class ParticipantForm(forms.ModelForm):
         model = Participant
         fields = ['duration', 'start_date_time', 'end_date_time',
                   'is_active', 'multiple_attempts_allowed',
-                  'view_answerpaper', 'ip_restriction', 'resume_interval']
+                  'view_answerpaper', 'ip_restriction', 'resume_interval', 'video_monitoring_enabled']
