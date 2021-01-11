@@ -19,7 +19,8 @@ class LandingConfig(AppConfig):
 
     def get_urls(self):
         urls = [
-            path('', TemplateView.as_view(template_name='landing/home.html'), name='home')
+            path('', TemplateView.as_view(template_name='landing/home.html'), name='home'),
+            path('courses/', TemplateView.as_view(template_name="landing/courses-grid-sidebar.html"), name='courses')
             ]
 
         return self.post_process_urls(urls)

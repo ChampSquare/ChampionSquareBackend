@@ -775,7 +775,7 @@ ul#top_menu li a.btn_1:hover {
   border-bottom: 5px solid #FFC107;
 }
 #hero_in.general:before {
-  background: url(http://via.placeholder.com/1600x1067/ccc/fff/bg_general.jpg) center center no-repeat;
+  background: url(../img/banner_courses.png) center center no-repeat;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -783,10 +783,10 @@ ul#top_menu li a.btn_1:hover {
 }
 #hero_in.general .wrapper {
   background-color: #372675;
-  background-color: rgba(57, 39, 121, 0.8);
+  background-color: rgba(57, 39, 121, 0.4);
 }
 #hero_in.courses:before {
-  background: url(http://via.placeholder.com/1600x1067/ccc/fff/bg_courses.jpg) center center no-repeat;
+  background: url(../img/banner_courses.png) center center no-repeat;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -794,7 +794,7 @@ ul#top_menu li a.btn_1:hover {
 }
 #hero_in.courses .wrapper {
   background-color: #372675;
-  background-color: rgba(57, 39, 121, 0.8);
+  background-color: rgba(57, 39, 121, 0.4);
 }
 #hero_in.contacts:before {
   background: url(http://via.placeholder.com/1600x1067/ccc/fff/bg_contacts.jpg) center center no-repeat;
