@@ -78,7 +78,6 @@ THIRD_PARTY_APPS = [
     'ckeditor_uploader',
     'django_tables2',
     'widget_tweaks',
-    'sorl.thumbnail'
 ]
 
 LOCAL_APPS = [
