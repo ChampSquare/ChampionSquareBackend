@@ -78,10 +78,12 @@ THIRD_PARTY_APPS = [
     'ckeditor_uploader',
     'django_tables2',
     'widget_tweaks',
+    'sorl.thumbnail'
 ]
 
 LOCAL_APPS = [
     "champsquarebackend.config.OnlineTestPlatform",
+    "champsquarebackend.apps.landing.apps.LandingConfig",
     "champsquarebackend.apps.user.apps.UserConfig",
     "champsquarebackend.apps.question.apps.QuestionConfig",
     "champsquarebackend.apps.quiz.apps.QuizConfig",

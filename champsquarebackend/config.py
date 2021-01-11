@@ -11,6 +11,7 @@ class OnlineTestPlatform(AppConfig):
 
     def ready(self):
         from django.contrib.auth.forms import SetPasswordForm
+        self.landing_app = apps.get_app_config('landing')
         self.user_app = apps.get_app_config('user')
         self.question_app = apps.get_app_config('question')
         self.quiz_app = apps.get_app_config('quiz')
@@ -30,6 +31,7 @@ class OnlineTestPlatform(AppConfig):
         from champsquarebackend.views.decorators import login_forbidden
 
         urls = [
+            path('', self.landing_app.urls),
             path('user/', self.user_app.urls),
             path('dashboard/', self.dashboard_app.urls),
             path('question/', self.question_app.urls),
