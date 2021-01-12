@@ -54,7 +54,7 @@ class AccountSummaryView(generic.RedirectView):
 
 class AccountRegistrationView(RegisterUserMixin, generic.FormView):
     form_class = EmailUserCreationForm
-    template_name = 'champsquarebackend/user/registration.html'
+    template_name = 'landing/register.html'
     redirect_field_name = 'next'
 
     def get(self, request, *args, **kwargs):
