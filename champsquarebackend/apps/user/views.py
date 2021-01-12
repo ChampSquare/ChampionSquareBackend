@@ -91,7 +91,7 @@ class AccountAuthView(RegisterUserMixin, generic.TemplateView):
     This is actually a slightly odd double form view that allows a user to
     either login or register.
     """
-    template_name = 'champsquarebackend/user/login_registration.html'
+    template_name = 'landing/login.html'
     login_prefix, registration_prefix = 'login', 'registration'
     login_form_class = EmailAuthenticationForm
     registration_form_class = EmailUserCreationForm
